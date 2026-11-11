@@ -25,22 +25,15 @@ Cards whose `set_key` is `null` do not belong to a tracked set, so a price filed
 under a set bucket will not reach them. Either add a bucket whose key you also
 add to the card's `set_key`, or leave them unpriced.
 
-**Five of those need their own buckets, not an existing one.** They are variants
-whose number collides with a tracked slot held by a *different* card:
+**One of those needs its own bucket, not an existing one.** Card **id 1**,
+`Umbreon ex 060/131 (Prismatic Evolutions Surprise Box stamp)`, collides with the
+`pre-dr` slot for `060/131`, which holds **id 20** — the plain print, because that
+set is defined as "the nine double rares, *without* stamps".
 
-| id | card | why it collides |
-|---|---|---|
-| 1 | Umbreon ex 060/131 (Surprise Box stamp) | `pre-dr` slot holds the plain id 20 |
-| 2 | Eevee ex 075/131 (stamp) | stamped print of a `pre-dr` number |
-| 77 | Pikachu 028/128 | second copy; slot holds id 34 |
-| 85 | Pikachu 036/128 | second copy; slot holds id 33 |
-| 106 | Pikachu 040/128 (18/30, rarer) | second copy; slot holds id 94 |
-
-Give these a separate bucket (e.g. `"pre-stamp": {"060/131": ...}`) and set each
-card's `set_key` to it. **Do not point them at `pre-dr` or `c30-pika`** — that
-makes two different cards resolve to one price, which is the bug that previously
-inflated the portfolio total. A stamped print and a plain print are different
-market items; price them separately.
+Give id 1 a separate bucket (e.g. `"pre-stamp": {"060/131": ...}`) and set its
+`set_key` to that. **Do not point it at `pre-dr`** — a stamped print and a plain
+print are different market items, and sharing one price double-counts the plain
+card's value. That is the bug that previously inflated the portfolio total.
 
 ## Steps
 
@@ -78,7 +71,22 @@ market items; price them separately.
    - Prices are plain numbers, no `$` and no quotes. Use `null` for "looked up,
      not found".
 
-4. **Verify:** run `npm run build`. It fails on malformed JSON and warns about
+4. **Append a history point.** The Portfolio chart reads `history[]`. After
+   writing the prices, append ONE entry for this run — never edit or delete past
+   entries, or the chart rewrites history:
+
+```json
+"history": [
+  { "date": "Nov 11, 2026", "total": 1234.56, "cards": 42 }
+]
+```
+
+   `total` = the sum of every owned card that now has a price; `cards` = how many
+   cards that sum covers. Use the same date string as `checked_date`. If a run
+   happens on a date already present, replace that one entry rather than adding a
+   duplicate.
+
+5. **Verify:** run `npm run build`. It fails on malformed JSON and warns about
    dangling references. Then report:
    - total estimated collection value, and wishlist cost;
    - any price that moved **more than 20%** up or down, with both numbers;
@@ -93,5 +101,9 @@ market items; price them separately.
   lot. Never average them.
 - **Prismatic Evolutions SIRs** are volatile: always look them up fresh, never
   reuse a number more than a week old.
+- A price you cannot verify is worse than no price: the Portfolio presents these
+  as a collection valuation. If a lookup is ambiguous (aggregators disagree
+  wildly, or you cannot confirm the exact printing), leave it out and say so in
+  the report rather than recording a guess.
 - Keep `data/prices.json` the single source of truth. `price_usd` in
   `wishlist.json` is a convenience copy; if you update one, update the other.

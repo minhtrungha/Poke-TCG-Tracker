@@ -1,5 +1,6 @@
 import { loadAll, priceIndex, usd, usd0, daysSince, tcgUrl, pcUrl, imgTag, esc,
          langBadge, initChrome, dataError } from './data.js';
+import { valueChart } from './chart.js';
 
 initChrome('index.html');
 
@@ -18,6 +19,7 @@ let priced = [];
     .filter((c) => typeof c.price === 'number');
 
   renderBanner(d.prices, d.cards.length);
+  el('chart').innerHTML = valueChart(d.prices && d.prices.history);
 
   if (px.isEmpty || !priced.length) {
     el('stats').innerHTML = '';

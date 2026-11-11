@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140" role="img" aria-label="Card not owned yet">
+  <defs>
+    <pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="currentColor" opacity=".16"/>
+    </pattern>
+  </defs>
+  <rect width="100" height="140" rx="7" fill="url(#dots)"/>
+  <rect x="1.5" y="1.5" width="97" height="137" rx="6" fill="none"
+        stroke="currentColor" stroke-opacity=".38" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <g transform="translate(50 60)" opacity=".42">
+    <circle r="21" fill="none" stroke="currentColor" stroke-width="3.2"/>
+    <path d="M-21 0a21 21 0 0 1 42 0z" fill="currentColor" opacity=".22"/>
+    <line x1="-21" y1="0" x2="21" y2="0" stroke="currentColor" stroke-width="3.2"/>
+    <circle r="6.5" fill="none" stroke="currentColor" stroke-width="3.2"/>
+  </g>
+  <text x="50" y="104" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif"
+        font-size="10.5" font-weight="700" fill="currentColor" fill-opacity=".62"
+        letter-spacing="1.2">NOT YET</text>
+</svg>

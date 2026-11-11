@@ -181,14 +181,21 @@ Point Vercel or GitHub Pages at `dist/` with no build step beyond `npm run build
 
 ## Current state
 
-178 cards · 10 tracked sets (82 of 114 slots filled) · 53 standalone wants.
+147 cards across binder pages p01–p20 · 10 tracked sets (56 of 114 slots filled)
+· 53 standalone wants. Every card has its photo; no placeholders.
 
-Two things worth knowing:
+Card data came from the owner's own `cards_data.py` export, so set, number,
+rarity and binder page are authoritative. All 147 entries matched a photo
+one-to-one with nothing left over on either side.
 
-1. **No prices yet.** `data/prices.json` is empty, so the Portfolio page shows an
-   empty state and the Wishlist shows no totals. Say "update prices" to populate
-   it. Nothing is auto-fetched — this is a manual-push site.
-2. **78 cards need a once-over.** Cards above id 106 were generated from image
-   filenames, so their set, number and rarity are best guesses and carry a `warn`
-   note (⚠ on the Cards page). Filter by "No price" or look for the ⚠ to review
-   them. 31 cards have no photo, mostly 30th Celebration Pikachu Rares.
+**The Portfolio chart** reads `history[]` in `data/prices.json` — one point per
+`update-prices` run. It is empty until the first run, then builds a value-over-time
+line as you keep tracking.
+
+**Missing cards** show a red Pokéball "NOT YET" placeholder with a NEED chip, on
+both the Sets and Wishlist pages, so gaps stand out while scrolling.
+
+One thing to know: **no prices yet.** `data/prices.json` is empty, so the
+Portfolio page shows an empty state and the Wishlist shows no totals. Say
+"update prices" to populate it. Nothing is auto-fetched — this is a manual-push
+site.

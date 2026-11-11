@@ -57,7 +57,7 @@ function render() {
       const p = px.getSlot(s.key, slot.number);
       return `<a class="pk miss" href="${tcgUrl(`${slot.name} ${slot.number}`)}" target="_blank" rel="noopener"
                  title="${esc(slot.name)} ${esc(slot.number)} — search TCGplayer">
-        <div class="pk-img"><span class="miss-x">+</span></div>
+        <div class="pk-img"><span class="need-chip">NEED</span>${PLACEHOLDER}</div>
         <div class="pk-b"><div class="pk-n">${esc(slot.name)}</div>
           <div class="pk-num">${esc(slot.number)}</div>
           ${typeof p === 'number' ? `<div class="pk-pr">${usd0(p)}</div>` : ''}</div></a>`;

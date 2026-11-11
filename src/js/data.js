@@ -1,5 +1,14 @@
 /* Shared data layer: loads the four JSON files and exposes helpers. */
-export const PLACEHOLDER = `<span class="ph"><svg viewBox="0 0 24 34" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="22" height="32" rx="2.5"/><circle cx="12" cy="17" r="5.5"/><path d="M1 17h5.5M17.5 17H23"/></svg></span>`;
+export const PLACEHOLDER = `<span class="ph" aria-label="Not owned yet"><svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <rect x="2" y="2" width="96" height="136" rx="6" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <g transform="translate(50 58)" opacity=".5">
+    <circle r="20" fill="none" stroke="currentColor" stroke-width="3.2"/>
+    <path d="M-20 0a20 20 0 0 1 40 0z" fill="currentColor" fill-opacity=".22"/>
+    <line x1="-20" y1="0" x2="20" y2="0" stroke="currentColor" stroke-width="3.2"/>
+    <circle r="6.2" fill="none" stroke="currentColor" stroke-width="3.2"/>
+  </g>
+  <text x="50" y="100" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="800" fill="currentColor" fill-opacity=".7" letter-spacing="1.2">NOT YET</text>
+</svg></span>`;
 
 const FILES = ['cards', 'sets', 'prices', 'wishlist'];
 
@@ -123,7 +132,7 @@ export function initChrome(active) {
   const nav = document.createElement('nav');
   nav.className = 'nav';
   nav.innerHTML =
-    `<span class="brand"><span class="brand-dot"></span>Poké TCG Tracker</span>` +
+    `<a class="brand" href="index.html"><img class="brand-logo" src="img/logo.svg" alt=""><span class="brand-txt">Poké TCG Tracker</span></a>` +
     pages.map(([h, l]) =>
       `<a class="tab" href="${h}"${h === active ? ' aria-current="page"' : ''}>${l}</a>`).join('') +
     `<span class="nav-sp"></span>` +

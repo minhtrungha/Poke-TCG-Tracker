@@ -1,124 +1,652 @@
 [
-  {
-    "key": "mep",
-    "name": "First Partner Illustration Collection",
-    "lang": "EN",
-    "note": "Mega Evolution promos, all 27 starters, English",
-    "slots": [
-      {"number":"MEP 037","name":"Bulbasaur","card_id":50},{"number":"MEP 038","name":"Charmander","card_id":51},{"number":"MEP 039","name":"Squirtle","card_id":52},
-      {"number":"MEP 040","name":"Turtwig","card_id":60},{"number":"MEP 041","name":"Chimchar","card_id":59},{"number":"MEP 042","name":"Piplup","card_id":61},
-      {"number":"MEP 043","name":"Rowlet","card_id":66},{"number":"MEP 044","name":"Litten","card_id":65},{"number":"MEP 045","name":"Popplio","card_id":67},
-      {"number":"MEP 046","name":"Chikorita","card_id":74},{"number":"MEP 047","name":"Cyndaquil","card_id":72},{"number":"MEP 048","name":"Totodile","card_id":56},
-      {"number":"MEP 049","name":"Snivy","card_id":63},{"number":"MEP 050","name":"Tepig","card_id":62},{"number":"MEP 051","name":"Oshawott","card_id":64},
-      {"number":"MEP 052","name":"Grookey","card_id":69},{"number":"MEP 053","name":"Scorbunny","card_id":68},{"number":"MEP 054","name":"Sobble","card_id":70},
-      {"number":"MEP 055","name":"Treecko","card_id":73},{"number":"MEP 056","name":"Torchic","card_id":76},{"number":"MEP 057","name":"Mudkip","card_id":53},
-      {"number":"MEP 058","name":"Chespin","card_id":58},{"number":"MEP 059","name":"Fennekin","card_id":75},{"number":"MEP 060","name":"Froakie","card_id":55},
-      {"number":"MEP 061","name":"Sprigatito","card_id":54},{"number":"MEP 062","name":"Fuecoco","card_id":71},{"number":"MEP 063","name":"Quaxly","card_id":57}
-    ]
-  },
-  {
-    "key": "sv8a-rr",
-    "name": "Terastal Festival ex: Eeveelution RR",
-    "lang": "JP",
-    "note": "Japanese sv8a double rares",
-    "slots": [
-      {"number":"003/187","name":"Leafeon ex","card_id":17},{"number":"022/187","name":"Flareon ex","card_id":10},
-      {"number":"031/187","name":"Vaporeon ex","card_id":11},{"number":"041/187","name":"Glaceon ex","card_id":15},
-      {"number":"052/187","name":"Jolteon ex","card_id":9},{"number":"063/187","name":"Espeon ex","card_id":14},
-      {"number":"069/187","name":"Sylveon ex","card_id":16},{"number":"093/187","name":"Umbreon ex","card_id":12},
-      {"number":"126/187","name":"Eevee ex","card_id":13}
-    ]
-  },
-  {
-    "key": "sv2a-starters",
-    "name": "Pokémon Card 151: Starter lines",
-    "lang": "JP",
-    "note": "Japanese sv2a — six starter ARs and three starter ex SARs",
-    "slots": [
-      {"number":"166/165","name":"Bulbasaur","card_id":43},{"number":"167/165","name":"Ivysaur","card_id":44},{"number":"168/165","name":"Charmander","card_id":null},
-      {"number":"169/165","name":"Charmeleon","card_id":null},{"number":"170/165","name":"Squirtle","card_id":41},{"number":"171/165","name":"Wartortle","card_id":42},
-      {"number":"200/165","name":"Venusaur ex","card_id":null},{"number":"201/165","name":"Charizard ex","card_id":null},{"number":"202/165","name":"Blastoise ex","card_id":null}
-    ]
-  },
-  {
-    "key": "pre-dr",
-    "name": "Prismatic Evolutions: Eeveelution ex",
-    "lang": "EN",
-    "note": "The nine double rares, without stamps",
-    "slots": [
-      {"number":"006/131","name":"Leafeon ex","card_id":23},{"number":"014/131","name":"Flareon ex","card_id":18},{"number":"023/131","name":"Vaporeon ex","card_id":null},
-      {"number":"026/131","name":"Glaceon ex","card_id":null},{"number":"030/131","name":"Jolteon ex","card_id":19},{"number":"034/131","name":"Espeon ex","card_id":null},
-      {"number":"041/131","name":"Sylveon ex","card_id":null},{"number":"060/131","name":"Umbreon ex","card_id":20},{"number":"075/131","name":"Eevee ex","card_id":null}
-    ]
-  },
-  {
-    "key": "sv8a-sar",
-    "name": "Terastal Festival ex: Eeveelution SAR",
-    "lang": "JP",
-    "note": "Japanese sv8a special art rares",
-    "slots": [
-      {"number":"200/187","name":"Leafeon ex","card_id":null},{"number":"202/187","name":"Flareon ex","card_id":8},{"number":"205/187","name":"Vaporeon ex","card_id":null},
-      {"number":"206/187","name":"Glaceon ex","card_id":null},{"number":"209/187","name":"Jolteon ex","card_id":null},{"number":"211/187","name":"Espeon ex","card_id":7},
-      {"number":"212/187","name":"Sylveon ex","card_id":6},{"number":"217/187","name":"Umbreon ex","card_id":null},{"number":"223/187","name":"Eevee ex","card_id":null},
-      {"number":"224/187","name":"Eevee ex (alt)","card_id":null}
-    ]
-  },
-  {
-    "key": "svi-gardevoir",
-    "name": "Scarlet & Violet: Gardevoir ex line",
-    "lang": "EN",
-    "note": "Ralts and Kirlia IRs and the Gardevoir ex SIR",
-    "slots": [
-      {"number":"211/198","name":"Ralts","card_id":48},{"number":"212/198","name":"Kirlia","card_id":49},{"number":"245/198","name":"Gardevoir ex","card_id":null}
-    ]
-  },
-  {
-    "key": "cri-froakie",
-    "name": "Chaos Rising: Froakie line",
-    "lang": "EN",
-    "note": "Froakie and Frogadier IRs and the Mega Greninja ex SIR",
-    "slots": [
-      {"number":"088/086","name":"Froakie","card_id":46},{"number":"089/086","name":"Frogadier","card_id":47},{"number":"116/086","name":"Mega Greninja ex","card_id":null}
-    ]
-  },
-  {
-    "key": "c30-pika",
-    "name": "30th Celebration: Pikachu Rares",
-    "lang": "EN",
-    "note": "One in every pack, numbered 01/30 to 30/30",
-    "slots": [
-      {"number":"023/128","name":"Pikachu 01/30","card_id":86},{"number":"024/128","name":"Pikachu 02/30","card_id":87},{"number":"025/128","name":"Pikachu 03/30","card_id":88},
-      {"number":"026/128","name":"Pikachu 04/30","card_id":89},{"number":"027/128","name":"Pikachu 05/30","card_id":90},{"number":"028/128","name":"Pikachu 06/30","card_id":34},
-      {"number":"029/128","name":"Pikachu 07/30","card_id":78},{"number":"030/128","name":"Pikachu 08/30","card_id":79},{"number":"031/128","name":"Pikachu 09/30","card_id":80},
-      {"number":"032/128","name":"Pikachu 10/30","card_id":81},{"number":"033/128","name":"Pikachu 11/30","card_id":82},{"number":"034/128","name":"Pikachu 12/30","card_id":83},
-      {"number":"035/128","name":"Pikachu 13/30","card_id":84},{"number":"036/128","name":"Pikachu 14/30","card_id":33},{"number":"037/128","name":"Pikachu 15/30","card_id":91},
-      {"number":"038/128","name":"Pikachu 16/30","card_id":92},{"number":"039/128","name":"Pikachu 17/30","card_id":93},{"number":"040/128","name":"Pikachu 18/30","card_id":94},
-      {"number":"041/128","name":"Pikachu 19/30","card_id":95},{"number":"042/128","name":"Pikachu 20/30","card_id":96},{"number":"043/128","name":"Pikachu 21/30","card_id":97},
-      {"number":"044/128","name":"Pikachu 22/30","card_id":98},{"number":"045/128","name":"Pikachu 23/30","card_id":99},{"number":"046/128","name":"Pikachu 24/30","card_id":100},
-      {"number":"047/128","name":"Pikachu 25/30","card_id":101},{"number":"048/128","name":"Pikachu 26/30","card_id":102},{"number":"049/128","name":"Pikachu 27/30","card_id":103},
-      {"number":"050/128","name":"Pikachu 28/30","card_id":104},{"number":"051/128","name":"Pikachu 29/30","card_id":105},{"number":"052/128","name":"Pikachu 30/30","card_id":null}
-    ]
-  },
-  {
-    "key": "jp-vmax",
-    "name": "Japanese Eeveelution VMAX",
-    "lang": "JP",
-    "note": "Regular-art Japanese versions. Umbreon is the VMAX Climax print, Espeon is the VMAX Special Set print",
-    "slots": [
-      {"number":"003/069","name":"Leafeon VMAX","card_id":null},{"number":"025/069","name":"Glaceon VMAX","card_id":null},
-      {"number":"004/004","name":"Espeon VMAX","card_id":37},{"number":"041/069","name":"Sylveon VMAX","card_id":null},
-      {"number":"101/184","name":"Umbreon VMAX","card_id":36}
-    ]
-  },
-  {
-    "key": "pre-sir",
-    "name": "Prismatic Evolutions: Eeveelution SIRs",
-    "lang": "EN",
-    "note": "The nine special illustration rares",
-    "slots": [
-      {"number":"144/131","name":"Leafeon ex","card_id":null},{"number":"146/131","name":"Flareon ex","card_id":null},{"number":"149/131","name":"Vaporeon ex","card_id":null},
-      {"number":"150/131","name":"Glaceon ex","card_id":null},{"number":"153/131","name":"Jolteon ex","card_id":null},{"number":"155/131","name":"Espeon ex","card_id":null},
-      {"number":"156/131","name":"Sylveon ex","card_id":null},{"number":"161/131","name":"Umbreon ex","card_id":null},{"number":"167/131","name":"Eevee ex","card_id":null}
-    ]
-  }
+ {
+  "key": "mep",
+  "name": "First Partner Illustration Collection",
+  "lang": "EN",
+  "note": "Mega Evolution promos, all 27 starters, English",
+  "slots": [
+   {
+    "number": "MEP 037",
+    "name": "Bulbasaur",
+    "card_id": 50
+   },
+   {
+    "number": "MEP 038",
+    "name": "Charmander",
+    "card_id": 51
+   },
+   {
+    "number": "MEP 039",
+    "name": "Squirtle",
+    "card_id": 52
+   },
+   {
+    "number": "MEP 040",
+    "name": "Turtwig",
+    "card_id": 60
+   },
+   {
+    "number": "MEP 041",
+    "name": "Chimchar",
+    "card_id": 59
+   },
+   {
+    "number": "MEP 042",
+    "name": "Piplup",
+    "card_id": 61
+   },
+   {
+    "number": "MEP 043",
+    "name": "Rowlet",
+    "card_id": 66
+   },
+   {
+    "number": "MEP 044",
+    "name": "Litten",
+    "card_id": 65
+   },
+   {
+    "number": "MEP 045",
+    "name": "Popplio",
+    "card_id": 67
+   },
+   {
+    "number": "MEP 046",
+    "name": "Chikorita",
+    "card_id": 74
+   },
+   {
+    "number": "MEP 047",
+    "name": "Cyndaquil",
+    "card_id": 72
+   },
+   {
+    "number": "MEP 048",
+    "name": "Totodile",
+    "card_id": 56
+   },
+   {
+    "number": "MEP 049",
+    "name": "Snivy",
+    "card_id": 63
+   },
+   {
+    "number": "MEP 050",
+    "name": "Tepig",
+    "card_id": 62
+   },
+   {
+    "number": "MEP 051",
+    "name": "Oshawott",
+    "card_id": 64
+   },
+   {
+    "number": "MEP 052",
+    "name": "Grookey",
+    "card_id": 69
+   },
+   {
+    "number": "MEP 053",
+    "name": "Scorbunny",
+    "card_id": 68
+   },
+   {
+    "number": "MEP 054",
+    "name": "Sobble",
+    "card_id": 70
+   },
+   {
+    "number": "MEP 055",
+    "name": "Treecko",
+    "card_id": 73
+   },
+   {
+    "number": "MEP 056",
+    "name": "Torchic",
+    "card_id": 76
+   },
+   {
+    "number": "MEP 057",
+    "name": "Mudkip",
+    "card_id": 53
+   },
+   {
+    "number": "MEP 058",
+    "name": "Chespin",
+    "card_id": 58
+   },
+   {
+    "number": "MEP 059",
+    "name": "Fennekin",
+    "card_id": 75
+   },
+   {
+    "number": "MEP 060",
+    "name": "Froakie",
+    "card_id": 55
+   },
+   {
+    "number": "MEP 061",
+    "name": "Sprigatito",
+    "card_id": 54
+   },
+   {
+    "number": "MEP 062",
+    "name": "Fuecoco",
+    "card_id": 71
+   },
+   {
+    "number": "MEP 063",
+    "name": "Quaxly",
+    "card_id": 57
+   }
+  ]
+ },
+ {
+  "key": "sv8a-rr",
+  "name": "Terastal Festival ex: Eeveelution RR",
+  "lang": "JP",
+  "note": "Japanese sv8a double rares",
+  "slots": [
+   {
+    "number": "003/187",
+    "name": "Leafeon ex",
+    "card_id": 17
+   },
+   {
+    "number": "022/187",
+    "name": "Flareon ex",
+    "card_id": 10
+   },
+   {
+    "number": "031/187",
+    "name": "Vaporeon ex",
+    "card_id": 11
+   },
+   {
+    "number": "041/187",
+    "name": "Glaceon ex",
+    "card_id": 15
+   },
+   {
+    "number": "052/187",
+    "name": "Jolteon ex",
+    "card_id": 9
+   },
+   {
+    "number": "063/187",
+    "name": "Espeon ex",
+    "card_id": 14
+   },
+   {
+    "number": "069/187",
+    "name": "Sylveon ex",
+    "card_id": 16
+   },
+   {
+    "number": "093/187",
+    "name": "Umbreon ex",
+    "card_id": 12
+   },
+   {
+    "number": "126/187",
+    "name": "Eevee ex",
+    "card_id": 13
+   }
+  ]
+ },
+ {
+  "key": "sv2a-starters",
+  "name": "Pokémon Card 151: Starter lines",
+  "lang": "JP",
+  "note": "Japanese sv2a — six starter ARs and three starter ex SARs",
+  "slots": [
+   {
+    "number": "166/165",
+    "name": "Bulbasaur",
+    "card_id": 43
+   },
+   {
+    "number": "167/165",
+    "name": "Ivysaur",
+    "card_id": 44
+   },
+   {
+    "number": "168/165",
+    "name": "Charmander",
+    "card_id": null
+   },
+   {
+    "number": "169/165",
+    "name": "Charmeleon",
+    "card_id": null
+   },
+   {
+    "number": "170/165",
+    "name": "Squirtle",
+    "card_id": 41
+   },
+   {
+    "number": "171/165",
+    "name": "Wartortle",
+    "card_id": 42
+   },
+   {
+    "number": "200/165",
+    "name": "Venusaur ex",
+    "card_id": null
+   },
+   {
+    "number": "201/165",
+    "name": "Charizard ex",
+    "card_id": null
+   },
+   {
+    "number": "202/165",
+    "name": "Blastoise ex",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "pre-dr",
+  "name": "Prismatic Evolutions: Eeveelution ex",
+  "lang": "EN",
+  "note": "The nine double rares, without stamps",
+  "slots": [
+   {
+    "number": "006/131",
+    "name": "Leafeon ex",
+    "card_id": 23
+   },
+   {
+    "number": "014/131",
+    "name": "Flareon ex",
+    "card_id": 18
+   },
+   {
+    "number": "023/131",
+    "name": "Vaporeon ex",
+    "card_id": null
+   },
+   {
+    "number": "026/131",
+    "name": "Glaceon ex",
+    "card_id": null
+   },
+   {
+    "number": "030/131",
+    "name": "Jolteon ex",
+    "card_id": 19
+   },
+   {
+    "number": "034/131",
+    "name": "Espeon ex",
+    "card_id": null
+   },
+   {
+    "number": "041/131",
+    "name": "Sylveon ex",
+    "card_id": null
+   },
+   {
+    "number": "060/131",
+    "name": "Umbreon ex",
+    "card_id": 20
+   },
+   {
+    "number": "075/131",
+    "name": "Eevee ex",
+    "card_id": 2
+   }
+  ]
+ },
+ {
+  "key": "sv8a-sar",
+  "name": "Terastal Festival ex: Eeveelution SAR",
+  "lang": "JP",
+  "note": "Japanese sv8a special art rares",
+  "slots": [
+   {
+    "number": "200/187",
+    "name": "Leafeon ex",
+    "card_id": null
+   },
+   {
+    "number": "202/187",
+    "name": "Flareon ex",
+    "card_id": 8
+   },
+   {
+    "number": "205/187",
+    "name": "Vaporeon ex",
+    "card_id": null
+   },
+   {
+    "number": "206/187",
+    "name": "Glaceon ex",
+    "card_id": null
+   },
+   {
+    "number": "209/187",
+    "name": "Jolteon ex",
+    "card_id": null
+   },
+   {
+    "number": "211/187",
+    "name": "Espeon ex",
+    "card_id": 7
+   },
+   {
+    "number": "212/187",
+    "name": "Sylveon ex",
+    "card_id": 6
+   },
+   {
+    "number": "217/187",
+    "name": "Umbreon ex",
+    "card_id": null
+   },
+   {
+    "number": "223/187",
+    "name": "Eevee ex",
+    "card_id": null
+   },
+   {
+    "number": "224/187",
+    "name": "Eevee ex (alt)",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "svi-gardevoir",
+  "name": "Scarlet & Violet: Gardevoir ex line",
+  "lang": "EN",
+  "note": "Ralts and Kirlia IRs and the Gardevoir ex SIR",
+  "slots": [
+   {
+    "number": "211/198",
+    "name": "Ralts",
+    "card_id": 48
+   },
+   {
+    "number": "212/198",
+    "name": "Kirlia",
+    "card_id": 49
+   },
+   {
+    "number": "245/198",
+    "name": "Gardevoir ex",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "cri-froakie",
+  "name": "Chaos Rising: Froakie line",
+  "lang": "EN",
+  "note": "Froakie and Frogadier IRs and the Mega Greninja ex SIR",
+  "slots": [
+   {
+    "number": "088/086",
+    "name": "Froakie",
+    "card_id": 46
+   },
+   {
+    "number": "089/086",
+    "name": "Frogadier",
+    "card_id": 47
+   },
+   {
+    "number": "116/086",
+    "name": "Mega Greninja ex",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "c30-pika",
+  "name": "30th Celebration: Pikachu Rares",
+  "lang": "EN",
+  "note": "One in every pack, numbered 01/30 to 30/30",
+  "slots": [
+   {
+    "number": "023/128",
+    "name": "Pikachu 01/30",
+    "card_id": null
+   },
+   {
+    "number": "024/128",
+    "name": "Pikachu 02/30",
+    "card_id": null
+   },
+   {
+    "number": "025/128",
+    "name": "Pikachu 03/30",
+    "card_id": null
+   },
+   {
+    "number": "026/128",
+    "name": "Pikachu 04/30",
+    "card_id": null
+   },
+   {
+    "number": "027/128",
+    "name": "Pikachu 05/30",
+    "card_id": null
+   },
+   {
+    "number": "028/128",
+    "name": "Pikachu 06/30",
+    "card_id": 34
+   },
+   {
+    "number": "029/128",
+    "name": "Pikachu 07/30",
+    "card_id": null
+   },
+   {
+    "number": "030/128",
+    "name": "Pikachu 08/30",
+    "card_id": null
+   },
+   {
+    "number": "031/128",
+    "name": "Pikachu 09/30",
+    "card_id": null
+   },
+   {
+    "number": "032/128",
+    "name": "Pikachu 10/30",
+    "card_id": null
+   },
+   {
+    "number": "033/128",
+    "name": "Pikachu 11/30",
+    "card_id": null
+   },
+   {
+    "number": "034/128",
+    "name": "Pikachu 12/30",
+    "card_id": null
+   },
+   {
+    "number": "035/128",
+    "name": "Pikachu 13/30",
+    "card_id": null
+   },
+   {
+    "number": "036/128",
+    "name": "Pikachu 14/30",
+    "card_id": 33
+   },
+   {
+    "number": "037/128",
+    "name": "Pikachu 15/30",
+    "card_id": null
+   },
+   {
+    "number": "038/128",
+    "name": "Pikachu 16/30",
+    "card_id": null
+   },
+   {
+    "number": "039/128",
+    "name": "Pikachu 17/30",
+    "card_id": null
+   },
+   {
+    "number": "040/128",
+    "name": "Pikachu 18/30",
+    "card_id": null
+   },
+   {
+    "number": "041/128",
+    "name": "Pikachu 19/30",
+    "card_id": null
+   },
+   {
+    "number": "042/128",
+    "name": "Pikachu 20/30",
+    "card_id": null
+   },
+   {
+    "number": "043/128",
+    "name": "Pikachu 21/30",
+    "card_id": null
+   },
+   {
+    "number": "044/128",
+    "name": "Pikachu 22/30",
+    "card_id": null
+   },
+   {
+    "number": "045/128",
+    "name": "Pikachu 23/30",
+    "card_id": null
+   },
+   {
+    "number": "046/128",
+    "name": "Pikachu 24/30",
+    "card_id": null
+   },
+   {
+    "number": "047/128",
+    "name": "Pikachu 25/30",
+    "card_id": null
+   },
+   {
+    "number": "048/128",
+    "name": "Pikachu 26/30",
+    "card_id": null
+   },
+   {
+    "number": "049/128",
+    "name": "Pikachu 27/30",
+    "card_id": null
+   },
+   {
+    "number": "050/128",
+    "name": "Pikachu 28/30",
+    "card_id": null
+   },
+   {
+    "number": "051/128",
+    "name": "Pikachu 29/30",
+    "card_id": null
+   },
+   {
+    "number": "052/128",
+    "name": "Pikachu 30/30",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "jp-vmax",
+  "name": "Japanese Eeveelution VMAX",
+  "lang": "JP",
+  "note": "Regular-art Japanese versions. Umbreon is the VMAX Climax print, Espeon is the VMAX Special Set print",
+  "slots": [
+   {
+    "number": "003/069",
+    "name": "Leafeon VMAX",
+    "card_id": null
+   },
+   {
+    "number": "025/069",
+    "name": "Glaceon VMAX",
+    "card_id": null
+   },
+   {
+    "number": "004/004",
+    "name": "Espeon VMAX",
+    "card_id": 37
+   },
+   {
+    "number": "041/069",
+    "name": "Sylveon VMAX",
+    "card_id": null
+   },
+   {
+    "number": "101/184",
+    "name": "Umbreon VMAX",
+    "card_id": 36
+   }
+  ]
+ },
+ {
+  "key": "pre-sir",
+  "name": "Prismatic Evolutions: Eeveelution SIRs",
+  "lang": "EN",
+  "note": "The nine special illustration rares",
+  "slots": [
+   {
+    "number": "144/131",
+    "name": "Leafeon ex",
+    "card_id": null
+   },
+   {
+    "number": "146/131",
+    "name": "Flareon ex",
+    "card_id": null
+   },
+   {
+    "number": "149/131",
+    "name": "Vaporeon ex",
+    "card_id": null
+   },
+   {
+    "number": "150/131",
+    "name": "Glaceon ex",
+    "card_id": null
+   },
+   {
+    "number": "153/131",
+    "name": "Jolteon ex",
+    "card_id": null
+   },
+   {
+    "number": "155/131",
+    "name": "Espeon ex",
+    "card_id": null
+   },
+   {
+    "number": "156/131",
+    "name": "Sylveon ex",
+    "card_id": null
+   },
+   {
+    "number": "161/131",
+    "name": "Umbreon ex",
+    "card_id": null
+   },
+   {
+    "number": "167/131",
+    "name": "Eevee ex",
+    "card_id": null
+   }
+  ]
+ }
 ]
