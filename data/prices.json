@@ -1,5 +1,6 @@
 {
-  "checked_date": null,
-  "sources": {},
-  "_note": "No prices recorded yet. Run the update-prices skill (say \"update prices\") to populate this file. The Portfolio page stays empty until prices exist, by design."
+ "checked_date": null,
+ "sources": {},
+ "_note": "No prices recorded yet. Run the update-prices skill (say \"update prices\") to populate this file. The Portfolio page stays empty until prices exist, by design.",
+ "_variants_note": "5 owned cards are variants whose number collides with a tracked set slot held by a DIFFERENT card, so they have set_key=null and cannot be priced from an existing bucket: id1 Umbreon ex 060/131 (Surprise Box stamp) and id2 Eevee ex 075/131 (stamp) -- stamped prints, worth different amounts than the plain pre-dr cards; id77 Pikachu 028/128, id85 Pikachu 036/128, id106 Pikachu 040/128 -- second copies of Pikachu Rares already slotted. Give these their own buckets (e.g. \"pre-stamp\": {\"060/131\": ..., \"075/131\": ...}) and set each card's set_key to that bucket. Do NOT point them at pre-dr/c30-pika: that is what previously double-counted the plain card's value and inflated the portfolio total."
 }

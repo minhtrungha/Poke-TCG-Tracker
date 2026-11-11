@@ -25,6 +25,23 @@ Cards whose `set_key` is `null` do not belong to a tracked set, so a price filed
 under a set bucket will not reach them. Either add a bucket whose key you also
 add to the card's `set_key`, or leave them unpriced.
 
+**Five of those need their own buckets, not an existing one.** They are variants
+whose number collides with a tracked slot held by a *different* card:
+
+| id | card | why it collides |
+|---|---|---|
+| 1 | Umbreon ex 060/131 (Surprise Box stamp) | `pre-dr` slot holds the plain id 20 |
+| 2 | Eevee ex 075/131 (stamp) | stamped print of a `pre-dr` number |
+| 77 | Pikachu 028/128 | second copy; slot holds id 34 |
+| 85 | Pikachu 036/128 | second copy; slot holds id 33 |
+| 106 | Pikachu 040/128 (18/30, rarer) | second copy; slot holds id 94 |
+
+Give these a separate bucket (e.g. `"pre-stamp": {"060/131": ...}`) and set each
+card's `set_key` to it. **Do not point them at `pre-dr` or `c30-pika`** — that
+makes two different cards resolve to one price, which is the bug that previously
+inflated the portfolio total. A stamped print and a plain print are different
+market items; price them separately.
+
 ## Steps
 
 1. **Decide the work list.** Refresh every number already in `prices.json`
