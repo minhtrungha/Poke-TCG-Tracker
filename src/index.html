@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio · Poké TCG Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<main class="wrap">
+<div id="err"></div>
+<h1>Portfolio</h1>
+<p class="sub">Your highest-value cards, most expensive first.</p>
+<div class="banner" id="banner"></div>
+<div class="stats" id="stats"></div>
+<div class="bar" id="bar">
+  <label class="fld">Sort
+    <select id="fSort">
+      <option value="price">Price (high → low)</option>
+      <option value="priceAsc">Price (low → high)</option>
+      <option value="set">Set</option>
+      <option value="lang">Language</option>
+    </select></label>
+  <label class="fld">Set <select id="fSet"></select></label>
+  <label class="fld">Language
+    <select id="fLang"><option value="all">All</option><option value="EN">EN</option><option value="JP">JP</option></select></label>
+</div>
+<p class="count" id="count"></p>
+<div class="grid" id="out"></div>
+<p class="foot">Prices are manual estimates from TCGplayer and PriceCharting — not an appraisal. Card photos are the owner's own.</p>
+</main>
+<script type="module" src="js/portfolio.js"></script>
+</body></html>

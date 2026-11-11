@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sets · Poké TCG Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<main class="wrap">
+<div id="err"></div>
+<h1>Sets</h1>
+<p class="sub">What you have versus what you still need. Click an empty pocket to search TCGplayer; click an owned card for PriceCharting.</p>
+<div class="stats" id="stats"></div>
+<div class="bar">
+  <label class="fld">Language
+    <select id="fLang"><option value="all">All</option><option value="EN">EN</option><option value="JP">JP</option></select></label>
+  <label class="fld">Show
+    <select id="fOnly"><option value="all">All pockets</option><option value="missing">Missing only</option><option value="owned">Owned only</option></select></label>
+</div>
+<div id="out"></div>
+</main>
+<script type="module" src="js/sets.js"></script>
+</body></html>

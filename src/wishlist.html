@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wishlist · Poké TCG Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<main class="wrap">
+<div id="err"></div>
+<h1>Wishlist</h1>
+<p class="sub">Missing set slots plus standalone wants. “Got it” is a local note in this browser — update the JSON for real.</p>
+<div class="stats" id="stats"></div>
+<div class="bar">
+  <label class="fld">Sort
+    <select id="fSort">
+      <option value="set">Set</option>
+      <option value="cheap">Price (cheapest first)</option>
+      <option value="exp">Price (most expensive)</option>
+      <option value="name">Name</option>
+    </select></label>
+  <label class="fld">Source
+    <select id="fSrc"><option value="all">All</option><option value="set">Missing from sets</option><option value="want">Standalone wants</option></select></label>
+  <label class="fld">Max price
+    <input type="number" id="fMax" min="0" step="5" placeholder="any" style="width:88px">
+    <span class="count" id="maxOut" style="margin:0">no limit</span></label>
+  <button class="chip" id="fGroup" aria-pressed="true">Group by set</button>
+  <button class="chip" id="fHide" aria-pressed="false">Hide “got it”</button>
+</div>
+<p class="count" id="count"></p>
+<div id="out"></div>
+</main>
+<script type="module" src="js/wishlist.js"></script>
+</body></html>

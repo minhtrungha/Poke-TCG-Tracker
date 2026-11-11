@@ -1,0 +1,5 @@
+{
+  "checked_date": null,
+  "sources": {},
+  "_note": "No prices recorded yet. Run the update-prices skill (say \"update prices\") to populate this file. The Portfolio page stays empty until prices exist, by design."
+}

@@ -1,0 +1,13 @@
+{
+  "name": "poke-tcg-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static site for a personal Pokémon card collection: portfolio, card database, set tracker and wishlist.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && node scripts/serve.mjs",
+    "serve": "node scripts/serve.mjs",
+    "clean": "rm -rf dist"
+  },
+  "engines": { "node": ">=18" }
+}
