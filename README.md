@@ -153,6 +153,33 @@ im.resize((200,round(h*200/w))).save('images/thumbs/c179.jpg','JPEG',quality=78,
 
 ---
 
+## Syncing prices and missing-card art
+
+Two scripts pull from [TCGCSV](https://tcgcsv.com), a free daily mirror of
+TCGplayer's own price feed. No API key, no scraping.
+
+```bash
+node scripts/fetch-prices.mjs                  # dry run: report, write nothing
+node scripts/fetch-prices.mjs --write          # update data/prices.json
+
+node scripts/fetch-missing-images.mjs          # dry run
+node scripts/fetch-missing-images.mjs --write  # download into images/need/
+```
+
+`fetch-prices` reads each card's **market price** (the median of recent sales),
+never the lowest listing. It writes prices bucketed by `set_key`, fills in each
+card's `set_key` so lookups resolve exactly, and appends one point to
+`history[]` for the Portfolio chart. Re-running on the same day replaces that
+day's point rather than adding a duplicate.
+
+`fetch-missing-images` downloads product shots for cards you do **not** own —
+the empty set slots and the wishlist — into `images/need/`, and writes
+`data/need-images.json` mapping each slot to its file. Owned cards always keep
+your own photos; this never touches `images/cards/`.
+
+Not every card is found: McDonald's 2021 and Delta Species δ cards are named
+differently on TCGplayer, so they keep the Pokéball placeholder.
+
 ## Regenerating JSON from the old Python files
 
 If you still edit `cards_data.py`, `sets_data.py`, `prices.py` or `wish_data.py`:
@@ -189,13 +216,12 @@ rarity and binder page are authoritative. All 147 entries matched a photo
 one-to-one with nothing left over on either side.
 
 **The Portfolio chart** reads `history[]` in `data/prices.json` — one point per
-`update-prices` run. It is empty until the first run, then builds a value-over-time
-line as you keep tracking.
+price sync. It draws a marker for the first point and a line from the second on.
 
-**Missing cards** show a red Pokéball "NOT YET" placeholder with a NEED chip, on
-both the Sets and Wishlist pages, so gaps stand out while scrolling.
+**Missing cards** show the real card art, desaturated and dimmed, with a red
+NEED chip — so you can see what you're hunting while it still reads clearly as
+"not owned". Cards with no product image fall back to a Pokéball placeholder.
 
-One thing to know: **no prices yet.** `data/prices.json` is empty, so the
-Portfolio page shows an empty state and the Wishlist shows no totals. Say
-"update prices" to populate it. Nothing is auto-fetched — this is a manual-push
-site.
+**Prices:** all 147 cards are priced from TCGplayer market data
+(`node scripts/fetch-prices.mjs --write`). Values are estimates, not an
+appraisal.

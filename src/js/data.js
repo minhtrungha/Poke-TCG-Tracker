@@ -10,7 +10,7 @@ export const PLACEHOLDER = `<span class="ph" aria-label="Not owned yet"><svg vie
   <text x="50" y="100" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="800" fill="currentColor" fill-opacity=".7" letter-spacing="1.2">NOT YET</text>
 </svg></span>`;
 
-const FILES = ['cards', 'sets', 'prices', 'wishlist'];
+const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images'];
 
 export async function loadAll() {
   const out = {};
@@ -21,7 +21,7 @@ export async function loadAll() {
       out[f] = await r.json();
     } catch (e) {
       console.error(`Could not load data/${f}.json:`, e);
-      out[f] = f === 'prices' ? {} : [];
+      out[f] = (f === 'prices' || f === 'need-images') ? {} : [];
       out._err = out._err || [];
       out._err.push(f);
     }
@@ -100,6 +100,14 @@ export function imgTag(card, { thumb = false, lazy = true } = {}) {
   const dir = thumb ? 'images/thumbs' : 'images/cards';
   const alt = esc(`${card.name} ${card.number}`);
   return `<img src="${dir}/${esc(card.image)}" alt="${alt}"${lazy ? ' loading="lazy" decoding="async"' : ''}>`;
+}
+
+/* Art for a card the owner does NOT own yet, from images/need/.
+   Falls back to the Pokeball placeholder when no product image was found. */
+export function needImg(map, key, label) {
+  const f = map && map[key];
+  if (!f) return PLACEHOLDER;
+  return `<img class="need-art" src="images/need/${esc(f)}" alt="${esc(label || '')}" loading="lazy" decoding="async">`;
 }
 
 /* --- misc --- */

@@ -180,6 +180,21 @@ label.fld{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--f
   box-shadow:0 1px 4px rgba(0,0,0,.35);
 }
 .wl-img .ph svg{width:100%;height:100%}
+/* art for a card not owned yet: shown desaturated + dimmed so a filled
+   pocket and an empty one never read the same at a glance */
+.need-art{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:grayscale(.72) brightness(.62) contrast(.95);
+  transition:filter .18s ease;
+}
+.pk.miss:hover .need-art,.wl-row:hover .need-art{filter:grayscale(.15) brightness(.9)}
+.pk.miss .pk-img::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(45deg,
+    transparent,transparent 11px,var(--ball-red-soft) 11px,var(--ball-red-soft) 22px);
+}
+.wl-img{position:relative}
+.wl-img .need-art{border-radius:4px}
 /* ---- table ---- */
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-elev)}
 table{border-collapse:collapse;width:100%;font-size:13px;min-width:860px}

@@ -1,21 +1,24 @@
 import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, esc, langBadge, initChrome,
-         dataError, getGot, setGot, wishKey, eeveeRank, byText, PLACEHOLDER } from './data.js';
+         dataError, getGot, setGot, wishKey, eeveeRank, byText, PLACEHOLDER,
+         needImg, normNum } from './data.js';
 
 initChrome('wishlist.html');
 const el = (id) => document.getElementById(id);
 
 const state = { sort: 'set', max: null, src: 'all', group: true, hideGot: false };
-let items = [], got = getGot();
+let items = [], got = getGot(), needMap = {};
 
 (async function main() {
   const d = await loadAll();
   el('err').innerHTML = dataError(d._err);
   const px = priceIndex(d.prices, d.sets);
+  needMap = d['need-images'] || {};
 
   // Source 1: missing slots in tracked sets.
   const fromSets = (d.sets || []).flatMap((s) =>
     (s.slots || []).filter((x) => x.card_id == null).map((x) => ({
       name: x.name, number: x.number, set: s.name, setKey: s.key,
+      imgKey: `${s.key}|${normNum(x.number)}`,
       lang: s.lang || 'EN', rarity: '', src: 'set',
       price: px.getSlot(s.key, x.number),
       search_string: `${x.name} ${x.number}`,
@@ -25,6 +28,7 @@ let items = [], got = getGot();
   const standalone = (d.wishlist || []).filter((w) => !w.owned).map((w) => ({
     name: w.name, number: w.number, set: w.set, lang: w.lang || 'EN',
     rarity: w.rarity || '', illustrator: w.illustrator || '', src: 'want',
+    imgKey: `want|${w.name}|${normNum(w.number)}`,
     price: typeof w.price_usd === 'number' ? w.price_usd : px.get(w),
     search_string: w.search_string || `${w.name} ${w.number}`,
   }));
@@ -78,7 +82,7 @@ function sortRows(rows) {
 function row(i) {
   const isGot = got.has(i.key);
   return `<div class="wl-row${isGot ? ' got' : ''}">
-    <div class="wl-img">${PLACEHOLDER}</div>
+    <div class="wl-img">${needImg(needMap, i.imgKey, `${i.name} ${i.number}`)}</div>
     <div class="wl-main">
       <div class="wl-n">${esc(i.name)} ${langBadge(i.lang)}
         ${i.src === 'set' ? '<span class="tag">set slot</span>' : ''}</div>

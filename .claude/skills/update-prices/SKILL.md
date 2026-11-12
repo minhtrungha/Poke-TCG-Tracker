@@ -5,7 +5,28 @@ description: Refresh market prices in data/prices.json for the collection and wi
 
 # update-prices
 
-Fetch current market prices for the cards in this collection and write them to `data/prices.json`.
+Refresh market prices for the collection.
+
+## The fast path: run the sync script
+
+```bash
+node scripts/fetch-prices.mjs            # dry run - report only
+node scripts/fetch-prices.mjs --write    # write data/prices.json
+```
+
+It pulls from [TCGCSV](https://tcgcsv.com), a free daily mirror of TCGplayer's
+own price feed (no API key), reads each card's **market price** (the median of
+recent sales, never the lowest listing), writes prices bucketed by `set_key`,
+fills in each card's `set_key`, and appends one point to `history[]` for the
+Portfolio chart.
+
+Prefer this over manual lookups: it prices all 147 cards in one pass and cannot
+mix up two printings of the same number. Report what it prints - the total, and
+any card it could not match.
+
+Only fall back to the manual process below for a card the script misses.
+
+## Manual lookups (fallback only)
 
 ## Before you start
 
