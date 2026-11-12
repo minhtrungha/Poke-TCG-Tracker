@@ -251,3 +251,4 @@ NEED chip — so you can see what you're hunting while it still reads clearly as
 **Prices:** all 149 cards are priced from TCGplayer market data
 (`node scripts/fetch-prices.mjs --write`). Values are estimates, not an
 appraisal.
+# Poke-TCG-Tracker
