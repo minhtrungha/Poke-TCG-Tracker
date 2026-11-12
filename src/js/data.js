@@ -10,7 +10,7 @@ export const PLACEHOLDER = `<span class="ph" aria-label="Not owned yet"><svg vie
   <text x="50" y="100" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="800" fill="currentColor" fill-opacity=".7" letter-spacing="1.2">NOT YET</text>
 </svg></span>`;
 
-const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images'];
+const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images', 'sealed'];
 
 export async function loadAll() {
   const out = {};
@@ -135,7 +135,7 @@ export function initChrome(active) {
 
   const pages = [
     ['index.html', 'Portfolio'], ['cards.html', 'Cards'],
-    ['sets.html', 'Sets'], ['wishlist.html', 'Wishlist'],
+    ['sealed.html', 'Sealed'], ['sets.html', 'Sets'], ['wishlist.html', 'Wishlist'],
   ];
   const nav = document.createElement('nav');
   nav.className = 'nav';

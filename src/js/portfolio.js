@@ -6,12 +6,17 @@ initChrome('index.html');
 
 const el = (id) => document.getElementById(id);
 const state = { sort: 'price', set: 'all', lang: 'all' };
-let priced = [];
+let priced = [], sealedTotal = 0, sealedUnits = 0, sealedCount = 0;
 
 (async function main() {
   const d = await loadAll();
   el('err').innerHTML = dataError(d._err);
   const px = priceIndex(d.prices, d.sets);
+  for (const x of d.sealed || []) {
+    sealedCount++;
+    sealedUnits += x.qty || 1;
+    if (typeof x.price_usd === 'number') sealedTotal += x.price_usd * (x.qty || 1);
+  }
 
   // Portfolio shows ONLY cards that have a price (per the brief).
   priced = d.cards
@@ -76,8 +81,9 @@ function render() {
   const tot = rows.reduce((s, c) => s + c.price, 0);
   const all = priced.reduce((s, c) => s + c.price, 0);
   el('stats').innerHTML = `
-    <div class="stat"><div class="stat-k">Collection value</div><div class="stat-v big">${usd0(all)}</div></div>
-    <div class="stat"><div class="stat-k">Cards priced</div><div class="stat-v">${priced.length}</div></div>
+    <div class="stat"><div class="stat-k">Total holdings</div><div class="stat-v big">${usd0(all + sealedTotal)}</div></div>
+    <div class="stat"><div class="stat-k">Cards</div><div class="stat-v">${usd0(all)}<span class="stat-sub">${priced.length} priced</span></div></div>
+    ${sealedTotal ? `<div class="stat"><div class="stat-k"><a href="sealed.html" class="stat-link">Sealed →</a></div><div class="stat-v">${usd0(sealedTotal)}<span class="stat-sub">${sealedUnits} units</span></div></div>` : ''}
     <div class="stat"><div class="stat-k">Top card</div><div class="stat-v">${usd0(Math.max(...priced.map(c=>c.price)))}</div></div>
     ${rows.length !== priced.length ? `<div class="stat"><div class="stat-k">Shown</div><div class="stat-v">${usd0(tot)}</div></div>` : ''}`;
 

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sealed · Poké TCG Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<main class="wrap">
+<div id="err"></div>
+<h1>Sealed</h1>
+<p class="sub">Boxes, bundles and collections you haven't opened.</p>
+<div class="stats" id="stats"></div>
+<div class="bar">
+  <label class="fld">Sort
+    <select id="fSort">
+      <option value="value">Line value</option>
+      <option value="unit">Unit price</option>
+      <option value="qty">Quantity</option>
+      <option value="name">Name</option>
+    </select></label>
+</div>
+<div id="out"></div>
+<p class="foot">Prices are TCGplayer market estimates — not an appraisal.</p>
+</main>
+<script type="module" src="js/sealed.js"></script>
+</body></html>

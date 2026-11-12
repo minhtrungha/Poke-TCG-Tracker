@@ -57,15 +57,25 @@
   "set-brilliant-stars": "TCGplayer market price via tcgcsv.com",
   "set-prismatic-evolutions": "TCGplayer market price via tcgcsv.com",
   "set-fusion-strike": "TCGplayer market price via tcgcsv.com",
-  "set-mega-evolution-black-star-promos-perfect-order-e": "TCGplayer market price via tcgcsv.com"
+  "set-mega-evolution-black-star-promos-perfect-order-e": "TCGplayer market price via tcgcsv.com",
+  "set-silver-tempest": "TCGplayer market price via tcgcsv.com",
+  "pre-sir": "TCGplayer market price via tcgcsv.com",
+  "sm-eevee-gx": "TCGplayer market price via tcgcsv.com",
+  "mcd-2021-eevee": "TCGplayer market price via tcgcsv.com",
+  "plf-eevee": "TCGplayer market price via tcgcsv.com",
+  "drx-eevee": "TCGplayer market price via tcgcsv.com",
+  "bw-eevee": "TCGplayer market price via tcgcsv.com",
+  "ds-eevee": "TCGplayer market price via tcgcsv.com"
  },
  "_note": "No prices recorded yet. Run the update-prices skill (say \"update prices\") to populate this file. The Portfolio page stays empty until prices exist, by design.",
  "_variants_note": "1 owned card is a variant whose number collides with a tracked slot held by a DIFFERENT card: id1 Umbreon ex 060/131 (Prismatic Evolutions Surprise Box stamp). The pre-dr slot for 060/131 holds id20, the plain print, because that set is defined as 'the nine double rares, without stamps'. id1 has set_key=null and cannot be priced from an existing bucket. Give it its own bucket (e.g. \"pre-stamp\": {\"060/131\": ...}) and set its set_key to that. Do NOT point it at pre-dr: a stamped print and a plain print are different market items, and sharing one price double-counts the plain card's value.",
  "history": [
   {
    "date": "Nov 11, 2026",
-   "total": 1570.33,
-   "cards": 147
+   "total": 2846.6,
+   "cards": 149,
+   "cards_total": 2109.64,
+   "sealed_total": 736.96
   }
  ],
  "_history_note": "history[] is the Portfolio chart's data: one entry per update-prices run, {\"date\":\"Nov 11, 2026\",\"total\":1234.56,\"cards\":42}. The update-prices skill appends a new entry each run (never rewrites past ones), so the chart fills in over time. One point draws a marker; two or more draw the line.",
@@ -77,12 +87,23 @@
   "014/131": 4.71,
   "030/131": 2.91,
   "060/131": 6.97,
-  "006/131": 3.62
+  "006/131": 3.62,
+  "023/131": 3.95,
+  "026/131": 2.16,
+  "034/131": 2.47,
+  "041/131": 2.76
  },
  "sv8a-sar": {
   "212/187": 98.79,
   "211/187": 55.86,
-  "202/187": 46.5
+  "202/187": 46.5,
+  "200/187": 45.39,
+  "205/187": 51.43,
+  "206/187": 55.21,
+  "209/187": 44.61,
+  "217/187": 360.3,
+  "223/187": 34.9,
+  "224/187": 21.21
  },
  "sv8a-rr": {
   "052/187": 1.26,
@@ -98,7 +119,9 @@
  "set-sv-black-star-promos": {
   "SVP 173": 8.82,
   "SVP 164": 9.9,
-  "SVP 027": 15.62
+  "SVP 027": 15.62,
+  "SVP 110": 85.63,
+  "SVP 108": 65.93
  },
  "set-surging-sparks": {
   "086/191": 2.18,
@@ -125,11 +148,42 @@
  },
  "c30-pika": {
   "036/128": 0.68,
-  "028/128": 0.56
+  "028/128": 0.56,
+  "023/128": 0.5,
+  "024/128": 0.44,
+  "025/128": 0.5,
+  "026/128": 0.48,
+  "027/128": 0.61,
+  "029/128": 0.46,
+  "030/128": 0.45,
+  "031/128": 0.49,
+  "032/128": 0.72,
+  "033/128": 0.43,
+  "034/128": 0.6,
+  "035/128": 0.54,
+  "037/128": 0.46,
+  "038/128": 0.47,
+  "039/128": 0.57,
+  "040/128": 2.18,
+  "041/128": 0.51,
+  "042/128": 0.46,
+  "043/128": 0.59,
+  "044/128": 0.5,
+  "045/128": 0.46,
+  "046/128": 0.51,
+  "047/128": 0.6,
+  "048/128": 0.57,
+  "049/128": 0.44,
+  "050/128": 0.57,
+  "051/128": 0.39,
+  "052/128": 0.55
  },
  "jp-vmax": {
   "101/184": 7.48,
-  "004/004": 19.97
+  "004/004": 19.97,
+  "003/069": 3.05,
+  "025/069": 2.68,
+  "041/069": 5.03
  },
  "set-vstar-universe-s12a": {
   "012/172": 1.06
@@ -146,15 +200,22 @@
   "170/165": 20.47,
   "171/165": 12.19,
   "166/165": 15.53,
-  "167/165": 13.01
+  "167/165": 13.01,
+  "168/165": 21.92,
+  "169/165": 13.46,
+  "200/165": 102.17,
+  "201/165": 373.55,
+  "202/165": 137.05
  },
  "cri-froakie": {
   "088/086": 4.3,
-  "089/086": 3.24
+  "089/086": 3.24,
+  "116/086": 103.1
  },
  "svi-gardevoir": {
   "211/198": 32.6,
-  "212/198": 32.98
+  "212/198": 32.98,
+  "245/198": 54.62
  },
  "mep": {
   "MEP 037": 18.61,
@@ -325,9 +386,73 @@
  },
  "set-fusion-strike": {
   "113/264": 5.14,
-  "114/264": 14.69
+  "114/264": 14.69,
+  "251/264": 94.14
  },
  "set-mega-evolution-black-star-promos-perfect-order-e": {
   "MEP 070": 1.72
- }
+ },
+ "set-silver-tempest": {
+  "186/195": 445.17
+ },
+ "pre-sir": {
+  "144/131": 272.54,
+  "146/131": 165.36,
+  "149/131": 207.44,
+  "150/131": 235.53,
+  "153/131": 154.74,
+  "155/131": 237.01,
+  "156/131": 375.7,
+  "161/131": 1186.84,
+  "167/131": 153.06
+ },
+ "sm-eevee-gx": {
+  "SM146": 5.99,
+  "SM147": 7.55,
+  "SM174": 64.01
+ },
+ "mcd-2021-eevee": {
+  "2": 23.65,
+  "6": 83.87,
+  "9": 1.17,
+  "12": 26.53
+ },
+ "plf-eevee": {
+  "11": 12.5,
+  "12": 5.19,
+  "20": 4.65,
+  "23": 7.68,
+  "34": 4.62,
+  "48": 8.56,
+  "64": 173.6,
+  "89": 1.7
+ },
+ "drx-eevee": {
+  "6": 16.2,
+  "12": 5.03,
+  "25": 8.29,
+  "30": 8.63,
+  "37": 8.46,
+  "48": 10.7,
+  "60": 24.69,
+  "61": 19.04,
+  "83": 7.82
+ },
+ "bw-eevee": {
+  "BW87": 86.54,
+  "BW88": 67.91,
+  "BW89": 91.65,
+  "BW90": 70.69,
+  "BW91": 77.16,
+  "BW92": 99.39,
+  "BW93": 252.99,
+  "BW94": 131.46
+ },
+ "ds-eevee": {
+  "69": 10.17,
+  "108": 464.42,
+  "109": 204.16,
+  "110": 315.24
+ },
+ "sealed_total": 736.96
 }

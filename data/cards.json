@@ -2567,5 +2567,41 @@
    "art"
   ],
   "search_string": "Toxtricity GG09"
+ },
+ {
+  "id": 151,
+  "name": "Lugia V",
+  "number": "186/195",
+  "set": "Silver Tempest",
+  "set_key": "set-silver-tempest",
+  "rarity": "Alternate Full Art (Ultra Rare)",
+  "printing": "Holofoil",
+  "lang": "EN",
+  "condition": "Near Mint",
+  "binder_page": null,
+  "image": "c151.jpg",
+  "tags": [
+   "art",
+   "legend"
+  ],
+  "search_string": "Lugia V 186/195 alternate full art"
+ },
+ {
+  "id": 152,
+  "name": "Mew V",
+  "number": "251/264",
+  "set": "Fusion Strike",
+  "set_key": "set-fusion-strike",
+  "rarity": "Alternate Full Art (Ultra Rare)",
+  "printing": "Holofoil",
+  "lang": "EN",
+  "condition": "Near Mint",
+  "binder_page": null,
+  "image": "c152.jpg",
+  "tags": [
+   "art",
+   "legend"
+  ],
+  "search_string": "Mew V 251/264 alternate full art"
  }
 ]

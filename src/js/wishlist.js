@@ -5,7 +5,7 @@ import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, esc, langBadge, initChro
 initChrome('wishlist.html');
 const el = (id) => document.getElementById(id);
 
-const state = { sort: 'set', max: null, src: 'all', group: true, hideGot: false };
+const state = { sort: 'set', max: null, src: 'all', group: true, hideGot: false, view: 'list' };
 let items = [], got = getGot(), needMap = {};
 
 (async function main() {
@@ -43,6 +43,8 @@ let items = [], got = getGot(), needMap = {};
     el('maxOut').textContent = state.max == null ? 'no limit' : usd0(state.max);
     render();
   });
+  el('vList').addEventListener('click', () => setView('list'));
+  el('vCards').addEventListener('click', () => setView('cards'));
   el('fGroup').addEventListener('click', () => {
     state.group = !state.group;
     el('fGroup').setAttribute('aria-pressed', state.group);
@@ -58,6 +60,13 @@ let items = [], got = getGot(), needMap = {};
   addEventListener('storage', (e) => { if (e.key === 'ptcg-got') { got = getGot(); render(); } });
   render();
 })();
+
+function setView(v) {
+  state.view = v;
+  el('vList').setAttribute('aria-pressed', v === 'list');
+  el('vCards').setAttribute('aria-pressed', v === 'cards');
+  render();
+}
 
 function filtered() {
   return items.filter((i) => {
@@ -77,6 +86,23 @@ function sortRows(rows) {
     name: (a, b) => byText(a.name, b.name),
   }[state.sort];
   return rows.slice().sort(cmp);
+}
+
+function cardTile(i) {
+  const isGot = got.has(i.key);
+  return `<article class="card wl-card${isGot ? ' got' : ''}">
+    <div class="pocket">${needImg(needMap, i.imgKey, `${i.name} ${i.number}`)}
+      ${isGot ? '<span class="need-chip got-chip">GOT</span>' : '<span class="need-chip">NEED</span>'}</div>
+    <div class="card-b">
+      <div class="card-n">${esc(i.name)} ${langBadge(i.lang)}</div>
+      <div class="card-m">${esc(i.number)}</div>
+      <div class="card-s">${esc(i.set)}</div>
+      <div class="card-p${typeof i.price === 'number' ? '' : ' none'}">${typeof i.price === 'number' ? usd(i.price) : 'no price'}</div>
+      <div class="card-lnks">
+        <a href="${tcgUrl(i.search_string)}" target="_blank" rel="noopener">TCG</a>
+        <button class="btn${isGot ? ' on' : ''}" data-got="${esc(i.key)}">${isGot ? '✓' : 'Got it'}</button>
+      </div>
+    </div></article>`;
 }
 
 function row(i) {
@@ -125,11 +151,15 @@ function render() {
     }
     el('out').innerHTML = [...groups].map(([set, list]) => {
       const gp = list.filter(x => typeof x.price === 'number').reduce((s, x) => s + x.price, 0);
-      return `<div class="wl-grp"><div class="sec-h">${esc(set)} · ${list.length}${gp ? ` · ${usd0(gp)}` : ''}</div>
-        ${list.map(row).join('')}</div>`;
+      const body = state.view === 'cards'
+        ? `<div class="grid">${list.map(cardTile).join('')}</div>`
+        : list.map(row).join('');
+      return `<div class="wl-grp"><div class="sec-h">${esc(set)} · ${list.length}${gp ? ` · ${usd0(gp)}` : ''}</div>${body}</div>`;
     }).join('');
   } else {
-    el('out').innerHTML = sortRows(rows).map(row).join('');
+    el('out').innerHTML = state.view === 'cards'
+      ? `<div class="grid">${sortRows(rows).map(cardTile).join('')}</div>`
+      : sortRows(rows).map(row).join('');
   }
 
   el('out').querySelectorAll('[data-got]').forEach((b) => {

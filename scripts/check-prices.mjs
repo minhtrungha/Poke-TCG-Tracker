@@ -54,11 +54,27 @@ const dates = hist.map((h) => h.date);
 if (new Set(dates).size !== dates.length) bad('history has duplicate dates');
 else if (hist.length) ok(`history: ${hist.length} point(s), latest ${hist[hist.length - 1].date} = $${hist[hist.length - 1].total}`);
 
-/* the latest history total should match the current prices */
+/* sealed products */
+let sealed = [];
+try { sealed = JSON.parse(await readFile(P('data/sealed.json'), 'utf8')); } catch {}
+let sealedTotal = 0, sealedUnpriced = 0;
+for (const s of sealed) {
+  if (typeof s.price_usd === 'number') sealedTotal += s.price_usd * (s.qty || 1);
+  else sealedUnpriced++;
+}
+if (sealed.length) {
+  ok(`sealed: ${sealed.length} product(s), $${sealedTotal.toFixed(2)}`
+    + (sealedUnpriced ? ` (${sealedUnpriced} unpriced)` : ''));
+}
+
+/* the latest history total should match cards + sealed */
 if (hist.length) {
   const last = hist[hist.length - 1];
-  if (last.date === prices.checked_date && Math.abs(last.total - total) > 0.05) {
-    bad(`history total $${last.total} != computed $${total.toFixed(2)} for ${prices.checked_date}`);
+  const expect = total + sealedTotal;
+  if (last.date === prices.checked_date && Math.abs(last.total - expect) > 0.05) {
+    bad(`history total $${last.total} != computed $${expect.toFixed(2)} (cards $${total.toFixed(2)} + sealed $${sealedTotal.toFixed(2)})`);
+  } else if (last.date === prices.checked_date) {
+    ok(`history total matches cards + sealed ($${expect.toFixed(2)})`);
   }
 }
 

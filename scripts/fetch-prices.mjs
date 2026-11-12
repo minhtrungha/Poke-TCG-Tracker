@@ -73,9 +73,12 @@ const baseName = (s) => String(s).split(' - ')[0]
 const cards = JSON.parse(await readFile(P('data/cards.json'), 'utf8'));
 const sets = JSON.parse(await readFile(P('data/sets.json'), 'utf8'));
 const prices = JSON.parse(await readFile(P('data/prices.json'), 'utf8'));
+let sealed = [];
+try { sealed = JSON.parse(await readFile(P('data/sealed.json'), 'utf8')); } catch {}
 
 /* --- build the catalogue, indexed by card number --------------------- */
 const catalogue = {};
+const allProducts = [];
 for (const [lang, cat] of Object.entries(CAT)) {
   process.stderr.write(`loading ${lang} catalogue...\n`);
   const groups = rows(await j(`${BASE}/${cat}/groups`));
@@ -109,6 +112,12 @@ for (const [lang, cat] of Object.entries(CAT)) {
         sub: r.subTypeName,
         stamped: /stamp/i.test(p.name),
       });
+    }
+    // Sealed products carry no card number, so index them by name instead.
+    for (const p of rows(prods)) {
+      const r = price.get(p.productId);
+      if (!r) continue;
+      allProducts.push({ name: p.name, group: g.name, market: r.marketPrice });
     }
     if (++done % 50 === 0) process.stderr.write(`  ${done}/${groups.length} groups\n`);
   }
@@ -195,6 +204,87 @@ for (const c of cards) {
   hits.push({ c, chosen, key });
 }
 
+/* --- cards the owner does NOT own yet --------------------------------- */
+/* Empty set slots and standalone wants, so the Wishlist can total real costs.
+   Same matcher as above; ambiguous ones are simply left unpriced. */
+const wish = JSON.parse(await readFile(P('data/wishlist.json'), 'utf8'));
+const wants = [];
+for (const s of sets) {
+  for (const sl of s.slots) {
+    if (sl.card_id != null) continue;
+    wants.push({ key: s.key, number: sl.number, name: sl.name, lang: s.lang || 'EN', set: s.name });
+  }
+}
+for (const w of wish) {
+  if (w.owned) continue;
+  wants.push({ key: nameKey.get(w.set) || setBucket(w), number: w.number, name: w.name,
+               lang: w.lang || 'EN', set: w.set, wishEntry: w });
+}
+let wantHits = 0;
+for (const w of wants) {
+  const idx = catalogue[w.lang === 'JP' ? 'JP' : 'EN'];
+  const keys = [numKey(w.number)];
+  const pfx = normNum(w.number).match(/^([A-Z]{2,4})\s*(\d+)$/); if (pfx) keys.push(String(+pfx[2]));
+  const frac = normNum(w.number).match(/^(\d+)\s*\/\s*\d+$/); if (frac) keys.push(String(+frac[1]));
+  let cands = [];
+  for (const k of keys) { const g = idx.get(k); if (g && g.length) { cands = g; break; } }
+  if (/^\d+$/.test(normNum(w.number))) {
+    const n = String(+normNum(w.number));
+    for (const [k, v] of idx) if (k.startsWith(`${n}/`)) cands = cands.concat(v);
+  }
+  let pick = cands.filter((x) => x.base === baseName(w.name));
+  if (!pick.length) {
+    const bare = baseName(String(w.name).replace(/\s*\d+\s*\/\s*\d+\s*$/, ''));
+    pick = cands.filter((x) => x.base === bare);
+  }
+  if (!pick.length) continue;
+  if (pick.length > 1) {
+    const STOP2 = new Set(['the', 'and', 'ex', 'gx', 'pokemon', 'pokémon', 'card',
+      'black', 'star', 'promos', 'promo', 'collection', 'set', 'sv', 'tcg']);
+    const words = String(w.set).toLowerCase().replace(/[^a-z0-9 ]/g, ' ')
+      .split(/\s+/).filter((x) => x.length > 3 && !STOP2.has(x));
+    const scored = pick.map((x) => ({ x, n: words.filter((v) => x.group.toLowerCase().includes(v)).length }));
+    const best = Math.max(...scored.map((v) => v.n));
+    if (best > 0) pick = scored.filter((v) => v.n === best).map((v) => v.x);
+    else if (new Set(pick.map((x) => x.group)).size > 1) continue;  // too ambiguous
+  }
+  pick.sort((a, b) => a.market - b.market);
+  const price = Math.round(pick[Math.floor((pick.length - 1) / 2)].market * 100) / 100;
+  if (!out[w.key]) out[w.key] = {};
+  if (out[w.key][w.number] === undefined) out[w.key][w.number] = price;
+  if (w.wishEntry) { w.wishEntry.price_usd = price; w.wishEntry.price_checked = null; }
+  wantHits++;
+}
+console.log(`\nwanted cards priced: ${wantHits}/${wants.length}`);
+
+/* --- sealed products -------------------------------------------------- */
+const norm = (s) => String(s).toLowerCase()
+  .replace(/[‘’']/g, "'").replace(/[^a-z0-9' ]+/g, ' ')
+  .replace(/\s+/g, ' ').trim();
+const sealedHits = [];
+const sealedMiss = [];
+for (const s of sealed) {
+  const want = norm(s.search_string || s.name);
+  let exact = allProducts.filter((p) => norm(p.name) === want);
+  if (!exact.length) {
+    // allow a bracketed variant to be dropped: "ETB [Mega Lucario]"
+    const loose = want.replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    exact = allProducts.filter((p) => norm(p.name) === loose);
+  }
+  if (!exact.length) { sealedMiss.push(s); continue; }
+  exact.sort((a, b) => a.market - b.market);
+  const chosen = exact[Math.floor((exact.length - 1) / 2)];
+  sealedHits.push({ s, chosen });
+}
+const sealedTotal = sealedHits.reduce((t, h) => t + h.chosen.market * (h.s.qty || 1), 0);
+if (sealed.length) {
+  console.log(`\nsealed: matched ${sealedHits.length}/${sealed.length} · value $${sealedTotal.toFixed(2)}`);
+  for (const h of sealedHits) {
+    console.log(`  $${String(h.chosen.market).padStart(8)} x${h.s.qty || 1}  ${h.s.name}`);
+  }
+  for (const m of sealedMiss) console.log(`  (no match) ${m.name}`);
+}
+
 /* --- report ----------------------------------------------------------- */
 const total = hits.reduce((s, h) => s + h.chosen.market, 0);
 console.log(`\nmatched ${hits.length}/${cards.length} cards · unmatched ${misses.length}`);
@@ -233,11 +323,35 @@ next.checked_date = today;
 next.sources = Object.fromEntries(
   Object.keys(out).map((k) => [k, 'TCGplayer market price via tcgcsv.com']));
 const hist = (prices.history || []).filter((h) => h.date !== today);
-hist.push({ date: today, total: Math.round(total * 100) / 100, cards: hits.length });
+hist.push({
+  date: today,
+  total: Math.round((total + sealedTotal) * 100) / 100,
+  cards: hits.length,
+  cards_total: Math.round(total * 100) / 100,
+  sealed_total: Math.round(sealedTotal * 100) / 100,
+});
 hist.sort((a, b) => new Date(a.date) - new Date(b.date));
 next.history = hist;
+next.sealed_total = Math.round(sealedTotal * 100) / 100;
 await writeFile(P('data/prices.json'), JSON.stringify(next, null, 1) + '\n');
 console.log(`\n✓ wrote data/prices.json - ${hits.length} prices, checked ${today}`);
+
+if (sealedHits.length) {
+  const byId = new Map(sealedHits.map((h) => [h.s.id, h.chosen]));
+  for (const s of sealed) {
+    const c = byId.get(s.id);
+    if (c) { s.price_usd = Math.round(c.market * 100) / 100; s.price_checked = today; }
+  }
+  await writeFile(P('data/sealed.json'), JSON.stringify(sealed, null, 1) + '\n');
+  console.log(`✓ wrote data/sealed.json - ${sealedHits.length} sealed price(s)`);
+}
+
+const wishPriced = wish.filter((w) => typeof w.price_usd === 'number').length;
+if (wishPriced) {
+  for (const w of wish) if (typeof w.price_usd === 'number') w.price_checked = today;
+  await writeFile(P('data/wishlist.json'), JSON.stringify(wish, null, 1) + '\n');
+  console.log(`✓ wrote data/wishlist.json - ${wishPriced} want price(s)`);
+}
 
 // Give every priced card an explicit set_key pointing at its bucket, so the
 // site resolves it directly instead of guessing from the set name.

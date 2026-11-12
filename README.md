@@ -23,7 +23,8 @@ There are no dependencies to install. Node 18+ is all you need.
 | **Portfolio** | `src/index.html` | Cards with a price, most valuable first, plus the total. Cards with no price are omitted by design. |
 | **Cards** | `src/cards.html` | Every card. Grid or sortable table, with filters for set, language, tag and has-price, plus search. |
 | **Sets** | `src/sets.html` | Set completion as binder pockets. Filled = owned; dashed = missing. |
-| **Wishlist** | `src/wishlist.html` | Missing set slots **plus** standalone wants, grouped by set, with a max-price filter. |
+| **Sealed** | `src/sealed.html` | Unopened boxes, bundles and collections, with quantities and line values. |
+| **Wishlist** | `src/wishlist.html` | Missing set slots **plus** standalone wants, in list or card view, grouped by set, with a max-price filter. |
 
 Clicking an **owned** pocket opens PriceCharting; an **empty** pocket opens a
 TCGplayer search. "Got it" on the Wishlist is a local note in your browser
@@ -124,6 +125,24 @@ different amounts, and are priced separately.
 
 `checked_date` drives the "Prices last updated" banner, which turns yellow after
 30 days. Prices are plain numbers; `null` means "looked up, not found".
+
+### `data/sealed.json` — unopened product
+
+```json
+{
+  "id": 1,
+  "name": "Mega Evolution Elite Trainer Box [Mega Lucario]",
+  "set": "Mega Evolution",
+  "qty": 2,
+  "price_usd": 113.27,
+  "price_checked": "Nov 11, 2026",
+  "search_string": "Mega Evolution Elite Trainer Box Mega Lucario"
+}
+```
+
+`qty` is how many you own; the Sealed page shows unit price × quantity, and the
+Portfolio's "Total holdings" tile adds the sealed value to the card value. Add a
+product by name and quantity, then run `npm run prices:write` to price it.
 
 ### `data/wishlist.json` — standalone wants
 
@@ -229,6 +248,6 @@ price sync. It draws a marker for the first point and a line from the second on.
 NEED chip — so you can see what you're hunting while it still reads clearly as
 "not owned". Cards with no product image fall back to a Pokéball placeholder.
 
-**Prices:** all 147 cards are priced from TCGplayer market data
+**Prices:** all 149 cards are priced from TCGplayer market data
 (`node scripts/fetch-prices.mjs --write`). Values are estimates, not an
 appraisal.

@@ -648,5 +648,303 @@
     "card_id": null
    }
   ]
+ },
+ {
+  "key": "sm-eevee-gx",
+  "name": "Eeveelution GX Promos (SM)",
+  "lang": "EN",
+  "note": "The eight Sun & Moon Eeveelution GX black star promos",
+  "slots": [
+   {
+    "number": "SM146",
+    "name": "Leafeon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM171",
+    "name": "Flareon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM172",
+    "name": "Vaporeon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM147",
+    "name": "Glaceon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM173",
+    "name": "Jolteon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM35",
+    "name": "Espeon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM36",
+    "name": "Umbreon-GX",
+    "card_id": null
+   },
+   {
+    "number": "SM174",
+    "name": "Eevee-GX",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "mcd-2021-eevee",
+  "name": "McDonald's 2021: Eeveelutions",
+  "lang": "EN",
+  "note": "The eight Eeveelutions from the 2021 McDonald's set",
+  "slots": [
+   {
+    "number": "1",
+    "name": "Leafeon",
+    "card_id": null
+   },
+   {
+    "number": "2",
+    "name": "Flareon",
+    "card_id": null
+   },
+   {
+    "number": "3",
+    "name": "Vaporeon",
+    "card_id": null
+   },
+   {
+    "number": "4",
+    "name": "Glaceon",
+    "card_id": null
+   },
+   {
+    "number": "6",
+    "name": "Jolteon",
+    "card_id": null
+   },
+   {
+    "number": "7",
+    "name": "Espeon",
+    "card_id": null
+   },
+   {
+    "number": "9",
+    "name": "Umbreon",
+    "card_id": null
+   },
+   {
+    "number": "12",
+    "name": "Eevee",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "plf-eevee",
+  "name": "Plasma Freeze: Eeveelutions",
+  "lang": "EN",
+  "note": "Every Eeveelution in Plasma Freeze",
+  "slots": [
+   {
+    "number": "11",
+    "name": "Leafeon",
+    "card_id": null
+   },
+   {
+    "number": "12",
+    "name": "Flareon",
+    "card_id": null
+   },
+   {
+    "number": "20",
+    "name": "Vaporeon",
+    "card_id": null
+   },
+   {
+    "number": "23",
+    "name": "Glaceon",
+    "card_id": null
+   },
+   {
+    "number": "34",
+    "name": "Jolteon",
+    "card_id": null
+   },
+   {
+    "number": "48",
+    "name": "Espeon",
+    "card_id": null
+   },
+   {
+    "number": "64",
+    "name": "Umbreon",
+    "card_id": null
+   },
+   {
+    "number": "89",
+    "name": "Eevee",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "drx-eevee",
+  "name": "Dark Explorers: Eeveelutions",
+  "lang": "EN",
+  "note": "Every Eeveelution in Dark Explorers, including both Umbreons",
+  "slots": [
+   {
+    "number": "6",
+    "name": "Leafeon",
+    "card_id": null
+   },
+   {
+    "number": "12",
+    "name": "Flareon",
+    "card_id": null
+   },
+   {
+    "number": "25",
+    "name": "Vaporeon",
+    "card_id": null
+   },
+   {
+    "number": "30",
+    "name": "Glaceon",
+    "card_id": null
+   },
+   {
+    "number": "37",
+    "name": "Jolteon",
+    "card_id": null
+   },
+   {
+    "number": "48",
+    "name": "Espeon",
+    "card_id": null
+   },
+   {
+    "number": "60",
+    "name": "Umbreon",
+    "card_id": null
+   },
+   {
+    "number": "61",
+    "name": "Umbreon",
+    "card_id": null
+   },
+   {
+    "number": "83",
+    "name": "Eevee",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "bw-eevee",
+  "name": "Eeveelution Promos (BW)",
+  "lang": "EN",
+  "note": "The eight Black & White Eeveelution black star promos",
+  "slots": [
+   {
+    "number": "BW87",
+    "name": "Leafeon",
+    "card_id": null
+   },
+   {
+    "number": "BW88",
+    "name": "Flareon",
+    "card_id": null
+   },
+   {
+    "number": "BW89",
+    "name": "Vaporeon",
+    "card_id": null
+   },
+   {
+    "number": "BW90",
+    "name": "Glaceon",
+    "card_id": null
+   },
+   {
+    "number": "BW91",
+    "name": "Jolteon",
+    "card_id": null
+   },
+   {
+    "number": "BW92",
+    "name": "Espeon",
+    "card_id": null
+   },
+   {
+    "number": "BW93",
+    "name": "Umbreon",
+    "card_id": null
+   },
+   {
+    "number": "BW94",
+    "name": "Eevee",
+    "card_id": null
+   }
+  ]
+ },
+ {
+  "key": "ds-eevee",
+  "name": "Delta Species: Eeveelutions",
+  "lang": "EN",
+  "note": "The Eeveelution δ cards and ex printings",
+  "slots": [
+   {
+    "number": "108",
+    "name": "Flareon ex",
+    "card_id": null
+   },
+   {
+    "number": "5",
+    "name": "Flareon δ",
+    "card_id": null
+   },
+   {
+    "number": "110",
+    "name": "Vaporeon ex",
+    "card_id": null
+   },
+   {
+    "number": "18",
+    "name": "Vaporeon δ",
+    "card_id": null
+   },
+   {
+    "number": "109",
+    "name": "Jolteon ex",
+    "card_id": null
+   },
+   {
+    "number": "7",
+    "name": "Jolteon δ",
+    "card_id": null
+   },
+   {
+    "number": "4",
+    "name": "Espeon δ",
+    "card_id": null
+   },
+   {
+    "number": "17",
+    "name": "Umbreon δ",
+    "card_id": null
+   },
+   {
+    "number": "69",
+    "name": "Eevee",
+    "card_id": null
+   }
+  ]
  }
 ]
