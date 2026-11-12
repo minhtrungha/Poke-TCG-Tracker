@@ -252,3 +252,4 @@ NEED chip — so you can see what you're hunting while it still reads clearly as
 (`node scripts/fetch-prices.mjs --write`). Values are estimates, not an
 appraisal.
 # Poke-TCG-Tracker
+# Poke-TCG-Tracker
