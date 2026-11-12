@@ -1,6 +1,7 @@
 import { loadAll, priceIndex, usd0, tcgUrl, pcUrl, imgTag, esc, langBadge,
-         initChrome, dataError, PLACEHOLDER, needImg, normNum } from './data.js';
+         initChrome, initOffline, dataError, PLACEHOLDER, needImg, normNum } from './data.js';
 
+initOffline();
 initChrome('sets.html');
 const el = (id) => document.getElementById(id);
 const state = { lang: 'all', only: 'all' };
@@ -58,7 +59,8 @@ function render() {
       const p = px.getSlot(s.key, slot.number);
       return `<a class="pk miss" href="${tcgUrl(`${slot.name} ${slot.number}`)}" target="_blank" rel="noopener"
                  title="${esc(slot.name)} ${esc(slot.number)} — search TCGplayer">
-        <div class="pk-img"><span class="need-chip">NEED</span>${needImg(needMap, `${s.key}|${normNum(slot.number)}`, `${slot.name} ${slot.number}`)}</div>
+        <div class="pk-img"><span class="need-chip">NEED</span>${
+          needImg(needMap, `${s.key}|${String(slot.number).trim().toUpperCase()}`, `${slot.name} ${slot.number}`)}</div>
         <div class="pk-b"><div class="pk-n">${esc(slot.name)}</div>
           <div class="pk-num">${esc(slot.number)}</div>
           ${typeof p === 'number' ? `<div class="pk-pr">${usd0(p)}</div>` : ''}</div></a>`;
@@ -74,3 +76,4 @@ function render() {
     </section>`;
   }).join('');
 }
+

@@ -61,6 +61,8 @@ const baseName = (s) => String(s).split(' - ')[0]
 /* --- what do we need an image for? ----------------------------------- */
 const sets = JSON.parse(await readFile(P('data/sets.json'), 'utf8'));
 const wish = JSON.parse(await readFile(P('data/wishlist.json'), 'utf8'));
+let aliases = {};
+try { aliases = JSON.parse(await readFile(P('data/aliases.json'), 'utf8')); } catch {}
 
 const need = [];
 for (const s of sets) {
@@ -112,6 +114,17 @@ const STOP = new Set(['the', 'and', 'ex', 'gx', 'pokemon', 'pokémon', 'card',
   'black', 'star', 'promos', 'promo', 'collection', 'set', 'sv', 'tcg']);
 const found = [], missing = [];
 for (const n of need) {
+  // A verified alias names the exact upstream product, so use it directly.
+  const al = n.kind === 'slot' ? aliases[`${n.setKey}|${String(n.number).trim().toUpperCase()}`] : null;
+  if (al) {
+    const idxA = catalogue[n.lang === 'JP' ? 'JP' : 'EN'];
+    let hit = null;
+    for (const list of idxA.values()) {
+      const m = list.find((x) => x.name === al.product);
+      if (m) { hit = m; break; }
+    }
+    if (hit) { found.push({ ...n, img: hit.img.replace(/_\d+w\.jpg$/, '_400w.jpg'), prod: hit.name }); continue; }
+  }
   const idx = catalogue[n.lang === 'JP' ? 'JP' : 'EN'];
   const keys = [numKey(n.number)];
   const pfx = normNum(n.number).match(/^([A-Z]{2,4})\s*(\d+)$/);
@@ -173,7 +186,11 @@ const map = {};
 let got = 0, failed = 0;
 for (const f of found) {
   const dest = path.join(OUT, f.file);
-  const key = f.kind === 'slot' ? `${f.setKey}|${normNum(f.number)}` : `want|${f.name}|${normNum(f.number)}`;
+  // Key slots by the number EXACTLY as sets.json records it. normNum() turns
+  // "SM146" into "SM 146", which the site then fails to look up.
+  const key = f.kind === 'slot'
+    ? `${f.setKey}|${String(f.number).trim().toUpperCase()}`
+    : `want|${f.name}|${normNum(f.number)}`;
   if (existsSync(dest)) { map[key] = f.file; got++; continue; }
   try {
     const r = await fetch(f.img, { headers: { 'user-agent': UA } });

@@ -2,9 +2,9 @@
    Pure inline SVG: no chart library, consistent with the rest of the site. */
 import { usd0, usd, esc } from './data.js';
 
-const PAD = { t: 18, r: 16, b: 26, l: 52 };
+const PAD = { t: 20, r: 18, b: 32, l: 62 };
 
-export function valueChart(history, { w = 720, h = 210 } = {}) {
+export function valueChart(history, { w = 720, h = 250 } = {}) {
   const pts = (history || [])
     .map((p) => ({ ...p, t: new Date(p.date).getTime() }))
     .filter((p) => !isNaN(p.t) && typeof p.total === 'number')
@@ -13,7 +13,22 @@ export function valueChart(history, { w = 720, h = 210 } = {}) {
   if (!pts.length) {
     return `<div class="chart-empty">
       <strong>No price history yet.</strong>
-      <span>Each “update prices” run appends a point here, and the line builds up over time.</span>
+      <span>Each price sync adds a point here, and the line builds up over time.</span>
+    </div>`;
+  }
+
+  // One reading is not a trend: show it as a readout, not 250px of empty axes.
+  if (pts.length === 1) {
+    const p = pts[0];
+    return `<div class="chart-first">
+      <div class="cf-dot" aria-hidden="true"></div>
+      <div class="cf-main">
+        <div class="cf-k">First reading · ${esc(p.date)}</div>
+        <div class="cf-v">${usd(p.total)}</div>
+        <div class="cf-s">${p.cards != null ? `${p.cards} cards priced` : ''}${
+          p.sealed_total ? ` · ${usd0(p.sealed_total)} sealed` : ''}</div>
+      </div>
+      <div class="cf-note">The value chart draws a line from the next sync on.</div>
     </div>`;
   }
 
@@ -52,8 +67,8 @@ export function valueChart(history, { w = 720, h = 210 } = {}) {
 
   // first/last dates only — never a label on every point
   const xlabs = pts.length > 1
-    ? `<text class="c-xlab" x="${PAD.l}" y="${h - 7}" text-anchor="start">${esc(pts[0].date)}</text>
-       <text class="c-xlab" x="${w - PAD.r}" y="${h - 7}" text-anchor="end">${esc(pts[pts.length - 1].date)}</text>`
+    ? `<text class="c-xlab" x="${PAD.l}" y="${h - 9}" text-anchor="start">${esc(pts[0].date)}</text>
+       <text class="c-xlab" x="${(w - PAD.r).toFixed(1)}" y="${h - 9}" text-anchor="end">${esc(pts[pts.length - 1].date)}</text>`
     : `<text class="c-xlab" x="${X(t0).toFixed(1)}" y="${h - 7}" text-anchor="middle">${esc(pts[0].date)}</text>`;
 
   const delta = pts.length > 1

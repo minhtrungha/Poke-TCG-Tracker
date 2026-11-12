@@ -1,6 +1,7 @@
 import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, imgTag, esc, langBadge,
-         initChrome, dataError, byText } from './data.js';
+         initChrome, initOffline, dataError, byText } from './data.js';
 
+initOffline();
 initChrome('cards.html');
 const el = (id) => document.getElementById(id);
 

@@ -1,7 +1,8 @@
 import { loadAll, priceIndex, usd, usd0, daysSince, tcgUrl, pcUrl, imgTag, esc,
-         langBadge, initChrome, dataError } from './data.js';
+         langBadge, initChrome, initOffline, dataError } from './data.js';
 import { valueChart } from './chart.js';
 
+initOffline();
 initChrome('index.html');
 
 const el = (id) => document.getElementById(id);

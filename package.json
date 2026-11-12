@@ -11,7 +11,9 @@
     "prices": "node scripts/fetch-prices.mjs",
     "prices:write": "node scripts/fetch-prices.mjs --write && node scripts/check-prices.mjs",
     "images:need": "node scripts/fetch-missing-images.mjs --write",
-    "check": "node scripts/check-prices.mjs"
+    "check": "node scripts/check-prices.mjs",
+    "sprites": "node scripts/fetch-sprites.mjs",
+    "sprites:write": "node scripts/fetch-sprites.mjs --write"
   },
   "engines": {
     "node": ">=18"

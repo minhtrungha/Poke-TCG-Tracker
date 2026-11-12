@@ -10,7 +10,7 @@ export const PLACEHOLDER = `<span class="ph" aria-label="Not owned yet"><svg vie
   <text x="50" y="100" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="800" fill="currentColor" fill-opacity=".7" letter-spacing="1.2">NOT YET</text>
 </svg></span>`;
 
-const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images', 'sealed'];
+const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images', 'sealed', 'sprites'];
 
 export async function loadAll() {
   const out = {};
@@ -21,7 +21,7 @@ export async function loadAll() {
       out[f] = await r.json();
     } catch (e) {
       console.error(`Could not load data/${f}.json:`, e);
-      out[f] = (f === 'prices' || f === 'need-images') ? {} : [];
+      out[f] = (f === 'prices' || f === 'need-images' || f === 'sprites') ? {} : [];
       out._err = out._err || [];
       out._err.push(f);
     }
@@ -110,6 +110,16 @@ export function needImg(map, key, label) {
   return `<img class="need-art" src="images/need/${esc(f)}" alt="${esc(label || '')}" loading="lazy" decoding="async">`;
 }
 
+/* Decorative species sprite for a card name. Purely ornamental: it never
+   replaces a card photo or NEED art, so it is always alt="" and aria-hidden.
+   Returns '' when the species has no sprite (Gen 9 is not in the set). */
+export function sprite(map, name, cls = 'sprite') {
+  const f = map && map[name];
+  if (!f) return '';
+  return `<img class="${cls}" src="images/sprites/${esc(f)}" alt="" aria-hidden="true"
+    loading="lazy" decoding="async" width="40" height="30">`;
+}
+
 /* --- misc --- */
 export function esc(s) {
   return String(s == null ? '' : s)
@@ -129,27 +139,62 @@ export function eeveeRank(name) {
 /* --- theme + nav (shared chrome) --- */
 export function initChrome(active) {
   const KEY = 'ptcg-theme';
+  const sysDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
   let saved = null;
   try { saved = localStorage.getItem(KEY); } catch (_) {}
-  if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+  document.documentElement.dataset.theme =
+    (saved === 'light' || saved === 'dark') ? saved : (sysDark() ? 'dark' : 'light');
 
   const pages = [
-    ['index.html', 'Portfolio'], ['cards.html', 'Cards'],
-    ['sealed.html', 'Sealed'], ['sets.html', 'Sets'], ['wishlist.html', 'Wishlist'],
+    ['index.html', 'Portfolio', 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'],
+    ['cards.html', 'Cards',     'M3 5h18v14H3zM3 9h18'],
+    ['sealed.html', 'Sealed',   'M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10'],
+    ['sets.html', 'Sets',       'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'],
+    ['wishlist.html', 'Wishlist','M12 21s-7-4.6-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.4-7 10-7 10z'],
   ];
-  const nav = document.createElement('nav');
+  const icon = (d) => `<svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+
+  const nav = document.createElement('header');
   nav.className = 'nav';
   nav.innerHTML =
-    `<a class="brand" href="index.html"><img class="brand-logo" src="img/logo.svg" alt=""><span class="brand-txt">Poké TCG Tracker</span></a>` +
-    pages.map(([h, l]) =>
-      `<a class="tab" href="${h}"${h === active ? ' aria-current="page"' : ''}>${l}</a>`).join('') +
-    `<span class="nav-sp"></span>` +
-    `<button class="theme-btn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme">◐</button>`;
+    `<a class="brand" href="index.html">
+       <img class="brand-logo" src="img/logo.svg" alt="" width="30" height="30">
+       <span class="brand-txt">Poké TCG<span class="brand-sub">Tracker</span></span>
+     </a>` +
+    `<nav class="tabs" aria-label="Main">` +
+    pages.map(([h, l, d]) =>
+      `<a class="tab" href="${h}"${h === active ? ' aria-current="page"' : ''}>${icon(d)}<span>${l}</span></a>`).join('') +
+    `</nav>` +
+    `<button class="theme-btn" id="themeBtn" type="button" aria-label="Switch colour theme">
+       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" aria-hidden="true">
+         <circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+       </svg></button>`;
   document.body.prepend(nav);
 
+  // Mobile bottom bar: same destinations, thumb-reachable.
+  const bar = document.createElement('nav');
+  bar.className = 'botnav';
+  bar.setAttribute('aria-label', 'Main (mobile)');
+  bar.innerHTML = pages.map(([h, l, d]) =>
+    `<a class="bt" href="${h}"${h === active ? ' aria-current="page"' : ''}>${icon(d)}<span>${l}</span></a>`).join('');
+  document.body.appendChild(bar);
+
+  // Credits: sources and copyright, on every page.
+  const cr = document.createElement('footer');
+  cr.className = 'credits';
+  cr.innerHTML = `<p>Card photos are the owner's own. Images for cards not owned are
+    TCGplayer product shots via <a href="https://tcgcsv.com" target="_blank" rel="noopener">TCGCSV</a>;
+    prices are TCGplayer market estimates, not an appraisal. Species sprites from
+    <a href="https://github.com/msikma/pokesprite" target="_blank" rel="noopener">PokéSprite</a>
+    (code and data MIT; sprite images © Nintendo / Creatures Inc. / GAME FREAK Inc.).
+    Pokémon and all character names are trademarks of Nintendo, Creatures Inc. and
+    GAME FREAK Inc. Personal, non-commercial tracker; not affiliated with or endorsed by them.</p>`;
+  document.body.appendChild(cr);
+
   document.getElementById('themeBtn').addEventListener('click', () => {
-    const cur = document.documentElement.dataset.theme
-      || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    const cur = document.documentElement.dataset.theme || (sysDark() ? 'dark' : 'light');
     const next = cur === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem(KEY, next); } catch (_) {}
@@ -166,6 +211,16 @@ export function setGot(set) {
   try { localStorage.setItem(GOT_KEY, JSON.stringify([...set])); } catch (_) {}
 }
 export const wishKey = (w) => `${w.name}|${w.number}|${w.set}`;
+
+/* Register the service worker so the site keeps working offline once loaded.
+   Fails silently on file:// or unsupported browsers. */
+export function initOffline() {
+  if (!('serviceWorker' in navigator)) return;
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+  addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 
 export function dataError(err) {
   if (!err || !err.length) return '';

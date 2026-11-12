@@ -1,0 +1,44 @@
+{
+ "_note": "Alias map for cards whose local name/number differs from the TCGplayer product listing. Every entry was verified against the upstream group before being added -- see _verified for the group id and exact product name. Used by scripts/fetch-prices.mjs and scripts/fetch-missing-images.mjs. Never add a guessed alias.",
+ "_format": "<set_key>|<local number> : { group, product, number }",
+
+ "ds-eevee|4": {
+  "group": 1429,
+  "group_name": "EX Delta Species",
+  "product": "Espeon (Delta Species)",
+  "number": "4/113",
+  "_verified": "2026-11-12 tcgcsv 3/1429, marketPrice 283.18, imageUrl present"
+ },
+ "ds-eevee|5": {
+  "group": 1429,
+  "group_name": "EX Delta Species",
+  "product": "Flareon (Delta Species)",
+  "number": "5/113",
+  "_verified": "2026-11-12 tcgcsv 3/1429, marketPrice 184.28, imageUrl present"
+ },
+ "ds-eevee|7": {
+  "group": 1429,
+  "group_name": "EX Delta Species",
+  "product": "Jolteon (Delta Species)",
+  "number": "7/113",
+  "_verified": "2026-11-12 tcgcsv 3/1429, marketPrice 189.22, imageUrl present"
+ },
+ "ds-eevee|17": {
+  "group": 1429,
+  "group_name": "EX Delta Species",
+  "product": "Umbreon (Delta Species)",
+  "number": "17/113",
+  "_verified": "2026-11-12 tcgcsv 3/1429, marketPrice 559.60, imageUrl present"
+ },
+ "ds-eevee|18": {
+  "group": 1429,
+  "group_name": "EX Delta Species",
+  "product": "Vaporeon (Delta Species)",
+  "number": "18/113",
+  "_verified": "2026-11-12 tcgcsv 3/1429, marketPrice 164.91, imageUrl present"
+ },
+
+ "_unresolved": {
+  "mcd-2021-eevee": "NO UPSTREAM MATCH. TCGplayer has no McDonald's 2021 group; the 2021 release is 'McDonald's 25th Anniversary Promos' (group 2782), which is 25 starter cards plus Pikachu and contains NO Eeveelutions. Bulbapedia confirms the same. The eight Eeveelution entries in this set appear to describe a set that does not exist, so no alias can be written. Needs an owner decision -- see docs/ux-log.md."
+ }
+}

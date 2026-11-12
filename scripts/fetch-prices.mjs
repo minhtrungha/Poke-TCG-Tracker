@@ -75,6 +75,8 @@ const sets = JSON.parse(await readFile(P('data/sets.json'), 'utf8'));
 const prices = JSON.parse(await readFile(P('data/prices.json'), 'utf8'));
 let sealed = [];
 try { sealed = JSON.parse(await readFile(P('data/sealed.json'), 'utf8')); } catch {}
+let aliases = {};
+try { aliases = JSON.parse(await readFile(P('data/aliases.json'), 'utf8')); } catch {}
 
 /* --- build the catalogue, indexed by card number --------------------- */
 const catalogue = {};
@@ -223,14 +225,33 @@ for (const w of wish) {
 let wantHits = 0;
 for (const w of wants) {
   const idx = catalogue[w.lang === 'JP' ? 'JP' : 'EN'];
+  // A verified alias names the exact upstream product, so use it directly.
+  const al = aliases[`${w.key}|${String(w.number).trim().toUpperCase()}`];
+  if (al) {
+    let hit = null;
+    for (const list of idx.values()) {
+      const m = list.find((x) => x.name === al.product);
+      if (m) { hit = m; break; }
+    }
+    if (hit) {
+      if (!out[w.key]) out[w.key] = {};
+      if (out[w.key][w.number] === undefined) out[w.key][w.number] = Math.round(hit.market * 100) / 100;
+      if (w.wishEntry) w.wishEntry.price_usd = Math.round(hit.market * 100) / 100;
+      wantHits++;
+      continue;
+    }
+  }
   const keys = [numKey(w.number)];
   const pfx = normNum(w.number).match(/^([A-Z]{2,4})\s*(\d+)$/); if (pfx) keys.push(String(+pfx[2]));
   const frac = normNum(w.number).match(/^(\d+)\s*\/\s*\d+$/); if (frac) keys.push(String(+frac[1]));
   let cands = [];
   for (const k of keys) { const g = idx.get(k); if (g && g.length) { cands = g; break; } }
+  let wide = false;
   if (/^\d+$/.test(normNum(w.number))) {
     const n = String(+normNum(w.number));
+    const before = cands.length;
     for (const [k, v] of idx) if (k.startsWith(`${n}/`)) cands = cands.concat(v);
+    wide = cands.length > before || before === 0;
   }
   let pick = cands.filter((x) => x.base === baseName(w.name));
   if (!pick.length) {
@@ -247,6 +268,26 @@ for (const w of wants) {
     const best = Math.max(...scored.map((v) => v.n));
     if (best > 0) pick = scored.filter((v) => v.n === best).map((v) => v.x);
     else if (new Set(pick.map((x) => x.group)).size > 1) continue;  // too ambiguous
+  }
+  // A bare-number scan that never confirmed the set is a guess, not a match.
+  // This is what priced non-existent "McDonald's 2021" Eeveelutions from
+  // unrelated sets. Require a confirmed set before trusting a wide scan.
+  if (wide) {
+    const setLow = String(w.set).toLowerCase();
+    const words = setLow.replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter((x) => x.length > 3);
+    // A year in the set name must match the group's year exactly. "McDonald's
+    // Collection 2021" matched "McDonald's Promos 2024" on the word alone and
+    // priced Eeveelutions from a set that has none.
+    const year = setLow.match(/\b(19|20)\d{2}\b/)?.[0] ?? null;
+    const confirmed = pick.some((x) => {
+      const g = x.group.toLowerCase();
+      if (!words.some((v) => g.includes(v))) return false;
+      const gYear = g.match(/\b(19|20)\d{2}\b/)?.[0] ?? null;
+      if (year && gYear && year !== gYear) return false;
+      if (year && !gYear) return false;
+      return true;
+    });
+    if (!confirmed) continue;
   }
   pick.sort((a, b) => a.market - b.market);
   const price = Math.round(pick[Math.floor((pick.length - 1) / 2)].market * 100) / 100;

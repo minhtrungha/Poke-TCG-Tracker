@@ -61,7 +61,6 @@
   "set-silver-tempest": "TCGplayer market price via tcgcsv.com",
   "pre-sir": "TCGplayer market price via tcgcsv.com",
   "sm-eevee-gx": "TCGplayer market price via tcgcsv.com",
-  "mcd-2021-eevee": "TCGplayer market price via tcgcsv.com",
   "plf-eevee": "TCGplayer market price via tcgcsv.com",
   "drx-eevee": "TCGplayer market price via tcgcsv.com",
   "bw-eevee": "TCGplayer market price via tcgcsv.com",
@@ -411,12 +410,6 @@
   "SM147": 7.55,
   "SM174": 64.01
  },
- "mcd-2021-eevee": {
-  "2": 23.65,
-  "6": 83.87,
-  "9": 1.17,
-  "12": 26.53
- },
  "plf-eevee": {
   "11": 12.5,
   "12": 5.19,
@@ -449,6 +442,11 @@
   "BW94": 131.46
  },
  "ds-eevee": {
+  "4": 283.18,
+  "5": 184.28,
+  "7": 189.22,
+  "17": 559.6,
+  "18": 164.91,
   "69": 10.17,
   "108": 464.42,
   "109": 204.16,

@@ -1,24 +1,26 @@
-import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, esc, langBadge, initChrome,
+import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, esc, langBadge, initChrome, initOffline,
          dataError, getGot, setGot, wishKey, eeveeRank, byText, PLACEHOLDER,
-         needImg, normNum } from './data.js';
+         needImg, normNum, sprite } from './data.js';
 
+initOffline();
 initChrome('wishlist.html');
 const el = (id) => document.getElementById(id);
 
 const state = { sort: 'set', max: null, src: 'all', group: true, hideGot: false, view: 'list' };
-let items = [], got = getGot(), needMap = {};
+let items = [], got = getGot(), needMap = {}, spriteMap = {};
 
 (async function main() {
   const d = await loadAll();
   el('err').innerHTML = dataError(d._err);
   const px = priceIndex(d.prices, d.sets);
   needMap = d['need-images'] || {};
+  spriteMap = d.sprites || {};
 
   // Source 1: missing slots in tracked sets.
   const fromSets = (d.sets || []).flatMap((s) =>
     (s.slots || []).filter((x) => x.card_id == null).map((x) => ({
       name: x.name, number: x.number, set: s.name, setKey: s.key,
-      imgKey: `${s.key}|${normNum(x.number)}`,
+      imgKey: `${s.key}|${String(x.number).trim().toUpperCase()}`,
       lang: s.lang || 'EN', rarity: '', src: 'set',
       price: px.getSlot(s.key, x.number),
       search_string: `${x.name} ${x.number}`,
@@ -110,7 +112,7 @@ function row(i) {
   return `<div class="wl-row${isGot ? ' got' : ''}">
     <div class="wl-img">${needImg(needMap, i.imgKey, `${i.name} ${i.number}`)}</div>
     <div class="wl-main">
-      <div class="wl-n">${esc(i.name)} ${langBadge(i.lang)}
+      <div class="wl-n">${sprite(spriteMap, i.name, 'wl-sprite')}${esc(i.name)} ${langBadge(i.lang)}
         ${i.src === 'set' ? '<span class="tag">set slot</span>' : ''}</div>
       <div class="wl-m">${esc(i.number)}${i.rarity ? ` · ${esc(i.rarity)}` : ''}</div>
       <div class="wl-s">${esc(i.set)}${i.illustrator ? ` · ${esc(i.illustrator)}` : ''}</div>

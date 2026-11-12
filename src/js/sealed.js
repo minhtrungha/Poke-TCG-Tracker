@@ -1,5 +1,6 @@
-import { loadAll, usd, usd0, tcgUrl, esc, initChrome, dataError, byText } from './data.js';
+import { loadAll, usd, usd0, tcgUrl, esc, initChrome, initOffline, dataError, byText } from './data.js';
 
+initOffline();
 initChrome('sealed.html');
 const el = (id) => document.getElementById(id);
 let items = [];
