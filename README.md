@@ -159,15 +159,22 @@ Two scripts pull from [TCGCSV](https://tcgcsv.com), a free daily mirror of
 TCGplayer's own price feed. No API key, no scraping.
 
 ```bash
-node scripts/fetch-prices.mjs                  # dry run: report, write nothing
-node scripts/fetch-prices.mjs --write          # update data/prices.json
-
-node scripts/fetch-missing-images.mjs          # dry run
-node scripts/fetch-missing-images.mjs --write  # download into images/need/
+npm run prices          # dry run: report, write nothing
+npm run prices:write    # update data/prices.json, then sanity-check it
+npm run images:need     # download art for cards you don't own
+npm run check           # sanity-check prices without re-fetching
 ```
 
 `fetch-prices` reads each card's **market price** (the median of recent sales),
-never the lowest listing. It writes prices bucketed by `set_key`, fills in each
+never the lowest listing. When one number matches several different products —
+a Pokémon Center Exclusive, or a same-numbered card from an unrelated set — it
+prefers the plain printing, and if that still leaves a tie across sets it
+reports the card as ambiguous and leaves it **unpriced** rather than averaging
+two different cards together.
+
+`npm run check` verifies every card resolves, that printings of one number stay
+in separate buckets, and that no price is implausible. It exits non-zero, so it
+can gate a deploy. It writes prices bucketed by `set_key`, fills in each
 card's `set_key` so lookups resolve exactly, and appends one point to
 `history[]` for the Portfolio chart. Re-running on the same day replaces that
 day's point rather than adding a duplicate.

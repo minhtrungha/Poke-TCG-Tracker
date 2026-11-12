@@ -121,6 +121,7 @@ const nameKey = new Map(sets.map((s) => [s.name, s.key]));
 const out = {};
 const hits = [];
 const misses = [];
+const ambiguous = [];
 
 /* A card outside every tracked set still needs a bucket of its own, keyed by
    its set, so two different printings of one number never share a price. */
@@ -148,6 +149,18 @@ for (const c of cards) {
     const s = pick.filter((x) => x.stamped === wantStamp);
     if (s.length) pick = s;
   }
+  // baseName() strips parenthetical variants, so "Pikachu - 027" and
+  // "Pikachu - 027 (Pokemon Center Exclusive)" collapse to the same name while
+  // being different cards at very different prices. Unless the local record
+  // names that variant, prefer the plain printing.
+  if (pick.length > 1) {
+    const localHas = (v) => new RegExp(v, 'i').test(`${c.name} ${c.set} ${c.printing || ''}`);
+    const plain = pick.filter((x) => {
+      const paren = String(x.name).match(/\(([^)]+)\)/g) || [];
+      return paren.every((p) => localHas(p.replace(/[()]/g, '').split(/\s+/)[0]));
+    });
+    if (plain.length) pick = plain;
+  }
   if (!pick.length) { misses.push(c); continue; }
   // A bare-number fallback can collide across sets, so when several products
   // share a name+number, prefer one whose TCGplayer group plausibly matches
@@ -164,6 +177,12 @@ for (const c of cards) {
     });
     const best = Math.max(...scored.map((s) => s.n));
     if (best > 0) pick = scored.filter((s) => s.n === best).map((s) => s.x);
+  }
+  // Still ambiguous: these are different cards that merely share a number, so
+  // a median across them is a fabricated price. Report it instead of guessing.
+  if (pick.length > 1) {
+    const groups = new Set(pick.map((x) => x.group));
+    if (groups.size > 1) { ambiguous.push({ c, pick: [...pick] }); continue; }
   }
   pick.sort((a, b) => a.market - b.market);
   const chosen = pick[Math.floor((pick.length - 1) / 2)];
@@ -183,6 +202,13 @@ console.log(`collection value: $${total.toLocaleString('en-US', { maximumFractio
 console.log('\ntop 12 by market price:');
 for (const h of [...hits].sort((a, b) => b.chosen.market - a.chosen.market).slice(0, 12)) {
   console.log(`  $${String(h.chosen.market).padStart(9)}  ${h.c.name} ${h.c.number} [${h.c.lang}] - ${h.chosen.group}`);
+}
+if (ambiguous.length) {
+  console.log(`\nAMBIGUOUS - left unpriced (${ambiguous.length}):`);
+  for (const a of ambiguous) {
+    console.log(`  ${a.c.name} ${a.c.number} [${a.c.lang}] - ${a.c.set}`);
+    for (const p of a.pick) console.log(`      $${p.market}  ${p.group} / ${p.name}`);
+  }
 }
 if (misses.length) {
   console.log(`\nno match (${misses.length}):`);
