@@ -6,7 +6,7 @@ name: Browser tests
 
 on:
   push:
-    branches-ignore: [main]
+    branches-ignore: [main, prices-data]
   pull_request:
   workflow_dispatch:
 

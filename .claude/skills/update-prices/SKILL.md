@@ -7,6 +7,23 @@ description: Refresh market prices in data/prices.json for the collection and wi
 
 Refresh market prices for the collection.
 
+## First: the site already refreshes itself weekly
+
+`.github/workflows/pages.yml` runs the sync script below every Sunday and saves
+the result to the `prices-data` branch (never to `main`), then deploys. If the
+owner just wants the live site current, the answer is: **Actions → Deploy to
+GitHub Pages → Run workflow** (leave "Fetch fresh prices" ticked). Say so before
+doing a local run.
+
+A local run is still right for previewing, for checking what moved, or for the
+manual fallback below. What you commit to `main` is merged at deploy by
+`scripts/apply-price-data.mjs`: the newer `checked_date` wins and both
+`history[]` logs are kept. Never commit to the `prices-data` branch by hand.
+
+TCGCSV may be unreachable from a cloud session's network. If the script cannot
+connect, tell the owner and point them to the workflow rather than guessing
+prices.
+
 ## The fast path: run the sync script
 
 ```bash
@@ -112,7 +129,9 @@ card's value. That is the bug that previously inflated the portfolio total.
    - total estimated collection value, and wishlist cost;
    - any price that moved **more than 20%** up or down, with both numbers;
    - cards where no price was found;
-   - "Push to deploy to update the site."
+   - "Push to deploy to update the site." (The deploy keeps these prices
+     when their `checked_date` is newer than the last weekly sync; on the same
+     day as a sync, the sync's prices win.)
 
 ## Notes
 

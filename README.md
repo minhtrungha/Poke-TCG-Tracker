@@ -58,11 +58,13 @@ the price, and appends it to `data/wishlist.json`.
 
 ### Refreshing prices — "update prices"
 
-Claude looks up current TCGplayer / PriceCharting prices, writes
-`data/prices.json` with today's date, flags anything that moved more than 20%,
-and reports the new collection total.
+You usually do not need to: the site refreshes prices **every Sunday** on its
+own (see [Automatic weekly prices](#automatic-weekly-prices)). To refresh now,
+open the repo's **Actions → Deploy to GitHub Pages → Run workflow**.
 
-Then `npm run build` to preview, and push to deploy.
+Saying "update prices" in Claude Code still works for a local preview or for
+cards the sync cannot match: Claude writes `data/prices.json` with today's date,
+flags anything that moved more than 20%, and reports the new collection total.
 
 ---
 
@@ -202,6 +204,32 @@ can gate a deploy. It writes prices bucketed by `set_key`, fills in each
 card's `set_key` so lookups resolve exactly, and appends one point to
 `history[]` for the Portfolio chart. Re-running on the same day replaces that
 day's point rather than adding a duplicate.
+
+### Automatic weekly prices
+
+`.github/workflows/pages.yml` runs `npm run prices:write` every Sunday at 21:23
+UTC (and whenever you press **Run workflow**), then deploys. TCGCSV is queried
+from the GitHub Actions runner, never from visitors' browsers.
+
+The result is committed to a separate **`prices-data`** branch, not to `main`,
+so `main`'s history holds only real changes. Every deploy, including a plain
+push to `main`, merges that branch into `data/` first with
+`scripts/apply-price-data.mjs`:
+
+- `prices.json`: the newer `checked_date` wins, and the Portfolio `history[]`
+  keeps every point from both sides. A local `prices:write` you commit to `main`
+  is therefore never lost.
+- `sealed.json`, `wishlist.json`, `cards.json`: only price fields (and a missing
+  `set_key`) are taken from the branch. Which cards you own, quantities and
+  wishlist entries always come from `main`; hand-entered sealed prices stay.
+
+If the sync fails (TCGCSV down, `npm run check` rejects the data), nothing is
+committed or deployed and the live site keeps its last prices. Leave the
+`prices-data` branch alone; it is rewritten only by the workflow.
+
+GitHub pauses scheduled workflows in a public repo after 60 days without
+repository activity. If prices stop moving, check the Actions tab and re-enable
+the workflow there.
 
 `fetch-missing-images` downloads product shots for cards you do **not** own —
 the empty set slots and the wishlist — into `images/need/`, and writes
