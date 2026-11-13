@@ -37,7 +37,7 @@ export function priceIndex(prices, sets) {
   const byKeyNum = new Map();
   const META = new Set(['checked_date', 'sources', '_note']);
   for (const [k, v] of Object.entries(prices || {})) {
-    if (META.has(k) || typeof v !== 'object' || v === null) continue;
+    if (META.has(k) || k.startsWith('_') || typeof v !== 'object' || v === null) continue;
     for (const [num, p] of Object.entries(v)) {
       if (typeof p === 'number') byKeyNum.set(`${k}|${normNum(num)}`, p);
     }
@@ -166,11 +166,16 @@ export function initChrome(active) {
     pages.map(([h, l, d]) =>
       `<a class="tab" href="${h}"${h === active ? ' aria-current="page"' : ''}>${icon(d)}<span>${l}</span></a>`).join('') +
     `</nav>` +
+    `<div class="nav-btns"><button class="theme-btn pal-btn" id="palBtn" type="button">
+       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+         <path fill="currentColor" d="M20 4c-8.5-.6-15 3.4-15 10.2 0 1.6.5 3 1.3 4.1L4 20.6l1.4 1.4 2.3-2.3c1.1.8 2.5 1.3 4.1 1.3C18.6 21 22 13.6 20 4z"/>
+         <path fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.5" stroke-linecap="round" d="M8.2 17.8c2.6-3.6 5.4-6.4 8.6-8.6"/>
+       </svg></button>` +
     `<button class="theme-btn" id="themeBtn" type="button" aria-label="Switch colour theme">
        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" aria-hidden="true">
          <circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
-       </svg></button>`;
+       </svg></button></div>`;
   document.body.prepend(nav);
 
   // Mobile bottom bar: same destinations, thumb-reachable.
@@ -193,11 +198,91 @@ export function initChrome(active) {
     GAME FREAK Inc. Personal, non-commercial tracker; not affiliated with or endorsed by them.</p>`;
   document.body.appendChild(cr);
 
+  // Palette: purple (default) or green. Independent of light/dark.
+  const PKEY = 'ptcg-palette';
+  const palBtn = document.getElementById('palBtn');
+  const BAR = { purple: ['#e9e1fe', '#17121f'], green: ['#d6f3dd', '#0f1913'] };
+  const setPal = (p, save) => {
+    if (p === 'green') document.documentElement.dataset.palette = 'green';
+    else delete document.documentElement.dataset.palette;
+    const other = p === 'green' ? 'purple' : 'green';
+    palBtn.setAttribute('aria-label', `Switch to the ${other} theme`);
+    palBtn.title = `${other[0].toUpperCase()}${other.slice(1)} theme`;
+    const metas = document.querySelectorAll('meta[name="theme-color"]');
+    if (metas[0]) metas[0].content = BAR[p][0];
+    if (metas[1]) metas[1].content = BAR[p][1];
+    if (save) { try { localStorage.setItem(PKEY, p); } catch (_) {} }
+  };
+  setPal(document.documentElement.dataset.palette === 'green' ? 'green' : 'purple', false);
+  palBtn.addEventListener('click', () =>
+    setPal(document.documentElement.dataset.palette === 'green' ? 'purple' : 'green', true));
+  // keep other open tabs in step
+  addEventListener('storage', (e) => { if (e.key === PKEY) setPal(e.newValue === 'green' ? 'green' : 'purple', false); });
+
   document.getElementById('themeBtn').addEventListener('click', () => {
     const cur = document.documentElement.dataset.theme || (sysDark() ? 'dark' : 'light');
     const next = cur === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem(KEY, next); } catch (_) {}
+  });
+
+  initTransitions();
+  initBackToTop();
+}
+
+/* "Back to top" — appears after ~2 screens of scrolling, on every page. */
+function initBackToTop() {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btt';
+  btn.setAttribute('aria-label', 'Back to top');
+  btn.title = 'Back to top';
+  btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`;
+  document.body.appendChild(btn);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let raf = 0;
+  const sync = () => { raf = 0; btn.classList.toggle('show', scrollY > innerHeight * 2); };
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(sync); }, { passive: true });
+  addEventListener('resize', () => { if (!raf) raf = requestAnimationFrame(sync); }, { passive: true });
+  sync();
+  btn.addEventListener('click', () => {
+    scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+    // hand focus to the page heading so keyboard users land at the top too
+    const h = document.querySelector('main h1');
+    if (h) { if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  });
+}
+
+/* Pokéball page transition. Clicking a link to another of the five pages
+   snaps the ball shut, then navigates; the next page's inline <head> script
+   sees the flag and the ball pops open in CSS. Modified clicks, new-tab links,
+   other sites and reduced-motion users get plain navigation. */
+const PAGES = new Set(['index.html', 'cards.html', 'sealed.html', 'sets.html', 'wishlist.html']);
+const pageOf = (u) => u.pathname.split('/').pop() || 'index.html';
+function initTransitions() {
+  const d = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  if (d.classList.contains('ball-arrive')) setTimeout(() => d.classList.remove('ball-arrive'), 700);
+  // Back/forward cache restores the page exactly as it was left — shut. Reopen it.
+  addEventListener('pageshow', (e) => { if (e.persisted) d.classList.remove('ball-leave', 'ball-arrive'); });
+  document.addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !PAGES.has(pageOf(url))) return;
+    if (pageOf(url) === pageOf(location) && url.search === location.search) {
+      if (url.hash && url.hash !== location.hash) return;   // in-page anchor: let the browser jump
+      e.preventDefault(); return;
+    }
+    if (reduce.matches || d.classList.contains('ball-leave')) return;
+    e.preventDefault();
+    try { sessionStorage.setItem('ptcg-ball', '1'); } catch (_) {}
+    d.classList.remove('ball-arrive');
+    void d.offsetWidth;                 // restart the animation cleanly
+    d.classList.add('ball-leave');
+    setTimeout(() => { location.href = url.href; }, 270);
   });
 }
 

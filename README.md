@@ -26,8 +26,13 @@ There are no dependencies to install. Node 18+ is all you need.
 | **Sealed** | `src/sealed.html` | Unopened boxes, bundles and collections, with quantities and line values. |
 | **Wishlist** | `src/wishlist.html` | Missing set slots **plus** standalone wants, in list or card view, grouped by set, with a max-price filter. |
 
-Clicking an **owned** pocket opens PriceCharting; an **empty** pocket opens a
-TCGplayer search. "Got it" on the Wishlist is a local note in your browser
+Clicking any card, pocket, wishlist row or sealed product opens a **detail
+sheet**: the big image, every field, the price with its source and date, and
+TCGplayer / PriceCharting buttons. ‹ › and the arrow keys step through the list
+you are looking at; Esc closes it.
+
+The leaf button in the top bar switches the whole site between the **purple**
+and **green** palettes (independent of light/dark); the choice is remembered. "Got it" on the Wishlist is a local note in your browser
 (`localStorage`) — it greys the row out across tabs but does **not** change the
 JSON. Update the files for real changes.
 
@@ -205,6 +210,33 @@ your own photos; this never touches `images/cards/`.
 
 Not every card is found: McDonald's 2021 and Delta Species δ cards are named
 differently on TCGplayer, so they keep the Pokéball placeholder.
+
+```bash
+node scripts/fetch-sealed-images.mjs --write   # product shots for data/sealed.json
+```
+
+Matches each sealed product by exact name on TCGCSV, saves a 400px shot to
+`images/sealed/s<id>.jpg`, and records `image` and `tcgplayer_id` on the entry
+(the TCGplayer button then links to the product page itself).
+
+A sealed product with no TCGCSV price row can carry a hand-entered price:
+`"price_usd"`, `"price_source": "manual"` and a `"price_note"` saying where it
+came from. `prices:write` keeps and counts it, and replaces it automatically once
+the feed has a real price.
+
+## Wallpapers and palettes
+
+`src/img/bg-wide.webp` (desktop) and `src/img/bg-portrait.webp` (phones) are the
+owner's sprite wallpapers. The green palette uses recoloured copies made with:
+
+```bash
+python3 -I scripts/recolor-wallpaper.py <source.png> src/img/bg-wide-green.webp '#d6f3dd' '#e7f7d3' '#fdf4dc'
+```
+
+It swaps only the sky gradient (top, middle, bottom colours) and leaves the
+sprites alone. To use your own green art instead, save it over
+`bg-wide-green.webp` / `bg-portrait-green.webp`; the sky colours to match are
+`#d6f3dd` → `#e7f7d3` → `#fdf4dc` (light) and `#132a1d` → `#22261a` (dark).
 
 ## Regenerating JSON from the old Python files
 

@@ -109,3 +109,65 @@ forcing every image eager was part of the measurement. In normal use 149/150
 images are lazy and the service worker serves repeat visits from cache.
 A real improvement would be WebP or smaller thumbnails — medium impact,
 medium risk (touches the image pipeline), so not done in this pass.
+
+
+---
+
+## "Sticker sky" theme + Pokéball transitions (Nov 12, 2026)
+
+Replaces the binder & Pokédex look (item 4) at the owner's request, built from
+two wallpapers they supplied (`src/img/bg-portrait.webp` for phones and portrait
+tablets, `src/img/bg-wide.webp` for desktop; WebP, ~200–265 KB each).
+
+**Theme.** Lavender → pink → peach sky, white "sticker" surfaces, Gengar-violet
+ink (`--accent #6f38c0`), berry pink pop colour. Frosted nav with a violet pill
+for the active tab. Dark mode is the same sky after dusk: wallpaper under a deep
+plum veil. Hard-coded reds (`#a3271b`) are gone; chips, ranks and qty badges use
+`--pill`, the NEED chip uses `--need`. Text that sits straight on the wallpaper
+(titles, subtitles, counts) gets a halo of the sky colour.
+
+**Pokéball transition.** Clicking a link to another of the five pages snaps two
+halves shut (0.26 s), navigates, and the next page starts covered and pops open
+(0.44 s). The inline `<head>` script sets the arrival state, so the first paint
+is already covered; the opening is pure CSS, so a JS failure cannot leave a page
+hidden. The brand Pokéball wobbles on hover. Nothing else animates.
+
+**Verified** (headless Chrome, real clicks): 19/19 behaviour tests, covering desktop tab,
+mobile bottom nav, in-page "Sealed →" link, current-tab click is a no-op,
+back button/bfcache never leaves the page covered, cmd/ctrl-click and external
+links untouched, `prefers-reduced-motion` gets plain navigation, CSS-only open
+works with scripts disabled, no sideways scroll at 390 px, no console errors.
+All five pages load clean. Contrast: every token pair ≥ 4.5:1 in both themes;
+the dark-mode pill was 4.33:1 and was darkened to `#7c4cd6` (5.44:1).
+
+**Known limits.** Text over the wallpaper relies on the veil and halo, so busy
+sprites still show through faintly behind headings; it was readable in every
+screenshot, but the veil (`--veil`) is the knob if it ever is not. The
+transition adds about 0.3 s before navigation starts.
+
+
+---
+
+## Detail sheet, sealed art, green palette, sprites (Nov 12, 2026)
+
+- **Detail sheet** (`src/js/detail.js`): one native `<dialog>` for every page.
+  Whole cards/rows/pockets open it via a stretched button; the card's own
+  TCG/PC/Got-it controls sit above it and still act directly. 92/92 tests:
+  every page × desktop/phone, right item, both links, image loads, fits the
+  viewport, Esc, scroll unlock, ←/→ stepping, keyboard open + focus return,
+  table rows. Bug found and fixed: stepping replaced the focused button, so the
+  second arrow key went nowhere — focus is now restored to the same control.
+- **Sealed images**: 6/6 matched on TCGCSV and checked by eye against names.
+- **Paradox Fury**: TCGCSV lists product 575185 with no price row; $82.20 is the
+  owner's reading of TCGplayer's market price, marked `manual`.
+- **Green palette**: tokens for light + dark, recoloured wallpapers, leaf toggle,
+  saved per browser, applied before first paint. All new token pairs ≥ 4.5:1.
+- **Sprites beside names**: 134/149 cards; the 15 without are Gen 9 species not
+  in PokéSprite, plus Wally (a trainer).
+- **Pokéball transition, revised**: a 3D-sprite version was built and dropped at
+  the owner's request; back to the full-screen split, with the centre button
+  drawn like the anime ball and attached to the top half (it lifts away with the
+  lid). 19/19 behaviour tests.
+- **Test-harness note**: two red runs were traced to a stale headless Chrome
+  still holding the debugging port, serving an old service-worker cache. The
+  harness now picks a fresh random port per run.

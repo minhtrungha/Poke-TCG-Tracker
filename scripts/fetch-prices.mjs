@@ -317,13 +317,21 @@ for (const s of sealed) {
   const chosen = exact[Math.floor((exact.length - 1) / 2)];
   sealedHits.push({ s, chosen });
 }
-const sealedTotal = sealedHits.reduce((t, h) => t + h.chosen.market * (h.s.qty || 1), 0);
+// A sealed product TCGCSV has no price row for may carry a hand-entered price,
+// marked "price_source": "manual" (with where it came from). It is kept and
+// counted, never overwritten by a miss; a real API price replaces it.
+const sealedManual = sealedMiss.filter((s) => s.price_source === 'manual' && typeof s.price_usd === 'number');
+const sealedTotal = sealedHits.reduce((t, h) => t + h.chosen.market * (h.s.qty || 1), 0)
+  + sealedManual.reduce((t, s) => t + s.price_usd * (s.qty || 1), 0);
 if (sealed.length) {
   console.log(`\nsealed: matched ${sealedHits.length}/${sealed.length} · value $${sealedTotal.toFixed(2)}`);
   for (const h of sealedHits) {
     console.log(`  $${String(h.chosen.market).padStart(8)} x${h.s.qty || 1}  ${h.s.name}`);
   }
-  for (const m of sealedMiss) console.log(`  (no match) ${m.name}`);
+  for (const m of sealedMiss) {
+    if (sealedManual.includes(m)) console.log(`  (manual)   ${m.name} = $${m.price_usd} x${m.qty || 1} - ${m.price_note || 'hand-entered'}`);
+    else console.log(`  (no match) ${m.name}`);
+  }
 }
 
 /* --- report ----------------------------------------------------------- */
@@ -360,6 +368,17 @@ for (const [k, v] of Object.entries(prices)) {
   if (k.startsWith('_') || keep.has(k)) next[k] = v;
 }
 Object.assign(next, out);
+// Roll the previous sync's per-card prices into _prev so the site can show
+// "biggest movers". Re-running on the same day keeps the existing _prev
+// (otherwise every card would compare against itself and show no change).
+if (prices.checked_date && prices.checked_date !== today) {
+  const prev = { date: prices.checked_date };
+  for (const [k, v] of Object.entries(prices)) {
+    if (k.startsWith('_') || keep.has(k) || k === 'sealed_total' || !v || typeof v !== 'object') continue;
+    prev[k] = v;
+  }
+  next._prev = prev;
+}
 next.checked_date = today;
 next.sources = Object.fromEntries(
   Object.keys(out).map((k) => [k, 'TCGplayer market price via tcgcsv.com']));
@@ -381,7 +400,10 @@ if (sealedHits.length) {
   const byId = new Map(sealedHits.map((h) => [h.s.id, h.chosen]));
   for (const s of sealed) {
     const c = byId.get(s.id);
-    if (c) { s.price_usd = Math.round(c.market * 100) / 100; s.price_checked = today; }
+    if (c) {
+      s.price_usd = Math.round(c.market * 100) / 100; s.price_checked = today;
+      delete s.price_source; delete s.price_note;
+    }
   }
   await writeFile(P('data/sealed.json'), JSON.stringify(sealed, null, 1) + '\n');
   console.log(`✓ wrote data/sealed.json - ${sealedHits.length} sealed price(s)`);

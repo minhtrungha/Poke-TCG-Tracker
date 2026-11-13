@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.dataset.theme=t;var pl=localStorage.getItem("ptcg-palette");if(pl==="green")d.dataset.palette="green";}catch(e){}try{if(sessionStorage.getItem("ptcg-ball")){sessionStorage.removeItem("ptcg-ball");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("ball-arrive");}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cards · Poké TCG Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,12 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#c63526" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141216" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9e1fe" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17121f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Poké TCG">
 <link rel="apple-touch-icon" href="img/icon-192.png">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/browse.css">
 </head>
 <body>
 <main class="wrap">
@@ -28,12 +29,23 @@
     <button id="vGrid" aria-pressed="true">Grid</button>
     <button id="vTable" aria-pressed="false">Table</button>
   </div>
-  <input type="search" id="q" placeholder="Search name, number, set…" style="min-width:190px">
+  <span class="q-wrap"><input type="search" id="q" placeholder="Search name, number, set…" aria-label="Search cards" aria-keyshortcuts="/" style="min-width:190px"><kbd class="kbd-hint" aria-hidden="true">/</kbd></span>
+  <label class="fld" id="sortFld">Sort
+    <select id="fSort">
+      <option value="default">Binder order</option>
+      <option value="recent">Recently added</option>
+      <option value="price-desc">Price: high → low</option>
+      <option value="price-asc">Price: low → high</option>
+      <option value="name">Name A–Z</option>
+      <option value="set">Set</option>
+      <option value="number">Number</option>
+    </select></label>
   <label class="fld">Set <select id="fSet"></select></label>
   <label class="fld">Lang
     <select id="fLang"><option value="all">All</option><option value="EN">EN</option><option value="JP">JP</option></select></label>
   <label class="fld">Price
     <select id="fPriced"><option value="all">All</option><option value="yes">Has price</option><option value="no">No price</option></select></label>
+  <button type="button" class="btn clear-btn" id="clearF" hidden>✕ Clear filters</button>
 </div>
 <div class="chips" id="tags" style="margin-bottom:14px"></div>
 <p class="count" id="count"></p>

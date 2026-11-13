@@ -167,7 +167,10 @@ directory, or you will sweep in `.ssh/`, `.netrc` and more.
   McDonald's 2021 and Delta Species δ cards are named differently upstream
   (`Espeon δ` vs TCGplayer's own spelling), so neither price nor image resolves.
   They fall back to the Pokéball placeholder, which is a supported state.
-- **Paradox Fury Premium Collection** has no upstream price row.
+- **Paradox Fury Premium Collection** has no upstream price row (TCGCSV lists product
+  575185 with no price). Its $82.20 is hand-entered from TCGplayer's own page and
+  marked `"price_source": "manual"` in `data/sealed.json`; `fetch-prices` keeps and
+  counts it, and replaces it automatically once the API has a real price.
 - **`CLAUDE_CODE_PROMPT.md`** is the original brief, kept for history. Parts of
   it are stale: its pre-seeded card list was a partial reconstruction, and its
   no-official-artwork rule has been narrowed. `README.md` and this file describe

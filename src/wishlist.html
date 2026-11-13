@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.dataset.theme=t;var pl=localStorage.getItem("ptcg-palette");if(pl==="green")d.dataset.palette="green";}catch(e){}try{if(sessionStorage.getItem("ptcg-ball")){sessionStorage.removeItem("ptcg-ball");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("ball-arrive");}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wishlist · Poké TCG Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,12 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#c63526" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141216" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9e1fe" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17121f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Poké TCG">
 <link rel="apple-touch-icon" href="img/icon-192.png">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/lists.css">
 </head>
 <body>
 <main class="wrap">
@@ -23,6 +24,11 @@
 <h1>Wishlist</h1>
 <p class="sub">Missing set slots plus standalone wants. “Got it” is a local note in this browser — update the JSON for real.</p>
 <div class="stats" id="stats"></div>
+<div class="wl-search">
+  <svg class="wl-search-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+  <input type="search" id="q" placeholder="Search name, number or set" aria-label="Search the wishlist" autocomplete="off" enterkeyhint="search">
+  <kbd class="wl-kbd" aria-hidden="true">/</kbd>
+</div>
 <div class="bar">
   <div class="seg">
     <button id="vList" aria-pressed="true">List</button>
@@ -43,8 +49,18 @@
   <button class="chip" id="fGroup" aria-pressed="true">Group by set</button>
   <button class="chip" id="fHide" aria-pressed="false">Hide “got it”</button>
 </div>
+<div class="wl-tools">
+  <label class="wl-budget-fld">Plan a budget
+    <span class="wl-money"><span aria-hidden="true">$</span><input type="number" id="fBudget" min="0" step="10" placeholder="e.g. 100" inputmode="decimal" aria-describedby="budgetOut"></span></label>
+  <button type="button" class="btn wl-copy" id="copyBtn">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5A1.5 1.5 0 0014.5 4h-9A1.5 1.5 0 004 5.5v9A1.5 1.5 0 005.5 16H8"/></svg>
+    <span id="copyLab">Copy shopping list</span></button>
+  <button type="button" class="btn wl-clear" id="clearBtn">Clear filters</button>
+</div>
+<div class="wl-budget" id="budgetOut" aria-live="polite"></div>
 <p class="count" id="count"></p>
 <div id="out"></div>
 </main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script type="module" src="js/wishlist.js"></script>
 </body></html>

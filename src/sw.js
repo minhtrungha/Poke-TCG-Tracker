@@ -2,16 +2,17 @@
    data and images. No dependencies; plain Service Worker API.
 
    Bump CACHE when the shell changes so old copies are evicted. */
-const CACHE = 'ptcg-v1';
+const CACHE = 'ptcg-v8';
 const SHELL = [
   'index.html', 'cards.html', 'sealed.html', 'sets.html', 'wishlist.html',
-  'css/main.css',
+  'css/main.css', 'css/portfolio.css', 'css/browse.css', 'css/lists.css',
   'js/data.js', 'js/portfolio.js', 'js/cards.js', 'js/sealed.js', 'js/sets.js',
-  'js/wishlist.js', 'js/chart.js',
-  'img/logo.svg', 'img/favicon.svg', 'img/icon-192.png',
+  'js/wishlist.js', 'js/chart.js', 'js/detail.js',
+  'img/logo.svg', 'img/favicon.svg', 'img/icon-192.png', 'img/bg-wide.webp', 'img/bg-portrait.webp', 'img/bg-wide-green.webp', 'img/bg-portrait-green.webp',
+  'img/icon-512.png', 'img/icon-maskable-192.png', 'img/icon-maskable-512.png',
   'manifest.webmanifest',
   'data/cards.json', 'data/sets.json', 'data/prices.json',
-  'data/wishlist.json', 'data/sealed.json', 'data/need-images.json',
+  'data/wishlist.json', 'data/sealed.json', 'data/need-images.json', 'data/sprites.json',
 ];
 
 self.addEventListener('install', (e) => {
@@ -49,8 +50,14 @@ self.addEventListener('fetch', (e) => {
     // Images are immutable once downloaded: serve from cache first.
     if (/\.(jpg|jpeg|png|svg|webp)$/i.test(url.pathname)) return hit || (await net) || Response.error();
 
-    // Shell and data: serve cache immediately, refresh in the background.
-    if (hit) { net; return hit; }
+    // Data: network first, so a fresh price sync shows on the first visit;
+    // fall back to the cached copy when offline.
+    if (url.pathname.includes('/data/')) {
+      const res = await net;
+      return res || hit || Response.error();
+    }
+    // Shell: serve cache immediately, refresh in the background (kept alive).
+    if (hit) { e.waitUntil(net); return hit; }
     const res = await net;
     if (res) return res;
     // Offline with nothing cached: fall back to the start page if it is a nav.

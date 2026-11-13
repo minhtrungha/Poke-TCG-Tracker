@@ -1,0 +1,44 @@
+# Browser tests: builds the site, serves it, and drives headless Chrome
+# through every page (real clicks, keys, touch). Runs on any branch except
+# main, so changes are checked BEFORE they reach the live site. Screenshots
+# and logs are uploaded as an artifact.
+name: Browser tests
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run check
+      - run: npm run build
+      - name: Serve dist/
+        run: |
+          PORT=5144 node scripts/serve.mjs > serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:5144/index.html >/dev/null && break; sleep 1; done
+          curl -sf -o /dev/null http://localhost:5144/index.html
+      - name: Run browser suites
+        env:
+          CHROME: /usr/bin/google-chrome
+          BASE: http://localhost:5144/
+          SHOTS: e2e-shots
+        run: bash tests/e2e/run-all.sh
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-shots
+          path: e2e-shots
+          retention-days: 14

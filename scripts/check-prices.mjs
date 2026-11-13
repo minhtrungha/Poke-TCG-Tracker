@@ -87,5 +87,23 @@ for (const [k, bucket] of Object.entries(prices)) {
   }
 }
 
+/* _prev: the previous sync's per-card prices, used for "biggest movers" */
+if (prices._prev) {
+  const pv = prices._prev;
+  const pd = new Date(pv.date), cd = new Date(prices.checked_date);
+  if (!pv.date || isNaN(pd)) bad('_prev has no valid date');
+  else if (!(pd < cd)) bad(`_prev date ${pv.date} is not before checked_date ${prices.checked_date}`);
+  let n = 0;
+  for (const [k, bucket] of Object.entries(pv)) {
+    if (k === 'date') continue;
+    if (!bucket || typeof bucket !== 'object') { bad(`_prev/${k} is not a bucket`); continue; }
+    for (const [num, v] of Object.entries(bucket)) {
+      if (typeof v !== 'number' || !(v > 0)) bad(`_prev/${k}/${num} is not a positive number: ${v}`);
+      else n++;
+    }
+  }
+  if (pv.date && pd < cd) ok(`_prev: ${n} per-card price(s) from ${pv.date}`);
+}
+
 console.log(fail ? `\n${fail} problem(s)` : '\nall checks passed');
 process.exit(fail ? 1 : 0);

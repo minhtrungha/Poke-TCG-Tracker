@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("ptcg-theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.dataset.theme=t;var pl=localStorage.getItem("ptcg-palette");if(pl==="green")d.dataset.palette="green";}catch(e){}try{if(sessionStorage.getItem("ptcg-ball")){sessionStorage.removeItem("ptcg-ball");if(!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("ball-arrive");}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sets · Poké TCG Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,25 +10,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#c63526" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141216" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9e1fe" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17121f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Poké TCG">
 <link rel="apple-touch-icon" href="img/icon-192.png">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/browse.css">
 </head>
 <body>
 <main class="wrap">
 <div id="err"></div>
 <h1>Sets</h1>
-<p class="sub">What you have versus what you still need. Click an empty pocket to search TCGplayer; click an owned card for PriceCharting.</p>
+<p class="sub">What you have versus what you still need. Tap any pocket for the card’s details, price and TCGplayer / PriceCharting links.</p>
 <div class="stats" id="stats"></div>
 <div class="bar">
   <label class="fld">Language
     <select id="fLang"><option value="all">All</option><option value="EN">EN</option><option value="JP">JP</option></select></label>
   <label class="fld">Show
     <select id="fOnly"><option value="all">All pockets</option><option value="missing">Missing only</option><option value="owned">Owned only</option></select></label>
+  <label class="fld">Sort sets
+    <select id="fOrder">
+      <option value="default">Default order</option>
+      <option value="most">Most complete</option>
+      <option value="least">Least complete</option>
+      <option value="cost">Cheapest to finish</option>
+      <option value="name">Name A–Z</option>
+    </select></label>
+  <button type="button" class="btn" id="toggleAll">Collapse all</button>
 </div>
+<nav class="set-ov" id="overview" aria-label="Jump to a set"></nav>
 <div id="out"></div>
 </main>
 <script type="module" src="js/sets.js"></script>
