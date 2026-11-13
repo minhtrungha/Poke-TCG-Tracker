@@ -22,6 +22,7 @@ run() {  # name, then the suite's own arguments
 }
 
 run pages "$BASE"
+run overflow
 run transition "$BASE"
 run detail "$SHOTS/detail"
 run palette "$SHOTS/palette"

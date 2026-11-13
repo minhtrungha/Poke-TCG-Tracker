@@ -229,7 +229,7 @@ for (const [theme, pal] of [['light', 'purple'], ['dark', 'purple'], ['light', '
     if (page.startsWith('cards')) await b.ev(`document.getElementById('q').blur()`);
     const res = await b.ev(`(()=>{
       const L=(r,g,b)=>{const f=c=>{c/=255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4};return .2126*f(r)+.7152*f(g)+.0722*f(b)};
-      const rgb=s=>{const m=s.match(/[\\d.]+/g).map(Number);return m};
+      const rgb=s=>{const m=s.match(/[\\d.]+/g).map(Number);if(/^color\\(srgb/.test(s)){for(let i=0;i<3;i++)m[i]*=255;}return m}; /* color-mix() resolves to color(srgb r g b) with 0–1 channels */
       const bgOf=e=>{for(let n=e;n;n=n.parentElement){const c=getComputedStyle(n).backgroundColor;const m=rgb(c);if(m.length<4||m[3]>0.5) return m;}return [255,255,255]};
       return ${JSON.stringify(sels)}.map(sel=>{const e=document.querySelector(sel); if(!e||!e.offsetWidth) return sel+':skip';
         const f=rgb(getComputedStyle(e).color), g=bgOf(e); const a=L(...f.slice(0,3)), c=L(...g.slice(0,3));

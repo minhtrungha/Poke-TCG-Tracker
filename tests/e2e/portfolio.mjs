@@ -44,8 +44,12 @@ const tipInside = () => b.ev(`(()=>{const t=document.querySelector('.c-tip'), f=
   if(!t||t.hidden) return 'hidden'; const a=t.getBoundingClientRect(), c=f.getBoundingClientRect();
   return a.left>=c.left-0.5 && a.right<=c.right+0.5 && a.top>=c.top-0.5 && a.bottom<=c.bottom+0.5 && a.left>=0 && a.right<=innerWidth})()`);
 // viewport coords of point k from the chart's own data
-const ptXY = (k) => b.ev(`(()=>{const f=document.querySelector('figure.chart'); const d=JSON.parse(f.dataset.pts); const s=f.querySelector('svg').getBoundingClientRect();
-  const p=d[${k}]; return [s.left + p.x/(+f.dataset.w)*s.width, s.top + p.y/(+f.dataset.h)*s.height, d.length, p.date]})()`);
+// Where point k is ACTUALLY drawn: the centre of its rendered dot. Independent
+// of the chart's own coordinate maths (an earlier version reused that maths and
+// so could not catch the letterboxing bug it shared with the code).
+const ptXY = (k) => b.ev(`(()=>{const f=document.querySelector('figure.chart'); const d=JSON.parse(f.dataset.pts);
+  const r=f.querySelector('.c-pt[data-k="${k}"] .c-dot').getBoundingClientRect();
+  return [r.left + r.width/2, r.top + r.height/2, d.length, d[${k}].date]})()`);
 const key = async (k, code, vk) => {
   await b.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: k, code, windowsVirtualKeyCode: vk });
   await b.send('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code, windowsVirtualKeyCode: vk });
