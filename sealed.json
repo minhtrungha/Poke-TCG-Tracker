@@ -1,0 +1,70 @@
+[
+ {
+  "id": 1,
+  "name": "Mega Evolution Elite Trainer Box [Mega Lucario]",
+  "set": "Mega Evolution",
+  "qty": 2,
+  "price_usd": 113.27,
+  "image": "s001.jpg",
+  "search_string": "Mega Evolution Elite Trainer Box Mega Lucario",
+  "price_checked": "Nov 13, 2026",
+  "tcgplayer_id": 648394
+ },
+ {
+  "id": 2,
+  "name": "Paradox Fury Premium Collection",
+  "set": "Miscellaneous Cards & Products",
+  "qty": 2,
+  "price_usd": 82.2,
+  "image": "s002.jpg",
+  "search_string": "Paradox Fury Premium Collection",
+  "price_checked": "Nov 12, 2026",
+  "price_source": "manual",
+  "price_note": "TCGplayer market price (product 575185), read off tcgplayer.com by the owner; TCGCSV has no price row",
+  "tcgplayer_id": 575185
+ },
+ {
+  "id": 3,
+  "name": "Mega Evolution Booster Bundle",
+  "set": "Mega Evolution",
+  "qty": 1,
+  "price_usd": 66.55,
+  "image": "s003.jpg",
+  "search_string": "Mega Evolution Booster Bundle",
+  "price_checked": "Nov 13, 2026",
+  "tcgplayer_id": 644362
+ },
+ {
+  "id": 4,
+  "name": "Prismatic Evolutions Surprise Box",
+  "set": "Prismatic Evolutions",
+  "qty": 1,
+  "price_usd": 62.08,
+  "image": "s004.jpg",
+  "search_string": "Prismatic Evolutions Surprise Box",
+  "price_checked": "Nov 13, 2026",
+  "tcgplayer_id": 593466
+ },
+ {
+  "id": 5,
+  "name": "Team Rocket's Mewtwo ex Box",
+  "set": "Miscellaneous Cards & Products",
+  "qty": 6,
+  "price_usd": 51.79,
+  "image": "s005.jpg",
+  "search_string": "Team Rocket's Mewtwo ex Box",
+  "price_checked": "Nov 13, 2026",
+  "tcgplayer_id": 625695
+ },
+ {
+  "id": 6,
+  "name": "Chaos Rising Booster Bundle",
+  "set": "Chaos Rising",
+  "qty": 2,
+  "price_usd": 37.09,
+  "image": "s006.jpg",
+  "search_string": "Chaos Rising Booster Bundle",
+  "price_checked": "Nov 13, 2026",
+  "tcgplayer_id": 684456
+ }
+]
