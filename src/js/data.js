@@ -178,13 +178,14 @@ export function initChrome(active) {
        </svg></button></div>`;
   document.body.prepend(nav);
 
-  // Mobile bottom bar: same destinations, thumb-reachable.
+  // Phone tab strip: same destinations, sticky at the TOP (a bottom bar sits
+  // on top of iOS Safari's own toolbar and home indicator).
   const bar = document.createElement('nav');
-  bar.className = 'botnav';
+  bar.className = 'mnav';
   bar.setAttribute('aria-label', 'Main (mobile)');
   bar.innerHTML = pages.map(([h, l, d]) =>
     `<a class="bt" href="${h}"${h === active ? ' aria-current="page"' : ''}>${icon(d)}<span>${l}</span></a>`).join('');
-  document.body.appendChild(bar);
+  nav.after(bar);
 
   // Credits: sources and copyright, on every page.
   const cr = document.createElement('footer');

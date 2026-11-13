@@ -129,8 +129,9 @@ await b.ev(`document.querySelector('.dt-in').scrollTop=0`); await sleep(100);
 await swipe(195, 140, 195, 380); await sleep(500);
 t('swipe down from the top closes the sheet on phones', !(await isOpen()) && (await hash()) === '');
 await b.ev(`scrollTo(0, innerHeight*3)`); await sleep(400);
-const r = await b.ev(`(()=>{const a=document.querySelector('.btt').getBoundingClientRect(), n=document.querySelector('.botnav').getBoundingClientRect(); return {btt:a.bottom, nav:n.top, w:a.width}})()`);
-t('mobile back-to-top sits above the bottom nav, 44px', r.btt <= r.nav && r.w >= 44, JSON.stringify(r));
+const r = await b.ev(`(()=>{const a=document.querySelector('.btt').getBoundingClientRect(), n=document.querySelector('.mnav').getBoundingClientRect(); return {btt:a.bottom, top:a.top, nav:n.bottom, navTop:n.top, vh:innerHeight, w:a.width}})()`);
+t('mobile back-to-top on screen, clear of the tab strip, 44px', r.btt <= r.vh && r.top > r.nav && r.w >= 44, JSON.stringify(r));
+t('phone tab strip stays stuck to the top while scrolled', Math.abs(r.navTop) < 1, JSON.stringify(r));
 await b.shot(`${out}/btt-mob.png`);
 
 collect();

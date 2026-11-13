@@ -20,6 +20,9 @@
   --pill:#6f38c0; --pill-fg:#fff;          /* pressed chips, ranks, qty */
   --need:#b8235f;                           /* NEED chip */
   --radius:14px; --pocket:1/1.4;
+  /* the card sits inset in its pocket; % padding is of the WIDTH, so 5.7%/4%
+     leaves an inner area of a real card's 63:88; corners are a real card's 3mm */
+  --pk-pad:5.7% 4%; --card-r:4.8%/3.4%;
   --mono:"SFMono-Regular",ui-monospace,Menlo,monospace;
   --sans:"Outfit",Inter,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --display:"Outfit",var(--sans);
@@ -110,21 +113,22 @@ a{color:inherit}
 .theme-btn:hover{color:var(--fg);border-color:var(--fg-faint)}
 .nav a.tab:focus-visible,.theme-btn:focus-visible,.brand:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px}
-/* ---- mobile bottom nav ---- */
-.botnav{display:none}
+/* ---- phone tab strip (sticky at the top; the brand row scrolls away) ---- */
+.mnav{display:none}
 @media(max-width:720px){
+  :root{--stick-h:58px}
   .nav .tabs{display:none}
-  .nav{justify-content:space-between}
-  .botnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:70;
+  .nav{justify-content:space-between;position:relative}
+  .mnav{display:flex;gap:3px;position:sticky;top:0;z-index:70;padding:5px 6px;
     background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
-    border-top:1px solid var(--line);padding:5px 4px calc(5px + env(safe-area-inset-bottom))}
-  .botnav .bt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:3px;min-height:48px;padding:5px 2px;text-decoration:none;color:var(--fg-faint);
-    font-size:10.5px;font-weight:650;border-radius:10px}
-  .botnav .bt .tab-ico{width:21px;height:21px}
-  .botnav .bt[aria-current="page"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
-  .botnav .bt:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-  body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+    border-bottom:1px solid var(--line);box-shadow:0 6px 18px -12px rgba(var(--tint),.45)}
+  .mnav .bt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;min-height:47px;padding:4px 2px;text-decoration:none;color:var(--fg-dim);
+    font-size:10.5px;font-weight:650;border-radius:12px;transition:background .15s,color .15s}
+  .mnav .bt .tab-ico{width:19px;height:19px}
+  .mnav .bt[aria-current="page"]{background:var(--pill);color:var(--pill-fg);
+    box-shadow:0 3px 10px -4px color-mix(in srgb,var(--pill) 70%,transparent)}
+  .mnav .bt:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 }
 /* ---- layout ---- */
 .wrap{max-width:1180px;margin:0 auto;padding:26px 18px 80px}
@@ -197,9 +201,9 @@ label.fld{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--f
   overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-pocket);
   transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
 .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:var(--fg-faint)}
-.pocket{aspect-ratio:var(--pocket);background:var(--bg-elev2);position:relative;overflow:hidden;
+.pocket{aspect-ratio:var(--pocket);background:var(--bg-elev2);position:relative;overflow:hidden;padding:var(--pk-pad);
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
-.pocket img{width:100%;height:100%;object-fit:cover;display:block}
+.pocket img{width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--card-r)}
 .card-b{padding:10px 11px 11px;display:flex;flex-direction:column;gap:3px;flex:1}
 .card-n{font-size:13.5px;font-weight:700;line-height:1.3;font-family:var(--display)}
 .card-m{font-size:11.5px;color:var(--fg-faint);font-family:var(--mono)}
@@ -297,9 +301,9 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
   transition:transform .16s,box-shadow .16s,border-color .16s}
 .pk:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--fg-faint)}
 .pk:focus-visible{outline:2px solid var(--ball-red);outline-offset:2px}
-.pk-img{aspect-ratio:var(--pocket);background:var(--bg);position:relative}
-.pk-img img{width:100%;height:100%;object-fit:cover;display:block}
-.pk-b{padding:7px 8px 8px}
+.pk-img{aspect-ratio:var(--pocket);background:var(--bg);position:relative;padding:var(--pk-pad)}
+.pk-img img{width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--card-r)}
+.pk-b{padding:7px 8px 8px;flex:1}
 .pk-n{font-size:11.5px;font-weight:650;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pk-num{font-family:var(--mono);font-size:10.5px;color:var(--fg-dim);margin-top:2px}
 .pk.miss{border-style:dashed;border-color:color-mix(in srgb,var(--ball-red) 45%,var(--line))}
@@ -446,7 +450,7 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
   .btn{min-height:44px;padding:10px 14px}
   .card-lnks a,.card-lnks button{min-height:44px;padding:11px 0}
   .stat-link{display:inline-flex;align-items:center;min-height:44px}
-  .botnav .bt{min-height:52px}
+  .mnav .bt{min-height:48px}
 }
 
 /* ============================================================
@@ -494,7 +498,6 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
   .credits{font-size:12px;line-height:2}
   .credits a{display:inline-block;min-height:44px;line-height:44px;padding:0 2px}
 }
-@media(max-width:720px){.credits{padding-bottom:calc(74px + env(safe-area-inset-bottom))}}
 
 /* ============================================================
    Sticker sky — text that sits straight on the wallpaper gets a
@@ -590,6 +593,7 @@ html.ball-arrive .wrap{animation:page-rise .45s cubic-bezier(.2,.7,.3,1) .16s bo
 .lnk-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 /* set pockets are buttons now */
 button.pk{font:inherit;color:inherit;text-align:left;padding:0;width:100%;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;
   -webkit-appearance:none;appearance:none}
 .pk>span,.pk-b>span{display:block}
 .pk-img{display:block}
@@ -761,7 +765,7 @@ html.dt-open{overflow:hidden}
 .btt.show{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .2s,visibility 0s}
 .btt:hover{border-color:var(--accent)}
 .btt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-@media(max-width:720px){.btt{bottom:calc(76px + env(safe-area-inset-bottom));right:12px}}
+@media(max-width:720px){.btt{bottom:calc(18px + env(safe-area-inset-bottom));right:12px}}
 @media(prefers-reduced-motion:reduce){.btt,.btt.show{transition:none}}
 
 /* audit fixes: dark-mode "Got it" uses dark ink on the mint (≈10:1, was 1.6:1) */

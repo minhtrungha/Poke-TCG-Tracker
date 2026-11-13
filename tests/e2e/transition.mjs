@@ -84,7 +84,7 @@ await b.send('Emulation.setEmulatedMedia', { features: [] });
 // 8. mobile bottom nav
 await b.viewport(390, 844, true, 2);
 await b.send('Page.navigate', { url: B + 'sets.html' }); await sleep(1500);
-await realClick('.botnav a[href="index.html"]'); await sleep(60);
+await realClick('.mnav a[href="index.html"]'); await sleep(60);
 t('mobile bottom nav: ball shuts', (await cls()).includes('ball-leave'));
 await waitFor(`location.pathname.endsWith('index.html')`);
 t('mobile: arrives open and clean', (await waitFor(`!document.documentElement.className.includes('ball')`, 3000)) >= 0);

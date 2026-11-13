@@ -29,12 +29,24 @@ for (const w of [390, 360]) {
           const rr = e.getBoundingClientRect();
           if (rr.width && rr.right > W + 1) off.push((e.id ? '#' + e.id : e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\\s+/).join('.') : '')) + ' →' + Math.round(rr.right));
         }
-        const nav = document.querySelector('.botnav');
+        const nav = document.querySelector('.mnav');
         const navOk = !nav || [...nav.children].every((a) => { const q = a.getBoundingClientRect(); return q.right <= W + 1 && q.left >= -1; });
         return { W, sw, navOk, off: [...new Set(off)].slice(0, 6) };
       })()`);
+      if (p === 'sets' || p === 'cards') {
+        const ph = await b.ev(`(()=>{
+          // in each row of tiles the art starts at the same height (no centred/floating art)
+          const rows = {}; let bad = 0, n = 0, sq = 0;
+          for (const t of document.querySelectorAll('.pk')) { const top = Math.round(t.getBoundingClientRect().top);
+            const img = t.querySelector('.pk-img').getBoundingClientRect().top - top; (rows[top] ||= []).push(img); }
+          for (const v of Object.values(rows)) if (Math.max(...v) - Math.min(...v) > 1) bad++;
+          for (const im of document.querySelectorAll('.pocket img, .pk-img img')) { n++; if (parseFloat(getComputedStyle(im).borderTopLeftRadius) < 2) sq++; }
+          return { bad, n, sq };
+        })()`);
+        t(`[${w} ${theme} ${pal}] ${p}: card art aligned in every row, rounded card corners`, ph.bad === 0 && ph.sq === 0 && ph.n > 0, JSON.stringify(ph));
+      }
       t(`[${w} ${theme} ${pal}] ${p}: no sideways overflow, all 5 tabs on screen`,
-        r.sw <= r.W + 1 && r.navOk && !r.off.length, `scrollWidth ${r.sw}/${r.W}${r.navOk ? '' : ' · bottom-nav tabs off-screen'}${r.off.length ? ' · ' + r.off.join(', ') : ''}`);
+        r.sw <= r.W + 1 && r.navOk && !r.off.length, `scrollWidth ${r.sw}/${r.W}${r.navOk ? '' : ' · phone tabs off-screen'}${r.off.length ? ' · ' + r.off.join(', ') : ''}`);
     }
   }
 }

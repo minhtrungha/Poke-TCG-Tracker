@@ -54,7 +54,7 @@
   padding:11px 18px;border-radius:999px;box-shadow:0 10px 24px -10px rgba(0,0,0,.45);
   max-width:calc(100vw - 32px);text-align:center;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:720px){.toast{bottom:calc(82px + env(safe-area-inset-bottom))}}
+
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 .wl-copy-fallback{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0}
 
