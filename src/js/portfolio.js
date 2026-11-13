@@ -121,10 +121,10 @@ function renderHero(prices, cardCount, cardsTotal) {
       if (typeof a[k] !== 'number' || typeof b[k] !== 'number') return '';
       const d = b[k] - a[k];
       const dd = Math.abs(d) < 0.005 ? 'flat' : d > 0 ? 'up' : 'down';
-      return `<span class="hero-part ${dd}">${lab} ${dd === 'up' ? '▲' : dd === 'down' ? '▼' : '•'} ${usd(Math.abs(d))}</span>`;
+      return `<span class="hero-dpart ${dd}">${lab} ${dd === 'up' ? '▲' : dd === 'down' ? '▼' : '•'} ${usd(Math.abs(d))}</span>`;
     };
     const parts = part('cards_total', 'Cards') + part('sealed_total', 'Sealed');
-    if (parts) chg += `<span class="hero-parts" title="Includes value from holdings added or changed between syncs, not only price moves">${parts}</span>`;
+    if (parts) chg += `<span class="hero-dsplit" title="Includes value from holdings added or changed between syncs, not only price moves">${parts}</span>`;
   }
 
   const share = total ? Math.round((cardsTotal / total) * 100) : 100;

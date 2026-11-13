@@ -143,9 +143,12 @@ t('overview shows completion', ovPct.every((x) => /^(\d+%|✓)$/.test(x)), ovPct
 t('each set header shows cost to finish / complete', await b.ev(`[...document.querySelectorAll('#out .set')].every(s=>s.querySelector('.set-cost'))`),
   await b.ev(`[...document.querySelectorAll('#out .set-cost')].slice(0,4).map(x=>x.textContent).join(' | ')`));
 // jump
-const lastKey = await b.ev(`[...document.querySelectorAll('#overview .ov')].pop().dataset.jump`);
+// a set from the middle (the last one sits at the page bottom and can't reach the top)
+const lastKey = await b.ev(`(()=>{const o=[...document.querySelectorAll('#overview .ov')];return o[Math.floor(o.length/2)].dataset.jump})()`);
 await b.ev(`scrollTo(0,0)`); await sleep(200);
-await click(`#overview .ov[data-jump="${lastKey}"]`); await sleep(900);
+await click(`#overview .ov[data-jump="${lastKey}"]`);
+// wait for the smooth scroll to actually stop (up to 3 s), instead of a fixed sleep
+for (let i = 0, prev = -1; i < 30; i++) { await sleep(100); const y = await b.ev(`scrollY`); if (y === prev && y > 0) break; prev = y; }
 const top = await b.ev(`document.getElementById('set-${lastKey}').getBoundingClientRect().top`);
 const navH = await b.ev(`document.querySelector('.nav').getBoundingClientRect().height`);
 t('overview chip scrolls to its set, clear of the sticky nav', top >= navH - 2 && top < navH + 60 || await b.ev(`innerHeight+scrollY>=document.documentElement.scrollHeight-4`), `top=${Math.round(top)} nav=${Math.round(navH)}`);

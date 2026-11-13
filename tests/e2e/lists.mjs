@@ -68,8 +68,8 @@ const wantRows = await b.ev(`(()=>{const got=new Set(JSON.parse(localStorage.get
   return [...document.querySelectorAll('#out [data-i]')].length})()`);
 await b.ev(`document.getElementById('fSrc').value='all'; document.getElementById('fSrc').dispatchEvent(new Event('change'))`); await sleep(200);
 await b.ev(`document.getElementById('q').value='pikachu'; document.getElementById('q').dispatchEvent(new Event('input'))`); await sleep(200);
-// mark the first shown pikachu as got
-await realClick('#out .wl-row [data-got]'); await sleep(200);
+// mark the first shown pikachu that is NOT already got (the first row may be the card marked above)
+await realClick('#out .wl-row:not(.got) [data-got]'); await sleep(200);
 const gotName = await b.ev(`document.querySelector('#out .wl-row.got .wl-n')?.childNodes[0].textContent.trim()`);
 const expect = await b.ev(`(()=>{const rows=[...document.querySelectorAll('#out .wl-row')].filter(r=>!r.classList.contains('got'));
   const prices=rows.map(r=>r.querySelector('.wl-pr').textContent.trim()).filter(p=>p.startsWith('$')).map(p=>+p.slice(1).replace(/,/g,''));
@@ -131,14 +131,16 @@ await go('wishlist.html?view=list&sort=name&src=want');
 const st2 = await b.ev(`({list:document.getElementById('vList').getAttribute('aria-pressed'), sort:document.getElementById('fSort').value, src:document.getElementById('fSrc').value})`);
 t('URL query wins over saved state', st2.list === 'true' && st2.sort === 'name' && st2.src === 'want', JSON.stringify(st2));
 await go('wishlist.html?sort=bogus&max=-3');
-t('bad URL values fall back safely', (await b.ev(`document.getElementById('fSort').value`)) === 'name' && (await b.ev(`document.getElementById('fMax').value`)) === '5');
+// a link's own settings are not saved, so invalid values fall back to the SAVED state (sort=cheap, max=5)
+t('bad URL values fall back safely', (await b.ev(`document.getElementById('fSort').value`)) === 'cheap' && (await b.ev(`document.getElementById('fMax').value`)) === '5');
 // clear filters button
 await realClick('#clearBtn'); await sleep(300);
 const cl = await b.ev(`({q:document.getElementById('q').value, src:document.getElementById('fSrc').value, max:document.getElementById('fMax').value, budget:document.getElementById('fBudget').value, hide:document.getElementById('fHide').getAttribute('aria-pressed'), disabled:document.getElementById('clearBtn').disabled, sort:document.getElementById('fSort').value})`);
-t('Clear filters resets filters, keeps view/sort, then hides itself', cl.q === '' && cl.src === 'all' && cl.max === '' && cl.budget === '' && cl.hide === 'false' && cl.disabled && cl.sort === 'name', JSON.stringify(cl));
+t('Clear filters resets filters, keeps view/sort, then hides itself', cl.q === '' && cl.src === 'all' && cl.max === '' && cl.budget === '' && cl.hide === 'false' && cl.disabled && cl.sort === 'cheap', JSON.stringify(cl));
 
 // 6. detail sheet still opens from rows and tiles
-await realClick('#out [data-i] .wl-s'); await sleep(400);
+// works in either view (the saved view here is the card grid)
+await realClick('#out [data-i] .wl-s, #out [data-i] .card-s'); await sleep(400);
 t('row still opens the detail sheet', await b.ev(`!!document.querySelector('dialog.dt[open]')`), await b.ev(`document.getElementById('dt-title')?.textContent.trim()`));
 await key('Escape', 'Escape', 27); await sleep(200);
 t('"/" ignored while typing in another field', await b.ev(`(()=>{const m=document.getElementById('fMax'); m.focus(); return document.activeElement===m})()`));

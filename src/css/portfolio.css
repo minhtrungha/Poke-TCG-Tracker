@@ -85,7 +85,8 @@
 .movers{margin:4px 0 6px}
 .movers .sec-h{margin-top:22px}
 .mv-sub{margin:-4px 0 12px;font-size:12.5px;color:var(--fg-dim)}
-.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mv-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.mv-col{min-width:0}   /* let long set names ellipsis instead of widening the page */
 .mv-h{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-family:var(--display);font-size:14px;font-weight:800}
 .mv-col.up .mv-h{color:var(--ok)}
 .mv-col.down .mv-h{color:var(--ball-red)}
@@ -110,9 +111,9 @@
 .mv-d small{font-weight:600;margin-left:2px}
 .mv-d.up{color:var(--ok)} .mv-d.down{color:var(--ball-red)}
 .mv-none{font-size:13px;color:var(--fg-dim);margin:0}
-@media(max-width:760px){.mv-grid{grid-template-columns:1fr;gap:6px}}
+@media(max-width:760px){.mv-grid{grid-template-columns:minmax(0,1fr);gap:6px}}
 
 /* change split: cards vs sealed (audit M2) */
-.hero-parts{display:flex;flex-wrap:wrap;gap:6px 12px;flex-basis:100%;font-family:var(--mono);font-size:12.5px;margin-top:4px}
-.hero-part{color:var(--fg-dim);font-weight:600}
-.hero-part.up{color:var(--ok)} .hero-part.down{color:var(--ball-red)}
+.hero-dsplit{display:flex;flex-wrap:wrap;gap:6px 12px;flex-basis:100%;font-family:var(--mono);font-size:12.5px;margin-top:4px}
+.hero-dpart{color:var(--fg-dim);font-weight:600}
+.hero-dpart.up{color:var(--ok)} .hero-dpart.down{color:var(--ball-red)}
