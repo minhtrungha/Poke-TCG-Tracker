@@ -529,10 +529,12 @@ h1{color:var(--fg)}
   --btn-house:clamp(36px,5.6vmin,52px);  /* dark housing */
   --btn-edge:clamp(39px,6vmin,56px);     /* ink outline */
   --seam:clamp(7px,1vmin,10px);
+  --ball-mid:50vh;
 }
+@supports(height:1dvh){:root{--ball-mid:50dvh}}   /* middle of what is actually visible */
 html.ball-arrive::before,html.ball-arrive::after,
 html.ball-leave::before,html.ball-leave::after{
-  content:"";position:fixed;left:0;right:0;height:50vh;z-index:1000;pointer-events:none;
+  content:"";position:fixed;left:0;right:0;height:var(--ball-mid);z-index:1000;pointer-events:none;
   will-change:transform;
 }
 /* top half: red dome + dark seam, and the WHOLE button, which belongs to the
@@ -540,7 +542,7 @@ html.ball-leave::before,html.ball-leave::after{
    of the button can overhang the white half; the red and the seam stop at the
    middle (sized layers), and the lid sits above the bottom half. */
 html.ball-arrive::before,html.ball-leave::before{
-  top:0;z-index:1001;height:calc(50vh + var(--btn-edge));
+  top:0;z-index:1001;height:calc(var(--ball-mid) + var(--btn-edge));
   background:
     radial-gradient(circle at 50% calc(100% - var(--btn-edge)),
       #ffffff 0, #ececf2 calc(var(--btn-face) * .55), #cfcfda var(--btn-face),
@@ -553,9 +555,11 @@ html.ball-arrive::before,html.ball-leave::before{
       0 0/100% calc(100% - var(--btn-edge)) no-repeat,
     var(--ball-top) 0 0/100% calc(100% - var(--btn-edge)) no-repeat;
 }
-/* bottom half: white, with its half of the seam */
+/* bottom half: white, with its half of the seam. Anchored at the middle and a
+   full screen tall, so it also covers the strip behind iOS Safari's translucent
+   bottom toolbar (a bottom:0 box stops above it and leaves the page showing). */
 html.ball-arrive::after,html.ball-leave::after{
-  bottom:0;
+  top:var(--ball-mid);height:100lvh;height:max(100vh,100lvh);
   background:
     linear-gradient(180deg,var(--ball-seam) 0 calc(var(--seam) / 2),var(--ball-ink) calc(var(--seam) / 2) calc(var(--seam) / 2 + 2px),transparent calc(var(--seam) / 2 + 2px)),
     var(--ball-bot);
