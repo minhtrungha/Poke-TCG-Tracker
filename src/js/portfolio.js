@@ -66,9 +66,10 @@ const detailOf = (c) => {
     el('out').innerHTML = `<div class="empty-st">
       <h3>No prices recorded yet</h3>
       <p>This page ranks your cards by market value, and stays empty until
-      <code>data/prices.json</code> has numbers in it. Say <strong>“update prices”</strong>
-      in Claude Code to fetch current TCGplayer and PriceCharting values for your
-      ${d.cards.length} cards — nothing here is auto-fetched.</p></div>`;
+      <code>data/prices.json</code> has numbers in it. Prices refresh every Sunday;
+      to fetch them now for your ${d.cards.length} cards, run the
+      <strong>Deploy to GitHub Pages</strong> workflow, or say <strong>“update prices”</strong>
+      in Claude Code.</p></div>`;
     return;
   }
 

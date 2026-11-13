@@ -1,11 +1,25 @@
 # Build the site into dist/ and publish dist/ to GitHub Pages.
 # Repo setting: Pages → Source must be "GitHub Actions".
+#
+# Prices refresh weekly on a schedule, or on demand from Actions →
+# "Deploy to GitHub Pages" → "Run workflow". The refresh pulls market prices
+# from TCGCSV (no API key) and commits them to the `prices-data` branch, never
+# to main, so main's history stays free of price commits. Every deploy,
+# including a plain push to main, lays that branch's prices over data/ before
+# building. See scripts/apply-price-data.mjs for the merge rules.
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '23 21 * * 0'   # Sundays, 21:23 UTC
   workflow_dispatch:
+    inputs:
+      refresh_prices:
+        description: Fetch fresh prices from TCGCSV before deploying
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -17,13 +31,75 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prices:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh_prices)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write   # push to the prices-data branch
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Start from the saved price data
+        run: |
+          if git fetch --depth=1 origin prices-data; then
+            mkdir -p "$RUNNER_TEMP/saved"
+            git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/saved"
+            node scripts/apply-price-data.mjs "$RUNNER_TEMP/saved"
+          else
+            echo "No prices-data branch yet - starting from data/ on main."
+          fi
+      - name: Fetch prices from TCGCSV
+        run: npm run prices:write
+      - name: Save to the prices-data branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          pd="$RUNNER_TEMP/prices-data"
+          if git fetch --depth=1 origin prices-data; then
+            git worktree add --detach "$pd" FETCH_HEAD
+          else
+            git worktree add --detach "$pd" HEAD
+            git -C "$pd" checkout --orphan prices-data
+            git -C "$pd" rm -rfq .
+          fi
+          cp data/prices.json data/sealed.json data/wishlist.json data/cards.json "$pd/"
+          cat > "$pd/README.md" <<'EOF'
+          Written by the weekly price sync in .github/workflows/pages.yml on main.
+          Do not edit by hand: each deploy merges these files into data/ with
+          scripts/apply-price-data.mjs.
+          EOF
+          cd "$pd"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Prices unchanged - nothing to commit."
+            exit 0
+          fi
+          git commit -qm "Prices: $(node -p "require('./prices.json').checked_date")"
+          git push origin HEAD:refs/heads/prices-data
+
   build:
+    needs: prices
+    # Runs when the refresh succeeded or was skipped (a push to main); a failed
+    # refresh deploys nothing.
+    if: ${{ !cancelled() && needs.prices.result != 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Lay the saved price data over data/
+        run: |
+          if git fetch --depth=1 origin prices-data; then
+            mkdir -p "$RUNNER_TEMP/saved"
+            git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/saved"
+            node scripts/apply-price-data.mjs "$RUNNER_TEMP/saved"
+          else
+            echo "No prices-data branch yet - deploying data/ as committed."
+          fi
       - run: npm run check
       - run: npm run build
       - uses: actions/configure-pages@v5
