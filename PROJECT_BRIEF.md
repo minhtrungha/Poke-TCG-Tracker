@@ -6,8 +6,8 @@ Start-up context for a Claude Project working on this repo. Read this first.
 
 ## What this is
 
-A static site for one person's Pokémon card collection. Five pages, no backend,
-no framework, no runtime dependencies. All state lives in `data/*.json`; card
+A static site for one person's trading-card collection — Pokémon, One Piece and
+Riftbound. Five pages, no backend, no framework, no runtime dependencies. All state lives in `data/*.json`; card
 photos live in `images/`. It is built with `npm run build` into `dist/` and
 deploys to Vercel or GitHub Pages as plain files.
 
@@ -15,9 +15,16 @@ The owner is the only user. They are not a web developer, so the workflows are
 "say a thing in Claude Code" rather than "edit the JSON by hand" — though
 hand-editing is always available and documented in `README.md`.
 
-**Current state** (Nov 11, 2026): 149 cards (102 EN / 47 JP) · 16 tracked sets,
-56 of 164 slots filled · 3 standalone wants · 6 sealed products, 14 units ·
-holdings **$2,846.60** (cards $2,109.64 + sealed $736.96).
+**Current state** (Nov 15, 2026): 149 cards (102 EN / 47 JP, all Pokémon) ·
+16 tracked sets, 56 of 164 slots filled · 3 standalone wants · 9 sealed products
+across three games, 24 units · holdings **$3,527.87** (cards $2,094.08 + sealed
+$1,433.79). Per game: Pokémon $2,996.23 · Riftbound $475.00 · One Piece $56.64.
+
+**Multi-game** since Nov 15, 2026. `data/games.json` is the registry (Pokémon,
+One Piece, Riftbound), and every card and sealed entry may carry a `"game"`
+key — **unlabelled means Pokémon**, which is what the original 149 cards are.
+The new holdings are all sealed: a Riftbound T1 Worlds Champion Player Bundle,
+a Riftbound Worlds Bundle 2026 and eight One Piece OP-16 booster packs.
 
 ---
 
@@ -38,7 +45,11 @@ Each page is `src/<page>.html` plus `src/js/<page>.js`, sharing `src/js/data.js`
 
 ## Data model
 
-Five files in `data/`. These are the source of truth; the pages only render them.
+Seven files in `data/`. These are the source of truth; the pages only render them.
+
+- **`games.json`** — the games tracked, each with its TCGCSV category ids. A
+  card or product's `game` field points at a `key` here; no field means
+  `pokemon`.
 
 - **`cards.json`** — owned cards. `id` is permanent and referenced by set slots
   and image filenames, so **never reuse or renumber ids**.
@@ -47,13 +58,18 @@ Five files in `data/`. These are the source of truth; the pages only render them
 - **`prices.json`** — `{set_key: {number: usd}}`, plus `checked_date`, `sources`
   and `history[]` (one point per sync, drives the Portfolio chart).
 - **`wishlist.json`** — wanted cards *not* part of a tracked set.
-- **`sealed.json`** — unopened product with `qty`.
+- **`sealed.json`** — unopened product with `qty` and `game`.
 - **`need-images.json`** — maps unowned slots to downloaded art in `images/need/`.
 
 ### The one rule that matters most
 
 **Prices resolve through `set_key`, scoped to a bucket — never by card number
-alone.** Card numbers repeat across sets *and* across printings of one card.
+alone.** Since the tracker went multi-game this extends outwards: a record is
+only ever matched inside **its own game's catalogue**, and non-Pokémon buckets
+are prefixed with the game key, so two games that name a set alike cannot share
+a bucket. Product names collide across games far more readily than card numbers
+do — "Booster Bundle" and "Booster Pack" exist in all three — so a cross-game
+name match was a real risk, not a theoretical one. Card numbers repeat across sets *and* across printings of one card.
 
 The canonical example: `Umbreon ex 060/131` exists twice in this collection —
 the plain Prismatic Evolutions print (id 20, $6.97) and the Surprise Box stamped
@@ -160,6 +176,19 @@ directory, or you will sweep in `.ssh/`, `.netrc` and more.
 ---
 
 ## Known gaps
+
+- **Riftbound Worlds Bundle 2026 has no upstream price.** TCGCSV's Riftbound
+  catalogue (category 89) lists a *Worlds Bundle 2025* but no 2026 bundle. The
+  owner has confirmed (Nov 15, 2026) that it **is** the 2026 bundle, so the entry
+  is correct and the gap is upstream. It carries a **hand-entered $175**
+  (`"price_source": "manual"`), which is the owner's own figure rather than an
+  observed market price — the second such entry, after Paradox Fury. Do not
+  rename it to 2025 or value it from that product; a later sync replaces the
+  manual figure once the product is listed.
+- **No tracked sets or cards outside Pokémon yet.** The set tracker and wishlist
+  support a `game` field but hold only Pokémon; the game filters on Cards and
+  Portfolio stay hidden until a non-Pokémon card is added, and the Wishlist page
+  has no game filter at all yet.
 
 - **Chart has one data point.** It needs a second sync on a later date to draw a
   line. This is real history accumulating, not something to fabricate.

@@ -1,5 +1,6 @@
 import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, imgTag, esc, langBadge,
-         initChrome, initOffline, dataError, byText, sprite } from './data.js';
+         initChrome, initOffline, dataError, byText, sprite,
+         gameIndex, gameOf, gameBadge } from './data.js';
 import { bindDetails, ownedDetail } from './detail.js';
 
 initOffline();
@@ -10,18 +11,19 @@ const el = (id) => document.getElementById(id);
    Remembered across visits (localStorage) and mirrored into the URL query so
    a filtered view can be bookmarked or shared. A URL that carries any state
    wins over what was remembered; replaceState only, so Back is untouched. */
-const DEFAULTS = { view: 'grid', set: 'all', lang: 'all', tag: 'all', priced: 'all', q: '',
+const DEFAULTS = { view: 'grid', set: 'all', game: 'all', lang: 'all', tag: 'all', priced: 'all', q: '',
                    sort: 'default', sortK: 'id', sortDir: 1 };
 const SORTS = ['default', 'recent', 'price-desc', 'price-asc', 'name', 'set', 'number'];
 const TABLE_KEYS = ['id', 'name', 'number', 'set', 'rarity', 'printing', 'lang', 'condition', 'binder_page', 'price'];
 const STORE = 'ptcg-cards-view';
 // URL param name ↔ state key
-const PARAMS = { v: 'view', set: 'set', lang: 'lang', tag: 'tag', price: 'priced', q: 'q',
+const PARAMS = { v: 'view', set: 'set', game: 'game', lang: 'lang', tag: 'tag', price: 'priced', q: 'q',
                  sort: 'sort', col: 'sortK', dir: 'sortDir' };
-const FILTER_KEYS = ['set', 'lang', 'tag', 'priced', 'q'];
+const FILTER_KEYS = ['set', 'game', 'lang', 'tag', 'priced', 'q'];
 
 const state = { ...DEFAULTS };
 let cards = [], shownRows = [], ctx = {};
+let gi = null, gamesPresent = [];
 
 function readState() {
   const fromUrl = {};
@@ -64,7 +66,10 @@ const isFiltered = () => FILTER_KEYS.some((k) => state[k] !== DEFAULTS[k]);
   el('err').innerHTML = dataError(d._err);
   const px = priceIndex(d.prices, d.sets);
   cards = d.cards.map((c) => ({ ...c, price: px.get(c) }));
-  ctx = { checked: d.prices && d.prices.checked_date, sprites: d.sprites || {} };
+  gi = gameIndex(d.games);
+  gamesPresent = gi.present(cards);
+  ctx = { checked: d.prices && d.prices.checked_date, sprites: d.sprites || {},
+          games: gamesPresent.length > 1 ? gi : null };
   bindDetails(el('out'), () => shownRows.map((c) => ownedDetail(c, { price: c.price, ...ctx })));
 
   const setNames = [...new Set(cards.map((c) => c.set))].sort(byText);
@@ -85,6 +90,15 @@ const isFiltered = () => FILTER_KEYS.some((k) => state[k] !== DEFAULTS[k]);
   el('vGrid').addEventListener('click', () => { state.view = 'grid'; render(); });
   el('vTable').addEventListener('click', () => { state.view = 'table'; render(); });
   el('fSort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
+  // Only offered once the collection spans more than one game.
+  if (gamesPresent.length > 1) {
+    el('fGameFld').hidden = false;
+    el('fGame').innerHTML = `<option value="all">All games</option>` +
+      gamesPresent.map((g) => `<option value="${esc(g.key)}">${esc(g.name)}</option>`).join('');
+    el('fGame').addEventListener('change', (e) => { state.game = e.target.value; render(); });
+  } else if (state.game !== 'all') {
+    state.game = 'all';
+  }
   el('fSet').addEventListener('change', (e) => { state.set = e.target.value; render(); });
   el('fLang').addEventListener('change', (e) => { state.lang = e.target.value; render(); });
   el('fPriced').addEventListener('change', (e) => { state.priced = e.target.value; render(); });
@@ -126,6 +140,7 @@ function syncControls() {
   el('sortFld').hidden = state.view !== 'grid';      // the table sorts by its headers
   el('fSort').value = state.sort;
   el('fSet').value = state.set;
+  if (gamesPresent.length > 1) el('fGame').value = state.game;
   el('fLang').value = state.lang;
   el('fPriced').value = state.priced;
   if (el('q').value !== state.q) el('q').value = state.q;
@@ -137,12 +152,13 @@ function filtered() {
   const q = state.q.trim().toLowerCase();
   return cards.filter((c) => {
     if (state.set !== 'all' && c.set !== state.set) return false;
+    if (state.game !== 'all' && gameOf(c) !== state.game) return false;
     if (state.lang !== 'all' && (c.lang || 'EN') !== state.lang) return false;
     if (state.tag !== 'all' && !(c.tags || []).includes(state.tag)) return false;
     if (state.priced === 'yes' && typeof c.price !== 'number') return false;
     if (state.priced === 'no' && typeof c.price === 'number') return false;
     if (q) {
-      const hay = `${c.name} ${c.number} ${c.set} ${c.rarity} ${(c.tags||[]).join(' ')}`.toLowerCase();
+      const hay = `${c.name} ${c.number} ${c.set} ${c.rarity} ${(c.tags||[]).join(' ')} ${gi ? gi.name(gameOf(c)) : ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -206,7 +222,7 @@ function render() {
     el('out').innerHTML = rows.map((c, i) => `<article class="card" data-i="${i}"><button type="button" class="card-hit" data-open aria-label="Details for ${esc(c.name)} ${esc(c.number)}"></button>
       <div class="pocket">${imgTag(c)}</div>
       <div class="card-b">
-        <div class="card-n">${esc(c.name)} ${langBadge(c.lang)}${sprite(ctx.sprites, c.name, 'name-sprite')}${c.warn ? ` <span class="warn-dot" title="${esc(c.warn)}">⚠</span>` : ''}</div>
+        <div class="card-n">${esc(c.name)} ${langBadge(c.lang)}${gamesPresent.length > 1 ? gameBadge(gi, gameOf(c)) : ''}${sprite(ctx.sprites, c.name, 'name-sprite')}${c.warn ? ` <span class="warn-dot" title="${esc(c.warn)}">⚠</span>` : ''}</div>
         <div class="card-m">${esc(c.number)}${c.binder_page ? ` · ${esc(c.binder_page)}` : ''}</div>
         <div class="card-s">${esc(c.set)}</div>
         <div class="card-s" style="color:var(--fg-faint)">${esc(c.rarity || '')}${c.printing ? ' · ' + esc(c.printing) : ''}</div>
@@ -241,7 +257,7 @@ function render() {
       <td>${esc(c.set)}</td>
       <td>${esc(c.rarity || '')}</td>
       <td>${esc(c.printing || '')}</td>
-      <td>${langBadge(c.lang)}</td>
+      <td>${langBadge(c.lang)}${gamesPresent.length > 1 ? ' ' + gameBadge(gi, gameOf(c)) : ''}</td>
       <td>${esc(c.condition || '')}</td>
       <td class="num">${esc(c.binder_page || '—')}</td>
       <td class="pr">${typeof c.price === 'number' ? usd(c.price) : '—'}</td>

@@ -4,7 +4,8 @@
    Images are TCGplayer's own product photos, via the product records TCGCSV
    mirrors (same source as fetch-missing-images). A product is matched by its
    exact name (or with a bracketed variant dropped, as fetch-prices does),
-   looking in the group named by its "set" first, then in every EN group.
+   searched only within its own game's catalogue (data/games.json): the group
+   named by its "set" first, then every group of that game.
    Saves images/sealed/s<id>.jpg and sets "image" on the entry.
 
    Usage:
@@ -17,7 +18,7 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const P = (...a) => path.join(ROOT, ...a);
-const BASE = 'https://tcgcsv.com/tcgplayer/3';
+const BASE = 'https://tcgcsv.com/tcgplayer';
 const WRITE = process.argv.includes('--write');
 const UA = 'poke-tcg-tracker/1.0 (personal collection image sync)';
 const OUT = P('images/sealed');
@@ -41,14 +42,35 @@ const norm = (s) => String(s).toLowerCase()
 const loose = (s) => s.replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
 const sealed = JSON.parse(await readFile(P('data/sealed.json'), 'utf8'));
-const groups = rows(await j(`${BASE}/groups`));
+const games = JSON.parse(await readFile(P('data/games.json'), 'utf8'));
+const gameBy = new Map(games.map((g) => [g.key, g]));
+const gameOf = (r) => (r && r.game) || 'pokemon';
+
+/* Groups are per category, and a category belongs to one game, so a product
+   shot is only ever looked for inside the game the entry says it is. Loaded
+   lazily: a sync for Pokemon product never downloads the One Piece catalogue. */
+const groupCache = new Map();
+async function groupsOf(gameKey) {
+  if (!groupCache.has(gameKey)) {
+    const g = gameBy.get(gameKey);
+    if (!g) { groupCache.set(gameKey, []); return []; }
+    const all = [];
+    for (const cat of Object.values(g.categories || {})) {
+      try { for (const x of rows(await j(`${BASE}/${cat}/groups`))) all.push({ ...x, cat }); }
+      catch {}
+    }
+    groupCache.set(gameKey, all);
+  }
+  return groupCache.get(gameKey);
+}
 const cache = new Map();
 const productsOf = async (g) => {
-  if (!cache.has(g.groupId)) {
-    try { cache.set(g.groupId, rows(await j(`${BASE}/${g.groupId}/products`))); }
-    catch { cache.set(g.groupId, []); }
+  const ck = `${g.cat}/${g.groupId}`;
+  if (!cache.has(ck)) {
+    try { cache.set(ck, rows(await j(`${BASE}/${g.cat}/${g.groupId}/products`))); }
+    catch { cache.set(ck, []); }
   }
-  return cache.get(g.groupId);
+  return cache.get(ck);
 };
 function pick(prods, s) {
   const want = norm(s.name);
@@ -61,6 +83,8 @@ function pick(prods, s) {
 const found = [];
 for (const s of sealed) {
   let hit = null;
+  const groups = await groupsOf(gameOf(s));
+  if (!groups.length) { console.log(`  (no catalogue for game "${gameOf(s)}") ${s.name}`); continue; }
   const own = groups.filter((g) => norm(g.name) === norm(s.set || ''));
   for (const g of own) { hit = pick(await productsOf(g), s); if (hit) break; }
   if (!hit) {

@@ -37,9 +37,20 @@ recent sales, never the lowest listing), writes prices bucketed by `set_key`,
 fills in each card's `set_key`, and appends one point to `history[]` for the
 Portfolio chart.
 
-Prefer this over manual lookups: it prices all 147 cards in one pass and cannot
-mix up two printings of the same number. Report what it prints - the total, and
-any card it could not match.
+Prefer this over manual lookups: it prices the whole collection in one pass and
+cannot mix up two printings of the same number. Report what it prints - the
+total, and any card or product it could not match.
+
+**It is multi-game.** `data/games.json` maps each game to its TCGCSV category
+ids, and a card or sealed product is only ever matched inside its own game's
+catalogue - the same reasoning as pricing per set bucket rather than by number.
+A record with no `game` field is Pokémon. Only the games the collection
+actually holds are downloaded, so the sync does not slow down for a game in the
+registry that nothing is tracked from yet.
+
+The run prints a short game tag (`PKM`, `OP`, `RB`) against each sealed line, and
+`npm run check` prints the per-game record count. An unknown `game` key is a hard
+error there, not a silent skip.
 
 Only fall back to the manual process below for a card the script misses.
 
@@ -83,7 +94,9 @@ card's value. That is the bug that previously inflated the portfolio total.
    - **TCGplayer market price** — search
      `https://www.tcgplayer.com/search/pokemon/product?q=<search_string>`, open the
      card's listing and read the **market price** (the median of recent sales),
-     *not* the lowest listing.
+     *not* the lowest listing. For a game other than Pokémon, search
+     `https://www.tcgplayer.com/search/all/product?q=<search_string>` and check
+     the result is from the right game before reading a number off it.
    - **PriceCharting** — `https://www.pricecharting.com/search-products?type=pokemon&q=<name> <number>`
      as a fallback, and as the primary source for Japanese cards (use the
      **ungraded** price).
@@ -147,3 +160,12 @@ card's value. That is the bug that previously inflated the portfolio total.
   the report rather than recording a guess.
 - Keep `data/prices.json` the single source of truth. `price_usd` in
   `wishlist.json` is a convenience copy; if you update one, update the other.
+- A sealed entry's `price_note` may record **which** product it is (for example
+  the Riftbound Player bundle rather than the Signature edition, or a loose
+  booster pack rather than a sleeved one). The sync keeps such a note; it only
+  clears one that came with a hand-entered `price_source: "manual"` price, which
+  a real API price supersedes. Do not delete those notes by hand either.
+- Sealed product that TCGCSV has no row for stays `null` and is reported. Do not
+  substitute a neighbouring year's or edition's product: the Riftbound Worlds
+  Bundle 2026 is unpriced for exactly this reason, and the 2025 bundle upstream
+  is a different item at a different price.

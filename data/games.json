@@ -1,0 +1,28 @@
+[
+ {
+  "key": "pokemon",
+  "name": "Pokémon",
+  "short": "PKM",
+  "categories": { "EN": 3, "JP": 85 },
+  "tcg_search": "pokemon",
+  "pc_type": "pokemon",
+  "publisher": "Nintendo / Creatures Inc. / GAME FREAK Inc.",
+  "default": true
+ },
+ {
+  "key": "onepiece",
+  "name": "One Piece",
+  "short": "OP",
+  "categories": { "EN": 68 },
+  "tcg_search": "all",
+  "publisher": "Bandai Namco / Eiichiro Oda / Shueisha / Toei Animation"
+ },
+ {
+  "key": "riftbound",
+  "name": "Riftbound",
+  "short": "RB",
+  "categories": { "EN": 89 },
+  "tcg_search": "all",
+  "publisher": "Riot Games"
+ }
+]

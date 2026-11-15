@@ -10,7 +10,7 @@ export const PLACEHOLDER = `<span class="ph" aria-label="Not owned yet"><svg vie
   <text x="50" y="100" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="800" fill="currentColor" fill-opacity=".7" letter-spacing="1.2">NOT YET</text>
 </svg></span>`;
 
-const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images', 'sealed', 'sprites'];
+const FILES = ['cards', 'sets', 'prices', 'wishlist', 'need-images', 'sealed', 'sprites', 'games'];
 
 export async function loadAll() {
   const out = {};
@@ -72,6 +72,44 @@ export function normNum(n) {
   return String(n == null ? '' : n).trim().toUpperCase().replace(/\s+/g, ' ');
 }
 
+/* --- games (multi-TCG) ------------------------------------------------
+   Every card and sealed product belongs to one game. Records written before
+   the tracker handled more than one carry no `game` field, so anything
+   unlabelled is Pokémon — the collection it started as. data/games.json is
+   the registry; this fallback keeps the pages working if that file fails to
+   load, since the whole UI now asks it for names and badges. */
+export const DEFAULT_GAME = 'pokemon';
+const GAMES_FALLBACK = [{ key: 'pokemon', name: 'Pokémon', short: 'PKM', tcg_search: 'pokemon', pc_type: 'pokemon', default: true }];
+
+export function gameIndex(games) {
+  const list = (Array.isArray(games) && games.length) ? games : GAMES_FALLBACK;
+  const by = new Map(list.map((g) => [g.key, g]));
+  const fallback = by.get(DEFAULT_GAME) || list[0];
+  return {
+    list,
+    get: (key) => by.get(key || DEFAULT_GAME) || fallback,
+    name: (key) => (by.get(key || DEFAULT_GAME) || fallback).name,
+    has: (key) => by.has(key),
+    /* The games actually represented in a set of records, in registry order,
+       so a filter never offers a game the owner holds nothing from. */
+    present(...lists) {
+      const seen = new Set();
+      for (const l of lists) for (const r of l || []) seen.add(gameOf(r));
+      return list.filter((g) => seen.has(g.key));
+    },
+  };
+}
+
+/* A record's game, defaulting to Pokémon for anything written earlier. */
+export const gameOf = (r) => (r && r.game) || DEFAULT_GAME;
+
+/* Small coloured chip naming the game. Carries a readable label rather than
+   just a colour, since the games have no universally known colour coding. */
+export function gameBadge(gi, key, { full = false } = {}) {
+  const g = gi.get(key);
+  return `<span class="game-badge" data-game="${esc(g.key)}" title="${esc(g.name)}">${esc(full ? g.name : (g.short || g.name))}</span>`;
+}
+
 /* --- formatting --- */
 export const usd = (n) => n == null ? '—'
   : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -88,11 +126,18 @@ export function daysSince(s) {
   return d == null ? null : Math.floor((Date.now() - d.getTime()) / 86400000);
 }
 
-/* --- links --- */
-export const tcgUrl = (q) =>
-  `https://www.tcgplayer.com/search/pokemon/product?q=${encodeURIComponent(q)}`;
-export const pcUrl = (name, number) =>
-  `https://www.pricecharting.com/search-products?type=pokemon&q=${encodeURIComponent(`${name} ${number}`.trim())}`;
+/* --- links ---
+   Both sites scope a search by category. Pokémon has a known path on each;
+   for the other games the generic search is used rather than a guessed slug,
+   and anything with a `tcgplayer_id` links straight to the product instead. */
+export const tcgUrl = (q, game) =>
+  `https://www.tcgplayer.com/search/${game === 'pokemon' || game == null ? 'pokemon' : 'all'}/product?q=${encodeURIComponent(q)}`;
+export const pcUrl = (name, number, game) => {
+  const q = encodeURIComponent(`${name} ${number ?? ''}`.trim());
+  return (game === 'pokemon' || game == null)
+    ? `https://www.pricecharting.com/search-products?type=pokemon&q=${q}`
+    : `https://www.pricecharting.com/search-products?q=${q}`;
+};
 
 /* --- images --- */
 export function imgTag(card, { thumb = false, lazy = true } = {}) {
@@ -190,13 +235,15 @@ export function initChrome(active) {
   // Credits: sources and copyright, on every page.
   const cr = document.createElement('footer');
   cr.className = 'credits';
-  cr.innerHTML = `<p>Card photos are the owner's own. Images for cards not owned are
-    TCGplayer product shots via <a href="https://tcgcsv.com" target="_blank" rel="noopener">TCGCSV</a>;
+  cr.innerHTML = `<p>Card photos are the owner's own. Images for cards not owned and for
+    sealed product are TCGplayer product shots via <a href="https://tcgcsv.com" target="_blank" rel="noopener">TCGCSV</a>;
     prices are TCGplayer market estimates, not an appraisal. Species sprites from
     <a href="https://github.com/msikma/pokesprite" target="_blank" rel="noopener">PokéSprite</a>
     (code and data MIT; sprite images © Nintendo / Creatures Inc. / GAME FREAK Inc.).
-    Pokémon and all character names are trademarks of Nintendo, Creatures Inc. and
-    GAME FREAK Inc. Personal, non-commercial tracker; not affiliated with or endorsed by them.</p>`;
+    Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK Inc.;
+    One Piece Card Game of Bandai Namco, Eiichiro Oda, Shueisha and Toei Animation;
+    Riftbound: League of Legends of Riot Games. Personal, non-commercial tracker,
+    not affiliated with or endorsed by any of them.</p>`;
   document.body.appendChild(cr);
 
   // Palette: purple (default) or green. Independent of light/dark.

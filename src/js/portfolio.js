@@ -1,5 +1,6 @@
 import { loadAll, priceIndex, usd, usd0, daysSince, tcgUrl, pcUrl, imgTag, esc,
-         langBadge, initChrome, initOffline, dataError, sprite, normNum } from './data.js';
+         langBadge, initChrome, initOffline, dataError, sprite, normNum,
+         gameIndex, gameOf, gameBadge } from './data.js';
 import { valueChart, bindChart } from './chart.js';
 import { bindDetails, ownedDetail } from './detail.js';
 
@@ -7,9 +8,16 @@ initOffline();
 initChrome('index.html');
 
 const el = (id) => document.getElementById(id);
-const state = { sort: 'price', set: 'all', lang: 'all' };
+const state = { sort: 'price', set: 'all', lang: 'all', game: 'all' };
 let priced = [], sealedTotal = 0, sealedUnits = 0, sealedCount = 0;
 let shownRows = [], movers = [], ctx = {};
+/* Holdings split by game: cards and sealed are valued separately everywhere
+   else on this page, so each game carries both and the strip sums to the hero. */
+/* `gamesPresent` spans cards AND sealed, for the holdings strip. `cardGames`
+   is just the card list: the grid badges and the game filter follow that one,
+   so a Pokemon-only card list is not tagged "PKM" on all 149 rows merely
+   because some sealed product is from another game. */
+let gi = null, gamesPresent = [], cardGames = [], sealedByGame = new Map();
 
 /* card -> detail object, carrying the change since the previous sync when known */
 const detailOf = (c) => {
@@ -22,14 +30,24 @@ const detailOf = (c) => {
   const d = await loadAll();
   el('err').innerHTML = dataError(d._err);
   const px = priceIndex(d.prices, d.sets);
-  ctx = { checked: d.prices && d.prices.checked_date, sprites: d.sprites || {} };
+  gi = gameIndex(d.games);
+  ctx = { checked: d.prices && d.prices.checked_date, sprites: d.sprites || {}, games: gi };
   bindDetails(el('out'), () => shownRows.map(detailOf));
   bindDetails(el('movers'), () => movers.map(detailOf));
   for (const x of d.sealed || []) {
     sealedCount++;
     sealedUnits += x.qty || 1;
-    if (typeof x.price_usd === 'number') sealedTotal += x.price_usd * (x.qty || 1);
+    const line = typeof x.price_usd === 'number' ? x.price_usd * (x.qty || 1) : 0;
+    sealedTotal += line;
+    const g = gameOf(x);
+    const cur = sealedByGame.get(g) || { value: 0, units: 0, products: 0 };
+    cur.value += line; cur.units += x.qty || 1; cur.products++;
+    sealedByGame.set(g, cur);
   }
+  gamesPresent = gi.present(d.cards, d.sealed);
+  cardGames = gi.present(d.cards);
+  // Chips in the detail sheet only once there is more than one game to tell apart.
+  ctx.games = cardGames.length > 1 ? gi : null;
 
   // Previous sync's per-card prices (prices.json `_prev`), same bucket rules
   // as priceIndex: a card only compares against its own set bucket.
@@ -57,6 +75,7 @@ const detailOf = (c) => {
 
   const cardsTotal = priced.reduce((s, c) => s + c.price, 0);
   renderHero(d.prices, d.cards.length, cardsTotal);
+  renderGameSplit(cardsTotal + sealedTotal);
   el('chart').innerHTML = valueChart(d.prices && d.prices.history);
   bindChart(el('chart'));
 
@@ -83,6 +102,13 @@ const detailOf = (c) => {
   el('fSort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
   el('fSet').addEventListener('change', (e) => { state.set = e.target.value; render(); });
   el('fLang').addEventListener('change', (e) => { state.lang = e.target.value; render(); });
+
+  if (cardGames.length > 1) {
+    el('fGameFld').hidden = false;
+    el('fGame').innerHTML = `<option value="all">All games</option>` +
+      cardGames.map((g) => `<option value="${esc(g.key)}">${esc(g.name)}</option>`).join('');
+    el('fGame').addEventListener('change', (e) => { state.game = e.target.value; render(); });
+  }
   render();
 })();
 
@@ -152,6 +178,31 @@ function renderHero(prices, cardCount, cardsTotal) {
       : `Prices updated ${esc(cd)} · TCGplayer market estimates, not an appraisal`}</p>`;
 }
 
+/* Holdings per game: cards plus sealed, as a share of total holdings. Hidden
+   for a single-game collection, where it would only restate the hero. */
+function renderGameSplit(grand) {
+  const box = el('gsplit');
+  if (gamesPresent.length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  box.innerHTML = gamesPresent.map((g) => {
+    const cs = priced.filter((c) => gameOf(c) === g.key);
+    const cv = cs.reduce((t, c) => t + c.price, 0);
+    const sl = sealedByGame.get(g.key) || { value: 0, units: 0, products: 0 };
+    const val = cv + sl.value;
+    const pct = grand ? (val / grand) * 100 : 0;
+    const bits = [];
+    if (cs.length) bits.push(`${cs.length} card${cs.length === 1 ? '' : 's'} ${usd0(cv)}`);
+    if (sl.products) bits.push(`${sl.units} sealed ${usd0(sl.value)}`);
+    return `<div class="gsplit-i" data-game="${esc(g.key)}">
+      <div class="gsplit-top">${gameBadge(gi, g.key, { full: true })}
+        <span class="gsplit-v">${usd0(val)}</span></div>
+      <div class="gsplit-bar" role="img" aria-label="${esc(g.name)} is ${Math.round(pct)}% of total holdings">
+        <i style="width:${pct.toFixed(1)}%"></i></div>
+      <div class="gsplit-s">${bits.join(' · ') || 'nothing priced yet'}</div>
+    </div>`;
+  }).join('');
+}
+
 /* Biggest movers since the previous sync: top gainers and losers by $ change. */
 function renderMovers(prev) {
   const box = el('movers');
@@ -188,6 +239,7 @@ function renderMovers(prev) {
 function render() {
   let rows = priced.filter((c) =>
     (state.set === 'all' || c.set === state.set) &&
+    (state.game === 'all' || gameOf(c) === state.game) &&
     (state.lang === 'all' || (c.lang || 'EN') === state.lang));
 
   const cmp = {
@@ -215,7 +267,7 @@ function render() {
     return `<article class="card" data-i="${i}"><button type="button" class="card-hit" data-open aria-label="Details for ${esc(c.name)} ${esc(c.number)}"></button>
       <div class="pocket">${imgTag(c)}${rank}</div>
       <div class="card-b">
-        <div class="card-n">${esc(c.name)} ${langBadge(c.lang)}${sprite(ctx.sprites, c.name, 'name-sprite')}</div>
+        <div class="card-n">${esc(c.name)} ${langBadge(c.lang)}${cardGames.length > 1 ? gameBadge(gi, gameOf(c)) : ''}${sprite(ctx.sprites, c.name, 'name-sprite')}</div>
         <div class="card-m">${esc(c.number)}</div>
         <div class="card-s">${esc(c.set)}</div>
         <div class="card-p">${usd(c.price)}</div>

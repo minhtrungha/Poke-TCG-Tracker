@@ -16,6 +16,11 @@
   --gold:#e0a21b; --gold-soft:rgba(224,162,27,.14);
   --en:#1d4ed8; --en-bg:#dde6fe;
   --jp:#b0215a; --jp-bg:#fde0ec;
+  /* one pair per tracked game, for the badges that say which TCG a row is */
+  --g-pokemon:#8a5a06; --g-pokemon-bg:#fdf0cc;
+  --g-onepiece:#a82f1b; --g-onepiece-bg:#ffe3dc;
+  --g-riftbound:#0b6480; --g-riftbound-bg:#d8eff7;
+  --g-other:#5b5168; --g-other-bg:#ece7f4;
   --ok:#16794a; --warn:#8a5a06; --warn-bg:#fff4dc;
   --pill:#6f38c0; --pill-fg:#fff;          /* pressed chips, ranks, qty */
   --need:#b8235f;                           /* NEED chip */
@@ -47,6 +52,10 @@
   --gold:#ffd36e; --gold-soft:rgba(255,211,110,.14);
   --en:#8db8ff; --en-bg:#1b2b52;
   --jp:#ff9cc6; --jp-bg:#45192f;
+  --g-pokemon:#ffd36e; --g-pokemon-bg:#3a2d0c;
+  --g-onepiece:#ff9d85; --g-onepiece-bg:#4a1c12;
+  --g-riftbound:#7fd8f0; --g-riftbound-bg:#0f333e;
+  --g-other:#c3b9d4; --g-other-bg:#2e2740;
   --ok:#5fe0a0; --warn:#fbcf63; --warn-bg:#3a2d0c;
   --pill:#7c4cd6; --pill-fg:#fff;
   --need:#c92c6c;
@@ -192,6 +201,28 @@ label.fld{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--f
 .lang{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;vertical-align:1px}
 .lang.EN{background:var(--en-bg);color:var(--en)}
 .lang.JP{background:var(--jp-bg);color:var(--jp)}
+/* ---- game badge: which TCG a card or product belongs to ----
+   Named, not just coloured: these games share no common colour coding, so the
+   chip carries its short name and the colour is only reinforcement. */
+.game-badge{font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:.05em;
+  vertical-align:1px;white-space:nowrap;display:inline-block;
+  background:var(--g-other-bg);color:var(--g-other)}
+.game-badge[data-game="pokemon"]{background:var(--g-pokemon-bg);color:var(--g-pokemon)}
+.game-badge[data-game="onepiece"]{background:var(--g-onepiece-bg);color:var(--g-onepiece)}
+.game-badge[data-game="riftbound"]{background:var(--g-riftbound-bg);color:var(--g-riftbound)}
+.dt h2 .game-badge{font-size:11px;vertical-align:4px}
+/* Per-game value strip, under the stat tiles on Portfolio and Sealed. */
+.gsplit{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;align-items:stretch}
+.gsplit-i{display:flex;flex-direction:column;gap:3px;padding:8px 12px;border-radius:11px;
+  background:var(--bg-elev);border:1px solid var(--line);min-width:124px;flex:1 1 124px}
+.gsplit-top{display:flex;align-items:center;gap:7px;justify-content:space-between}
+.gsplit-v{font-family:var(--mono);font-weight:700;font-size:16px;letter-spacing:-.02em}
+.gsplit-s{font-size:11px;color:var(--fg-faint)}
+.gsplit-bar{height:4px;border-radius:3px;background:var(--bg-elev2);overflow:hidden}
+.gsplit-bar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.gsplit-i[data-game="pokemon"] .gsplit-bar i{background:var(--g-pokemon)}
+.gsplit-i[data-game="onepiece"] .gsplit-bar i{background:var(--g-onepiece)}
+.gsplit-i[data-game="riftbound"] .gsplit-bar i{background:var(--g-riftbound)}
 .tag{font-size:10.5px;background:var(--bg-elev2);color:var(--fg-dim);padding:2px 7px;
   border-radius:5px;font-weight:600;white-space:nowrap;display:inline-block}
 .warn-dot{color:var(--warn);cursor:help;font-size:12px}

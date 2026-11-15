@@ -5,6 +5,43 @@ import { mkdirSync, readFileSync } from 'node:fs';
 const B = process.argv[2] || (process.env.BASE || 'http://localhost:5144/');
 const out = process.argv[3]; mkdirSync(out, { recursive: true });
 const REAL = JSON.parse(readFileSync('data/prices.json', 'utf8'));
+const CARDS = JSON.parse(readFileSync('data/cards.json', 'utf8'));
+const SEALED = JSON.parse(readFileSync('data/sealed.json', 'utf8'));
+/* Expected figures are computed from the data, not pinned to one sync: these
+   numbers move every time prices are refreshed, and a stale constant here used
+   to fail as loudly as a real bug. The shape and the arithmetic are what is
+   under test; the current values come from the files the page itself loads. */
+const money = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money0 = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const EXP = (() => {
+  const cards = CARDS.reduce((t, c) => {
+    const v = REAL[c.set_key]?.[c.number];
+    return t + (typeof v === 'number' ? v : 0);
+  }, 0);
+  const sealed = SEALED.reduce((t, x) =>
+    t + (typeof x.price_usd === 'number' ? x.price_usd * (x.qty || 1) : 0), 0);
+  const total = cards + sealed;
+  const hist = (REAL.history || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  const [a, z] = [hist[hist.length - 2], hist[hist.length - 1]];
+  const delta = z.total - a.total;
+  return {
+    cards, sealed, total,
+    share: Math.round((cards / total) * 100),
+    prevDate: a.date, delta, pct: (delta / a.total) * 100,
+    checked: REAL.checked_date,
+    units: SEALED.reduce((t, x) => t + (x.qty || 1), 0),
+    priced: CARDS.filter((c) => typeof REAL[c.set_key]?.[c.number] === 'number').length,
+  };
+})();
+/* Per-card moves since the previous sync, by the same bucket rules the page
+   uses, so "top gainer" is derived rather than named. */
+const MOVES = CARDS.map((c) => {
+  const o = REAL._prev?.[c.set_key]?.[c.number], n = REAL[c.set_key]?.[c.number];
+  return (typeof o === 'number' && typeof n === 'number')
+    ? { n: c.name, d: Math.round((n - o) * 100) / 100 } : null;
+}).filter((x) => x && Math.abs(x.d) >= 0.01);
+const TOP_GAIN = MOVES.filter((x) => x.d > 0).sort((x, y) => y.d - x.d);
+const TOP_LOSE = MOVES.filter((x) => x.d < 0).sort((x, y) => x.d - y.d);
 const b = await launch();
 let pass = 0, fail = 0;
 const t = (n, ok, x = '') => { ok ? pass++ : fail++; console.log(`${ok ? '✓' : '✗'} ${n}${x !== '' ? '  — ' + x : ''}`); };
@@ -62,11 +99,20 @@ const hero = await b.ev(`(()=>{const h=document.getElementById('hero'); return {
   v:h.querySelector('.hero-v')?.textContent, chg:h.querySelector('.hero-chg')?.textContent.replace(/\\s+/g,' ').trim(),
   since:h.querySelector('.hero-since')?.textContent, meta:h.querySelector('.hero-meta')?.textContent.trim(), cls:h.className,
   parts:[...h.querySelectorAll('.hero-parts dd')].map(d=>d.textContent.replace(/\\s+/g,' ').trim())}})()`);
-const cardsT = 2104.24, sealedT = 904.49;
-t('hero shows total holdings = cards + sealed', hero.v === '$3,008.73', hero.v);
-t('hero change vs previous sync', /▲/.test(hero.chg) && /\$162\.13/.test(hero.chg) && /\+5\.7%/.test(hero.chg) && hero.since === 'since Nov 11, 2026', `${hero.chg} ${hero.since}`);
-t('hero breakdown cards vs sealed', /\$2,104/.test(hero.parts[0]) && /\$904/.test(hero.parts[1]) && /70%/.test(hero.parts[0]) && /30%/.test(hero.parts[1]), hero.parts.join(' | '));
-t('hero folds in the last-updated date', /Prices updated Nov 12, 2026/.test(hero.meta) && !/stale/.test(hero.cls), hero.meta);
+const cardsT = EXP.cards, sealedT = EXP.sealed;
+t('hero shows total holdings = cards + sealed', hero.v === money(EXP.total), `${hero.v} vs ${money(EXP.total)}`);
+t('hero change vs previous sync',
+  new RegExp(EXP.delta >= 0 ? '▲' : '▼').test(hero.chg)
+  && hero.chg.includes(money(Math.abs(EXP.delta)))
+  && hero.chg.includes(`${Math.abs(EXP.pct).toFixed(1)}%`)
+  && hero.since === `since ${EXP.prevDate}`,
+  `${hero.chg} ${hero.since} (expected ${money(Math.abs(EXP.delta))}, ${Math.abs(EXP.pct).toFixed(1)}%)`);
+t('hero breakdown cards vs sealed',
+  hero.parts[0].includes(money0(EXP.cards)) && hero.parts[1].includes(money0(EXP.sealed))
+  && hero.parts[0].includes(`${EXP.share}%`) && hero.parts[1].includes(`${100 - EXP.share}%`)
+  && hero.parts[1].includes(`${EXP.units} units`),
+  hero.parts.join(' | '));
+t('hero folds in the last-updated date', hero.meta.includes(`Prices updated ${EXP.checked}`) && !/stale/.test(hero.cls), hero.meta);
 const sizes = await b.ev(`(()=>{const hv=parseFloat(getComputedStyle(document.querySelector('.hero-v')).fontSize);
   let max=0, who=''; for(const e of document.querySelectorAll('main *')){ if(e.closest('#hero')) continue; if(!e.childNodes.length) continue;
     const own=[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()); if(!own) continue; const fs=parseFloat(getComputedStyle(e).fontSize); if(fs>max){max=fs;who=e.className||e.tagName} }
@@ -79,17 +125,19 @@ await b.shot(`${out}/desk-light-purple.png`);
 const mv = await b.ev(`(()=>{const m=document.getElementById('movers'); const g=[...m.querySelectorAll('.mv-col.up .mv')], l=[...m.querySelectorAll('.mv-col.down .mv')];
   const row=e=>e.querySelector('.mv-n').textContent.replace(/\\s+/g,' ').trim()+' '+e.querySelector('.mv-d').textContent.replace(/\\s+/g,' ').trim();
   return {hidden:m.hidden, head:m.querySelector('.sec-h')?.textContent, g:g.map(row), l:l.map(row)}})()`);
-t('movers section shown with the previous sync date', !mv.hidden && mv.head === 'Biggest movers since Nov 11, 2026', mv.head);
+t('movers section shown with the previous sync date',
+  !mv.hidden && mv.head === `Biggest movers since ${REAL._prev.date}`, mv.head);
 t('5 gainers, 5 losers', mv.g.length === 5 && mv.l.length === 5, `${mv.g.length}/${mv.l.length}`);
-t('top gainer is Squirtle +$0.78 (real Nov 11 → Nov 12 data)', /^Squirtle/.test(mv.g[0]) && /\$0\.78/.test(mv.g[0]), mv.g[0]);
-t('top loser is Lugia V −$1.48', /^Lugia V/.test(mv.l[0]) && /\$1\.48/.test(mv.l[0]), mv.l[0]);
+t('top gainer is the biggest real rise in prices.json',
+  mv.g[0].startsWith(TOP_GAIN[0].n) && mv.g[0].includes(money(TOP_GAIN[0].d)),
+  `${mv.g[0]} (expected ${TOP_GAIN[0].n} ${money(TOP_GAIN[0].d)})`);
+t('top loser is the biggest real fall',
+  mv.l[0].startsWith(TOP_LOSE[0].n) && mv.l[0].includes(money(Math.abs(TOP_LOSE[0].d))),
+  `${mv.l[0]} (expected ${TOP_LOSE[0].n} ${money(Math.abs(TOP_LOSE[0].d))})`);
 // independent check of the numbers against the raw JSON
 {
-  const cards = JSON.parse(readFileSync('data/cards.json', 'utf8'));
-  const ch = cards.map((c) => { const o = REAL._prev[c.set_key]?.[c.number], n = REAL[c.set_key]?.[c.number];
-    return (typeof o === 'number' && typeof n === 'number') ? { n: c.name, d: Math.round((n - o) * 100) / 100 } : null; })
-    .filter((x) => x && Math.abs(x.d) >= 0.01);
-  const top = ch.filter((x) => x.d > 0).sort((a, b) => b.d - a.d).slice(0, 5).map((x) => x.n);
+  const ch = MOVES;
+  const top = TOP_GAIN.slice(0, 5).map((x) => x.n);
   const shown = mv.g.map((s) => s.split(/ (EN|JP) /)[0]);
   t('gainers list matches an independent computation from prices.json', JSON.stringify(top) === JSON.stringify(shown), `${top.join(', ')}`);
   const cnt = await b.ev(`document.querySelector('.mv-sub').textContent`);
@@ -103,7 +151,8 @@ await b.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: m1.x + m1.w 
 await b.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: m1.x + m1.w / 2, y: m1.y + m1.h / 2, button: 'left', clickCount: 1 });
 await sleep(450);
 const dt = await b.ev(`(()=>{const d=document.querySelector('dialog.dt[open]'); return d ? {t:d.querySelector('#dt-title').textContent.trim(), txt:d.textContent.replace(/\\s+/g,' ')} : null})()`);
-t('clicking a mover opens the detail sheet for that card', dt && /^Lugia V/.test(dt.t), dt && dt.t);
+t('clicking a mover opens the detail sheet for that card',
+  dt && dt.t.startsWith(TOP_LOSE[0].n), `${dt && dt.t} (expected ${TOP_LOSE[0].n})`);
 t('(info) sheet renders priceChange from Agent D', true, dt && /Nov 11/.test(dt.txt) ? 'rendered' : 'not rendered (yet) — field is passed');
 await b.shot(`${out}/desk-mover-sheet.png`);
 await key('Escape', 'Escape', 27); await sleep(250);

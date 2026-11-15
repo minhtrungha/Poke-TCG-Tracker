@@ -9,6 +9,13 @@
 
    TCGCSV mirrors TCGplayer's own price feed once a day. We read `marketPrice`
    (the median of recent sales), never `lowPrice`, per the update-prices skill.
+
+   Several games are supported. data/games.json maps each game to its TCGCSV
+   category ids (Pokemon EN 3 / JP 85, One Piece 68, Riftbound 89), and a card
+   or sealed product is only ever matched inside its own game's catalogue - the
+   same reason prices resolve per set bucket rather than by number alone. Only
+   the games the collection actually holds are downloaded, so adding a game to
+   the registry costs nothing until something of that game is tracked.
 */
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -16,7 +23,6 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const P = (...a) => path.join(ROOT, ...a);
 const BASE = 'https://tcgcsv.com/tcgplayer';
-const CAT = { EN: 3, JP: 85 };
 const WRITE = process.argv.includes('--write');
 
 // Identify this script honestly. TCGCSV asks clients to send a User-Agent;
@@ -77,12 +83,36 @@ let sealed = [];
 try { sealed = JSON.parse(await readFile(P('data/sealed.json'), 'utf8')); } catch {}
 let aliases = {};
 try { aliases = JSON.parse(await readFile(P('data/aliases.json'), 'utf8')); } catch {}
+const wish = JSON.parse(await readFile(P('data/wishlist.json'), 'utf8'));
 
-/* --- build the catalogue, indexed by card number --------------------- */
+/* --- games -------------------------------------------------------------
+   Records written before the tracker handled more than one game carry no
+   `game` field; anything unlabelled is Pokemon, the collection it began as. */
+const DEFAULT_GAME = 'pokemon';
+const games = JSON.parse(await readFile(P('data/games.json'), 'utf8'));
+const gameBy = new Map(games.map((g) => [g.key, g]));
+const gameOf = (r) => (r && r.game) || DEFAULT_GAME;
+
+/* Only download what is actually held or wanted. */
+const active = new Set([...cards, ...sealed, ...wish, ...sets].map(gameOf));
+const unknown = [...active].filter((k) => !gameBy.has(k));
+if (unknown.length) {
+  console.error(`✗ unknown game key(s) in the data: ${unknown.join(', ')}`);
+  console.error(`  known games: ${[...gameBy.keys()].join(', ')} (add it to data/games.json)`);
+  process.exit(1);
+}
+
+/* --- build the catalogue, indexed by game, language and card number --- */
 const catalogue = {};
 const allProducts = [];
-for (const [lang, cat] of Object.entries(CAT)) {
-  process.stderr.write(`loading ${lang} catalogue...\n`);
+const catJobs = [];
+for (const key of active) {
+  const g = gameBy.get(key);
+  catalogue[key] = {};
+  for (const [lang, cat] of Object.entries(g.categories || {})) catJobs.push([key, g, lang, cat]);
+}
+for (const [gkey, g, lang, cat] of catJobs) {
+  process.stderr.write(`loading ${g.name} ${lang} catalogue (category ${cat})...\n`);
   const groups = rows(await j(`${BASE}/${cat}/groups`));
   const byNum = new Map();
   let done = 0;
@@ -119,13 +149,20 @@ for (const [lang, cat] of Object.entries(CAT)) {
     for (const p of rows(prods)) {
       const r = price.get(p.productId);
       if (!r) continue;
-      allProducts.push({ name: p.name, group: g.name, market: r.marketPrice });
+      allProducts.push({ name: p.name, group: g.name, market: r.marketPrice, game: gkey });
     }
     if (++done % 50 === 0) process.stderr.write(`  ${done}/${groups.length} groups\n`);
   }
-  catalogue[lang] = byNum;
-  process.stderr.write(`  ${lang}: ${byNum.size} distinct card numbers\n`);
+  catalogue[gkey][lang] = byNum;
+  process.stderr.write(`  ${g.name} ${lang}: ${byNum.size} distinct card numbers\n`);
 }
+
+/* The catalogue a record should be matched against: its own game, its own
+   language. Missing combinations give an empty map, never another game's. */
+const EMPTY = new Map();
+const catOf = (rec, lang) =>
+  (catalogue[gameOf(rec)] || {})[lang === 'JP' ? 'JP' : 'EN']
+  || (catalogue[gameOf(rec)] || {}).EN || EMPTY;
 
 /* --- match each owned card -------------------------------------------- */
 const nameKey = new Map(sets.map((s) => [s.name, s.key]));
@@ -136,11 +173,17 @@ const ambiguous = [];
 
 /* A card outside every tracked set still needs a bucket of its own, keyed by
    its set, so two different printings of one number never share a price. */
-const setBucket = (c) => 'set-' + String(c.set).toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48);
+/* Non-Pokemon buckets are prefixed with the game, so two games that happen to
+   name a set alike can never share one bucket. */
+const setBucket = (c) => {
+  const slug = String(c.set).toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48);
+  const g = gameOf(c);
+  return g === DEFAULT_GAME ? `set-${slug}` : `${g}-${slug}`;
+};
 
 for (const c of cards) {
-  const idx = catalogue[c.lang === 'JP' ? 'JP' : 'EN'];
+  const idx = catOf(c, c.lang);
   // Candidate keys, most specific first. Promos are filed under bare digits
   // ("MEP 037" -> "37"), and older sets drop the set total ("35/108" -> "35").
   const keys = [numKey(c.number)];
@@ -209,22 +252,22 @@ for (const c of cards) {
 /* --- cards the owner does NOT own yet --------------------------------- */
 /* Empty set slots and standalone wants, so the Wishlist can total real costs.
    Same matcher as above; ambiguous ones are simply left unpriced. */
-const wish = JSON.parse(await readFile(P('data/wishlist.json'), 'utf8'));
 const wants = [];
 for (const s of sets) {
   for (const sl of s.slots) {
     if (sl.card_id != null) continue;
-    wants.push({ key: s.key, number: sl.number, name: sl.name, lang: s.lang || 'EN', set: s.name });
+    wants.push({ key: s.key, number: sl.number, name: sl.name, lang: s.lang || 'EN',
+                 set: s.name, game: gameOf(s) });
   }
 }
 for (const w of wish) {
   if (w.owned) continue;
   wants.push({ key: nameKey.get(w.set) || setBucket(w), number: w.number, name: w.name,
-               lang: w.lang || 'EN', set: w.set, wishEntry: w });
+               lang: w.lang || 'EN', set: w.set, game: gameOf(w), wishEntry: w });
 }
 let wantHits = 0;
 for (const w of wants) {
-  const idx = catalogue[w.lang === 'JP' ? 'JP' : 'EN'];
+  const idx = catOf(w, w.lang);
   // A verified alias names the exact upstream product, so use it directly.
   const al = aliases[`${w.key}|${String(w.number).trim().toUpperCase()}`];
   if (al) {
@@ -306,11 +349,14 @@ const sealedHits = [];
 const sealedMiss = [];
 for (const s of sealed) {
   const want = norm(s.search_string || s.name);
-  let exact = allProducts.filter((p) => norm(p.name) === want);
+  // Same game only. "Booster Bundle" and "Booster Pack" are product names
+  // several games reuse, so a cross-game name match would be a real risk.
+  const pool = allProducts.filter((p) => p.game === gameOf(s));
+  let exact = pool.filter((p) => norm(p.name) === want);
   if (!exact.length) {
     // allow a bracketed variant to be dropped: "ETB [Mega Lucario]"
     const loose = want.replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
-    exact = allProducts.filter((p) => norm(p.name) === loose);
+    exact = pool.filter((p) => norm(p.name) === loose);
   }
   if (!exact.length) { sealedMiss.push(s); continue; }
   exact.sort((a, b) => a.market - b.market);
@@ -325,12 +371,13 @@ const sealedTotal = sealedHits.reduce((t, h) => t + h.chosen.market * (h.s.qty |
   + sealedManual.reduce((t, s) => t + s.price_usd * (s.qty || 1), 0);
 if (sealed.length) {
   console.log(`\nsealed: matched ${sealedHits.length}/${sealed.length} · value $${sealedTotal.toFixed(2)}`);
+  const gl = (r) => (gameBy.get(gameOf(r))?.short || gameOf(r)).padEnd(4);
   for (const h of sealedHits) {
-    console.log(`  $${String(h.chosen.market).padStart(8)} x${h.s.qty || 1}  ${h.s.name}`);
+    console.log(`  ${gl(h.s)} $${String(h.chosen.market).padStart(8)} x${h.s.qty || 1}  ${h.s.name}`);
   }
   for (const m of sealedMiss) {
-    if (sealedManual.includes(m)) console.log(`  (manual)   ${m.name} = $${m.price_usd} x${m.qty || 1} - ${m.price_note || 'hand-entered'}`);
-    else console.log(`  (no match) ${m.name}`);
+    if (sealedManual.includes(m)) console.log(`  ${gl(m)} (manual)   ${m.name} = $${m.price_usd} x${m.qty || 1} - ${m.price_note || 'hand-entered'}`);
+    else console.log(`  ${gl(m)} (no match) ${m.name}${m.price_note ? ` - ${m.price_note}` : ''}`);
   }
 }
 
@@ -402,7 +449,10 @@ if (sealedHits.length) {
     const c = byId.get(s.id);
     if (c) {
       s.price_usd = Math.round(c.market * 100) / 100; s.price_checked = today;
-      delete s.price_source; delete s.price_note;
+      // A hand-entered price and the note explaining it are both superseded by
+      // a real API price. A note that documents WHICH product an entry is
+      // ("the Player bundle, not the Signature edition") is not: it stays.
+      if (s.price_source === 'manual') { delete s.price_source; delete s.price_note; }
     }
   }
   await writeFile(P('data/sealed.json'), JSON.stringify(sealed, null, 1) + '\n');

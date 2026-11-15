@@ -2,7 +2,7 @@
    Pages hand it a list of items plus the index that was clicked; ‹ › and the
    arrow keys step through that same list. Native <dialog> gives focus
    trapping, Esc to close and the modal backdrop for free. */
-import { esc, usd, langBadge, tcgUrl, pcUrl, PLACEHOLDER } from './data.js';
+import { esc, usd, langBadge, tcgUrl, pcUrl, PLACEHOLDER, gameOf, gameBadge } from './data.js';
 
 let dlg, list = [], at = 0, opener = null;
 /* History: opening the sheet from a click pushes one entry (#card=<id>) so
@@ -150,7 +150,7 @@ function paint(dir = 0) {
     <div class="dt-art${it.kind === 'need' ? ' is-need' : ''}">${art}</div>
     <div class="dt-body">
       <div class="dt-top">${it.sprite ? `<img class="dt-sprite" src="images/sprites/${esc(it.sprite)}" alt="" aria-hidden="true">` : ''}${status}</div>
-      <h2 id="dt-title">${esc(it.title)} ${it.lang ? langBadge(it.lang) : ''}</h2>
+      <h2 id="dt-title">${esc(it.title)} ${it.lang ? langBadge(it.lang) : ''}${it.gameChip || ''}</h2>
       ${it.subtitle ? `<p class="dt-sub">${esc(it.subtitle)}</p>` : ''}
       ${price}
       <dl class="dt-facts">${(it.facts || []).map(fact).join('')}</dl>
@@ -224,11 +224,15 @@ const slug = (s) => String(s ?? '').toLowerCase().normalize('NFKD').replace(/[^a
 
 const tags = (t) => (t && t.length ? t.map((x) => `<span class="tag">${esc(x)}</span>`).join(' ') : '');
 
-export function ownedDetail(c, { price, checked, sprites } = {}) {
+export function ownedDetail(c, { price, checked, sprites, games } = {}) {
+  const game = gameOf(c);
   return {
     id: `c${c.id}`,
     kind: 'owned',
     title: c.name, number: c.number, lang: c.lang || 'EN',
+    /* The caller passes `games` only when the collection spans more than one,
+       so the sheet chips the game exactly when the rows behind it do. */
+    gameChip: games ? ' ' + gameBadge(games, game) : '',
     subtitle: `${c.number} · ${c.set}`,
     img: c.image ? `images/cards/${c.image}` : null,
     sprite: sprites && sprites[c.name],
@@ -245,8 +249,8 @@ export function ownedDetail(c, { price, checked, sprites } = {}) {
       ['Note', c.warn ? `⚠ ${esc(c.warn)}` : ''],
     ],
     links: [
-      { label: 'TCGplayer', href: tcgUrl(c.search_string || `${c.name} ${c.number}`) },
-      { label: 'PriceCharting', href: pcUrl(c.name, c.number) },
+      { label: 'TCGplayer', href: tcgUrl(c.search_string || `${c.name} ${c.number}`, game) },
+      { label: 'PriceCharting', href: pcUrl(c.name, c.number, game) },
     ],
   };
 }
@@ -269,18 +273,22 @@ export function needDetail(i, { img, checked, sprites, got } = {}) {
       ['On the list as', i.src === 'set' ? 'Missing set slot' : 'Standalone want'],
     ],
     links: [
-      { label: 'TCGplayer', href: tcgUrl(i.search_string || `${i.name} ${i.number}`) },
-      { label: 'PriceCharting', href: pcUrl(i.name, i.number) },
+      { label: 'TCGplayer', href: tcgUrl(i.search_string || `${i.name} ${i.number}`, gameOf(i)) },
+      { label: 'PriceCharting', href: pcUrl(i.name, i.number, gameOf(i)) },
     ],
   };
 }
 
-export function sealedDetail(s) {
+/* `gi` is the game registry (data.js gameIndex). It is optional so a caller
+   that has not loaded it still gets a working sheet, just without the chip. */
+export function sealedDetail(s, gi) {
   const line = typeof s.price_usd === 'number' ? s.price_usd * (s.qty || 1) : null;
+  const game = gameOf(s);
   return {
     id: `s${s.id}`,
     kind: 'sealed', qty: s.qty || 1,
     title: s.name,
+    gameChip: gi ? ' ' + gameBadge(gi, game) : '',
     subtitle: s.set || '',
     img: s.image ? `images/sealed/${s.image}` : null,
     price: s.price_usd,
@@ -288,14 +296,15 @@ export function sealedDetail(s) {
       ? `each · ${s.price_source === 'manual' ? 'entered by hand from TCGplayer' : 'TCGplayer market'}${s.price_checked ? ` · ${s.price_checked}` : ''}`
       : null,
     facts: [
+      ['Game', gi ? esc(gi.name(game)) : esc(game)],
       ['Quantity', String(s.qty || 1)],
       ['Line value', line == null ? '' : usd(line)],
       ['Set', esc(s.set || '')],
       ['Price note', s.price_note ? esc(s.price_note) : ''],
     ],
     links: [
-      { label: 'TCGplayer', href: s.tcgplayer_id ? `https://www.tcgplayer.com/product/${s.tcgplayer_id}` : tcgUrl(s.search_string || s.name) },
-      { label: 'PriceCharting', href: `https://www.pricecharting.com/search-products?type=pokemon&q=${encodeURIComponent(s.search_string || s.name)}` },
+      { label: 'TCGplayer', href: s.tcgplayer_id ? `https://www.tcgplayer.com/product/${s.tcgplayer_id}` : tcgUrl(s.search_string || s.name, game) },
+      { label: 'PriceCharting', href: pcUrl(s.search_string || s.name, '', game) },
     ],
   };
 }

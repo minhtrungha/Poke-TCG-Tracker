@@ -9,6 +9,32 @@ Add a wanted card to `data/wishlist.json`.
 
 ## Steps
 
+## Which game is it?
+
+The tracker holds more than one card game. `data/games.json` is the registry:
+each entry has a `key`, a display `name`, a short badge label and the TCGCSV
+category ids its prices come from.
+
+| key | game | TCGCSV category |
+|---|---|---|
+| `pokemon` | Pokémon | 3 (EN), 85 (JP) |
+| `onepiece` | One Piece Card Game | 68 |
+| `riftbound` | Riftbound: League of Legends | 89 |
+
+Every card and sealed entry may carry a `"game"` field. **A record with no
+`game` means Pokémon** — the collection started as Pokémon-only and those
+records were never relabelled. For anything new, write the `game` explicitly.
+
+A record is only ever matched against its own game's catalogue, so a wrong
+`game` does not mis-price a card — it leaves it unpriced instead, which the
+checks report. A game that is not in the registry is a hard error.
+
+Adding a game the registry does not have: find its category id in
+`https://tcgcsv.com/tcgplayer/categories`, append an entry to
+`data/games.json`, and add a colour pair (`--g-<key>` and `--g-<key>-bg`) to
+both the light and dark token blocks in `src/css/main.css` so its badge is
+styled. Without the colour pair the badge still renders, in neutral grey.
+
 ### 1. Identify the card
 
 - **From a photo:** read it with the `pokemon-cards-to-collectr` approach —
@@ -52,6 +78,7 @@ lookup fails, use `null` for both — never guess.
   "name": "Sylveon ex",
   "number": "153/131",
   "set": "Prismatic Evolutions",
+  "game": "pokemon",
   "rarity": "Special Illustration Rare",
   "lang": "EN",
   "illustrator": "You Iribi",
@@ -63,6 +90,8 @@ lookup fails, use `null` for both — never guess.
 }
 ```
 
+`game`: a `key` from `data/games.json`; omitting it means `pokemon`.
+
 Tags: `eevee` (any Eeveelution), `pika`, `starter`, `ralts` (Ralts/Kirlia/Gardevoir/Gallade),
 `mega`, `art` (special illustration / character rares), `jp` (Japanese).
 
@@ -73,7 +102,8 @@ show the price, and note if it also appears as a missing slot on the Sets page.
 
 ## Notes
 
-- No trainer cards, energy cards or sealed product.
+- No trainer cards, energy cards or sealed product. Sealed goes in
+  `data/sealed.json` by hand, with its own `game` (see `README.md`).
 - Several cards at once: process them all in one pass, then report a summary.
 - Re-read `wishlist.json` immediately before writing, so a concurrent edit is not
   clobbered.

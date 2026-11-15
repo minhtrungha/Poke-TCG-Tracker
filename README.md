@@ -1,7 +1,13 @@
 # Poké TCG Tracker
 
-A static site for a personal Pokémon card collection — four pages, no framework,
+A static site for a personal trading-card collection — five pages, no framework,
 no backend. All data lives in `data/*.json`; card photos live in `images/`.
+
+It started as a Pokémon tracker and now holds several games side by side:
+**Pokémon**, the **One Piece Card Game** and **Riftbound: League of Legends**.
+Each card and sealed product names its game, prices are fetched per game, and
+the Portfolio, Cards and Sealed pages can be filtered to one game or show the
+split across all of them.
 
 ```bash
 npm run build     # build into dist/
@@ -16,7 +22,7 @@ There are no dependencies to install. Node 18+ is all you need.
 
 ---
 
-## The four pages
+## The five pages
 
 | Page | File | What it shows |
 |---|---|---|
@@ -69,6 +75,39 @@ flags anything that moved more than 20%, and reports the new collection total.
 ---
 
 ## Data files
+
+### `data/games.json` — the games you track
+
+The registry every other file refers to. One entry per game:
+
+```json
+{
+  "key": "onepiece",
+  "name": "One Piece",
+  "short": "OP",
+  "categories": { "EN": 68 },
+  "tcg_search": "all",
+  "publisher": "Bandai Namco / Eiichiro Oda / Shueisha / Toei Animation"
+}
+```
+
+- `key` is what cards and sealed entries put in their `"game"` field.
+- `short` is the badge label shown on rows and in the detail sheet.
+- `categories` maps a language to its [TCGCSV](https://tcgcsv.com) category id —
+  Pokémon has `EN: 3` and `JP: 85`; One Piece is `68`; Riftbound is `89`. The
+  price sync downloads a game's catalogue only if something of that game is
+  tracked, so adding a game here costs nothing until you own some of it.
+
+**A record with no `"game"` field means Pokémon.** The original collection was
+Pokémon-only and those records were never relabelled; anything new should name
+its game. A card is only ever matched against its own game's catalogue, so a
+wrong game leaves an item unpriced rather than mis-priced, and `npm run check`
+fails outright on a game key that is not in the registry.
+
+To add a game: find its category id in `https://tcgcsv.com/tcgplayer/categories`,
+append an entry here, and add a `--g-<key>` / `--g-<key>-bg` colour pair to both
+the light and dark token blocks in `src/css/main.css` so its badge is coloured
+(without them the badge still renders, in neutral grey).
 
 ### `data/cards.json` — cards you own
 
@@ -137,24 +176,40 @@ different amounts, and are priced separately.
 
 ```json
 {
-  "id": 1,
-  "name": "Mega Evolution Elite Trainer Box [Mega Lucario]",
-  "set": "Mega Evolution",
-  "qty": 2,
-  "price_usd": 113.27,
-  "price_checked": "Nov 11, 2026",
-  "search_string": "Mega Evolution Elite Trainer Box Mega Lucario"
+  "id": 9,
+  "name": "The Time of Battle Booster Pack",
+  "set": "The Time of Battle",
+  "game": "onepiece",
+  "qty": 8,
+  "price_usd": 7.08,
+  "price_checked": "Nov 15, 2026",
+  "search_string": "The Time of Battle Booster Pack",
+  "price_note": "OP-16 single booster packs, not sleeved packs"
 }
 ```
 
 `qty` is how many you own; the Sealed page shows unit price × quantity, and the
-Portfolio's "Total holdings" tile adds the sealed value to the card value. Add a
-product by name and quantity, then run `npm run prices:write` to price it.
+Portfolio's "Total holdings" tile adds the sealed value to the card value.
+
+To add a product: give it the next `id`, its `name`, the `set` (use the upstream
+group name — it is searched first), its `game`, and `qty`. Then:
+
+```bash
+node scripts/fetch-sealed-images.mjs --write   # product shot
+npm run prices:write                           # price it, then verify
+```
+
+`search_string` overrides the name when the two differ upstream. `price_note` is
+free text, and worth using when a product has a close sibling you do **not**
+own — the Riftbound Player bundle rather than the Signature edition, a loose
+booster pack rather than a sleeved one. The sync preserves such a note; it only
+clears one attached to a hand-entered price it has replaced.
 
 ### `data/wishlist.json` — standalone wants
 
-Cards you want that are **not** part of a tracked set. Same shape as a card, plus
-`"owned": false`, `price_usd` and `price_checked`. Setting `"owned": true` keeps
+Cards you want that are **not** part of a tracked set. Same shape as a card
+(including an optional `"game"`), plus `"owned": false`, `price_usd` and
+`price_checked`. Setting `"owned": true` keeps
 the history but hides it from the want list.
 
 ---
@@ -243,9 +298,10 @@ differently on TCGplayer, so they keep the Pokéball placeholder.
 node scripts/fetch-sealed-images.mjs --write   # product shots for data/sealed.json
 ```
 
-Matches each sealed product by exact name on TCGCSV, saves a 400px shot to
-`images/sealed/s<id>.jpg`, and records `image` and `tcgplayer_id` on the entry
-(the TCGplayer button then links to the product page itself).
+Matches each sealed product by exact name on TCGCSV, **within its own game's
+catalogue**, saves a 400px shot to `images/sealed/s<id>.jpg`, and records `image`
+and `tcgplayer_id` on the entry (the TCGplayer button then links to the product
+page itself).
 
 A sealed product with no TCGCSV price row can carry a hand-entered price:
 `"price_usd"`, `"price_source": "manual"` and a `"price_note"` saying where it
@@ -294,8 +350,17 @@ Point Vercel or GitHub Pages at `dist/` with no build step beyond `npm run build
 
 ## Current state
 
-147 cards across binder pages p01–p20 · 10 tracked sets (56 of 114 slots filled)
-· 53 standalone wants. Every card has its photo; no placeholders.
+149 cards across binder pages p01–p20 · 16 tracked sets · 3 standalone wants ·
+9 sealed products across three games. Every card has its photo; no placeholders.
+
+**Holdings** (Nov 15, 2026): **$3,527.87** — cards $2,094.08 + sealed $1,433.79.
+By game: Pokémon $2,996.23 · Riftbound $475.00 · One Piece $56.64.
+
+**The Riftbound Worlds Bundle 2026 carries a hand-entered price** of $175,
+marked `"price_source": "manual"`. TCGCSV's Riftbound catalogue lists a *Worlds
+Bundle 2025* but no 2026 bundle, so there is nothing upstream to read; the owner
+confirmed the item is the 2026 one. The sync keeps and counts the manual figure
+and replaces it automatically once a real price exists.
 
 Card data came from the owner's own `cards_data.py` export, so set, number,
 rarity and binder page are authoritative. All 147 entries matched a photo
@@ -308,7 +373,8 @@ price sync. It draws a marker for the first point and a line from the second on.
 NEED chip — so you can see what you're hunting while it still reads clearly as
 "not owned". Cards with no product image fall back to a Pokéball placeholder.
 
-**Prices:** all 149 cards are priced from TCGplayer market data
+**Prices:** all 149 cards and 8 of 9 sealed products are priced from TCGplayer
+market data (the ninth is hand-entered)
 (`node scripts/fetch-prices.mjs --write`). Values are estimates, not an
 appraisal.
 # Poke-TCG-Tracker

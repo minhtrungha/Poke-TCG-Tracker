@@ -10,14 +10,47 @@ and wishlist, and save their photos.
 
 ## Before you start
 
-Read `data/cards.json`, `data/sets.json` and `data/wishlist.json` in full. You
-need the highest existing `id` and the current contents to avoid duplicates.
+Read `data/cards.json`, `data/sets.json`, `data/wishlist.json` and
+`data/games.json` in full. You need the highest existing `id` and the current
+contents to avoid duplicates.
+
+## Which game is it?
+
+The tracker holds more than one card game. `data/games.json` is the registry:
+each entry has a `key`, a display `name`, a short badge label and the TCGCSV
+category ids its prices come from.
+
+| key | game | TCGCSV category |
+|---|---|---|
+| `pokemon` | Pokémon | 3 (EN), 85 (JP) |
+| `onepiece` | One Piece Card Game | 68 |
+| `riftbound` | Riftbound: League of Legends | 89 |
+
+Every card and sealed entry may carry a `"game"` field. **A record with no
+`game` means Pokémon** — the collection started as Pokémon-only and those
+records were never relabelled. For anything new, write the `game` explicitly.
+
+A record is only ever matched against its own game's catalogue, so a wrong
+`game` does not mis-price a card — it leaves it unpriced instead, which the
+checks report. A game that is not in the registry is a hard error.
+
+Adding a game the registry does not have: find its category id in
+`https://tcgcsv.com/tcgplayer/categories`, append an entry to
+`data/games.json`, and add a colour pair (`--g-<key>` and `--g-<key>-bg`) to
+both the light and dark token blocks in `src/css/main.css` so its badge is
+styled. Without the colour pair the badge still renders, in neutral grey.
 
 ## Steps
 
 ### 1. Identify every card in the photos
 
-Use the `pokemon-cards-to-collectr` reading approach for each card:
+First decide **which game** each card belongs to, and use the matching registry
+key. The reading approach below is written for Pokémon; for another game read
+the same facts off the card in that game's own terms (a One Piece card's number
+looks like `OP16-001`, a Riftbound card's like `OGN-123`), and confirm the set
+and number against that game's own card list before writing anything.
+
+Use the `pokemon-cards-to-collectr` reading approach for each Pokémon card:
 
 - name, with suffix (ex, GX, V, VMAX, VSTAR…)
 - card number (`199/165`, `SVP 085`, `MEP 037`)
@@ -66,6 +99,7 @@ Next id = highest existing `id` + 1. Never reuse an id, even a gap, since
   "name": "Glaceon ex",
   "number": "026/131",
   "set": "Prismatic Evolutions",
+  "game": "pokemon",
   "set_key": "pre-dr",
   "rarity": "Double Rare",
   "printing": "Holofoil",
@@ -78,9 +112,13 @@ Next id = highest existing `id` + 1. Never reuse an id, even a gap, since
 }
 ```
 
+- `game`: a `key` from `data/games.json`. Omitting it means `pokemon`; write it
+  out anyway, so the record says what it is.
 - `set_key`: the `key` of the matching set in `sets.json`, or `null` if the card
   is not part of a tracked set. **This is what prices resolve against** — get it
-  right or the card will never show a price.
+  right or the card will never show a price. Set keys are per game: a card is
+  only ever priced from a bucket in its own game, so two games may safely use
+  similar set names.
 - `binder_page`: ask which page, or use `null`.
 - `tags`: `eevee`, `pika`, `starter`, `ralts`, `mega`, `art`, `jp`.
 - Duplicate (same name + number + set)? If they genuinely own two copies, add it
@@ -92,6 +130,12 @@ Next id = highest existing `id` + 1. Never reuse an id, even a gap, since
 For each added card, find a slot in `data/sets.json` whose `number` matches and
 whose `card_id` is `null`, and set `card_id` to the new id. Also set the card's
 `set_key` to that set's `key`.
+
+Only match a slot in a set of the **same game**. A tracked set may carry its own
+`"game"` field; one without it is Pokémon. No tracked set exists for the other
+games yet, so a One Piece or Riftbound card simply has no slot to fill: leave
+`set_key` as `null` (or give it its own bucket, as `update-prices` describes) and
+say so in the report.
 
 ### 5. Check the wishlist off
 
@@ -105,7 +149,7 @@ Run `npm run build`. It validates the JSON, rejects duplicate ids, and warns
 about dangling slot references and missing image files. Fix anything it reports.
 
 Then tell the user:
-- every card added, with its new id;
+- every card added, with its new id and its game;
 - anything skipped as already present;
 - set slots filled and wishlist items checked off;
 - anything you could not identify, or that has no photo;

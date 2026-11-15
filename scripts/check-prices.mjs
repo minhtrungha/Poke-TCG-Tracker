@@ -14,6 +14,9 @@ const cards = JSON.parse(await readFile(P('data/cards.json'), 'utf8'));
 const sets = JSON.parse(await readFile(P('data/sets.json'), 'utf8'));
 const prices = JSON.parse(await readFile(P('data/prices.json'), 'utf8'));
 const nameKey = new Map(sets.map((s) => [s.name, s.key]));
+const games = JSON.parse(await readFile(P('data/games.json'), 'utf8'));
+const gameBy = new Map(games.map((g) => [g.key, g]));
+const gameOf = (r) => (r && r.game) || 'pokemon';
 
 let fail = 0;
 const bad = (m) => { console.error(`✗ ${m}`); fail++; };
@@ -103,6 +106,29 @@ if (prices._prev) {
     }
   }
   if (pv.date && pd < cd) ok(`_prev: ${n} per-card price(s) from ${pv.date}`);
+}
+
+/* every record names a game the registry knows. An unknown key would send the
+   matcher to an empty catalogue and silently leave the item unpriced. */
+{
+  const seen = new Map();
+  for (const [label, list] of [['cards', cards], ['sealed', sealed], ['sets', sets]]) {
+    for (const r of list) {
+      const k = gameOf(r);
+      if (!gameBy.has(k)) bad(`${label}: "${r.name || r.key}" names unknown game "${k}" - add it to data/games.json`);
+      seen.set(k, (seen.get(k) || 0) + 1);
+    }
+  }
+  if (![...seen.keys()].some((k) => !gameBy.has(k))) {
+    ok(`games: ${[...seen].map(([k, n]) => `${gameBy.get(k)?.name || k} ${n}`).join(' · ')}`);
+  }
+}
+
+/* a sealed line far above anything these games sell is a mis-match, not value */
+for (const s of sealed) {
+  if (typeof s.price_usd === 'number' && s.price_usd > 5000) {
+    bad(`sealed "${s.name}" = $${s.price_usd} each - implausible, check the match`);
+  }
 }
 
 console.log(fail ? `\n${fail} problem(s)` : '\nall checks passed');

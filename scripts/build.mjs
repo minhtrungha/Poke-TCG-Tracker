@@ -25,7 +25,7 @@ const die = (m) => { console.error(`\x1b[31m✗ ${m}\x1b[0m`); process.exit(1); 
 
 // Validate the JSON before shipping it.
 const data = {};
-for (const f of ['cards', 'sets', 'prices', 'wishlist']) {
+for (const f of ['cards', 'sets', 'prices', 'wishlist', 'sealed', 'games']) {
   const fp = p('data', `${f}.json`);
   if (!existsSync(fp)) die(`data/${f}.json is missing.`);
   try { data[f] = JSON.parse(await readFile(fp, 'utf8')); }
@@ -37,6 +37,18 @@ for (const c of data.cards) {
   if (ids.has(c.id)) die(`Duplicate card id ${c.id}.`);
   ids.add(c.id);
 }
+/* Every record names a game the registry knows. Unlabelled means pokemon, the
+   collection this started as; an unknown key would silently go unpriced. */
+const gameKeys = new Set(data.games.map((g) => g.key));
+if (!gameKeys.size) die('data/games.json lists no games.');
+if (!gameKeys.has('pokemon')) die('data/games.json has no "pokemon" entry, which unlabelled records fall back to.');
+for (const [label, list] of [['card', data.cards], ['sealed product', data.sealed], ['set', data.sets]]) {
+  for (const r of list) {
+    const g = r.game || 'pokemon';
+    if (!gameKeys.has(g)) die(`${label} "${r.name || r.key}" names unknown game "${g}" — add it to data/games.json.`);
+  }
+}
+
 let dangling = 0;
 for (const s of data.sets) for (const sl of s.slots || []) {
   if (sl.card_id != null && !ids.has(sl.card_id)) {
@@ -61,5 +73,6 @@ if (existsSync(p('images'))) await cp(p('images'), path.join(dist, 'images'), { 
 const { n, b } = await du(dist);
 console.log(`\x1b[32m✓ built dist/\x1b[0m — ${n} files, ${(b / 1e6).toFixed(1)} MB`);
 console.log(`  ${data.cards.length} cards · ${data.sets.length} sets · ${data.wishlist.length} wishlist entries`);
+console.log(`  ${data.sealed.length} sealed products · ${data.games.length} games: ${data.games.map((g) => g.name).join(', ')}`);
 console.log(`  prices last checked: ${data.prices.checked_date ?? 'never'}`);
 if (dangling || missingImg) console.log(`  ${dangling} dangling slot ref(s), ${missingImg} missing image(s)`);

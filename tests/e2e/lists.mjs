@@ -154,7 +154,13 @@ const s = await b.ev(`(()=>{const sh=document.querySelector('.sl-share'); return
 const hist = await b.ev(`fetch('data/prices.json').then(r=>r.json()).then(p=>p.history[p.history.length-1])`);
 const pct = Math.round(hist.sealed_total / hist.total * 100);
 t('sealed: share of holdings matches prices.json history', s.share === `${pct}%`, `${s.share} vs ${pct}% (${hist.sealed_total}/${hist.total}) · ${s.sub}`);
-t('sealed: rows render with share bars', s.rows === 6 && (await b.ev(`document.querySelectorAll('.sl-bar i').length`)) === 6);
+// One row per tracked product, and a share bar on each row that HAS a price:
+// an unpriced product (no upstream price row) deliberately renders no bar.
+const sealedJson = await b.ev(`fetch('data/sealed.json').then(r=>r.json())`);
+const pricedCount = sealedJson.filter((x) => typeof x.price_usd === 'number').length;
+t('sealed: rows render with share bars',
+  s.rows === sealedJson.length && (await b.ev(`document.querySelectorAll('.sl-bar i').length`)) === pricedCount,
+  `${s.rows} rows / ${sealedJson.length} products, bars vs ${pricedCount} priced`);
 const pcts = await b.ev(`[...document.querySelectorAll('.sl-pct')].map(x=>parseInt(x.textContent))`);
 t('sealed: per-row % of sealed sums to ~100', Math.abs(pcts.reduce((a, b2) => a + b2, 0) - 100) <= 3, pcts.join('+'));
 await b.ev(`document.getElementById('fSort').value='unit'; document.getElementById('fSort').dispatchEvent(new Event('change'))`); await sleep(200);
@@ -168,6 +174,65 @@ await realClick('#out .sealed-row .sealed-n'); await sleep(400);
 t('sealed: row still opens the detail sheet', await b.ev(`!!document.querySelector('dialog.dt[open]')`));
 await key('Escape', 'Escape', 27); await sleep(200);
 await b.ev(`document.getElementById('fSort').value='value'; document.getElementById('fSort').dispatchEvent(new Event('change'))`);
+
+// 7b. multi-game: the Sealed page splits and filters by game
+await go('sealed.html');
+const GAMES = await b.ev(`fetch('data/games.json').then(r=>r.json())`);
+const present = [...new Set(sealedJson.map((x) => x.game || 'pokemon'))];
+const byGame = {};
+for (const x of sealedJson) {
+  const g = x.game || 'pokemon';
+  byGame[g] = (byGame[g] || 0) + (typeof x.price_usd === 'number' ? x.price_usd * (x.qty || 1) : 0);
+}
+t('sealed: every product names a game in the registry',
+  present.every((g) => GAMES.some((r) => r.key === g)), present.join(', '));
+t('sealed: a game filter is offered, one option per game held',
+  !(await b.ev(`document.getElementById('fGameFld').hidden`))
+  && (await b.ev(`document.querySelectorAll('#fGame option').length`)) === present.length + 1,
+  `${await b.ev(`[...document.querySelectorAll('#fGame option')].map(o=>o.value).join('|')`)}`);
+t('sealed: a game badge on every row',
+  (await b.ev(`document.querySelectorAll('#out .sealed-row .game-badge').length`)) === sealedJson.length);
+const strip = await b.ev(`[...document.querySelectorAll('#gsplit .gsplit-i')].map(e=>({g:e.dataset.game,v:e.querySelector('.gsplit-v').textContent}))`);
+t('sealed: per-game strip shows one tile per game, with that game\'s value',
+  strip.length === present.length
+  && strip.every((x) => x.v === '$' + Math.round(byGame[x.g]).toLocaleString('en-US')),
+  strip.map((x) => `${x.g} ${x.v}`).join(' · '));
+
+// Filtering to one game must narrow the rows to exactly that game's products.
+const pickGame = present.find((g) => g !== 'pokemon') || present[0];
+await b.ev(`document.getElementById('fGame').value=${JSON.stringify(pickGame)}; document.getElementById('fGame').dispatchEvent(new Event('change'))`);
+await sleep(250);
+const want = sealedJson.filter((x) => (x.game || 'pokemon') === pickGame).length;
+t(`sealed: filtering to ${pickGame} shows only its products`,
+  (await b.ev(`document.querySelectorAll('#out .sealed-row').length`)) === want,
+  `${await b.ev(`document.querySelectorAll('#out .sealed-row').length`)} of ${want}`);
+t('sealed: the per-game strip does NOT narrow with the filter',
+  (await b.ev(`document.querySelectorAll('#gsplit .gsplit-i').length`)) === present.length);
+t('sealed: the filtered game is in the URL and remembered',
+  (await b.ev(`location.search`)).includes(`game=${pickGame}`));
+await go('sealed.html');
+t('sealed: game filter survives a reload',
+  (await b.ev(`document.getElementById('fGame').value`)) === pickGame);
+await realClick('#out .sealed-row .sealed-n'); await sleep(400);
+const gsheet = await b.ev(`(()=>{const d=document.querySelector('dialog.dt[open]'); return d ? {chip:!!d.querySelector('#dt-title .game-badge'), txt:d.textContent.replace(/\\s+/g,' ')} : null})()`);
+t('sealed: the detail sheet names the game',
+  gsheet && gsheet.chip && gsheet.txt.includes(GAMES.find((r) => r.key === pickGame).name),
+  gsheet && gsheet.chip ? 'chip + Game fact' : 'missing');
+await key('Escape', 'Escape', 27); await sleep(200);
+// leave the page unfiltered for the screenshots further down
+await b.ev(`document.getElementById('fGame').value='all'; document.getElementById('fGame').dispatchEvent(new Event('change'))`);
+await sleep(200);
+
+// An unpriced product must read as unpriced, not as $0.
+{
+  const un = sealedJson.find((x) => typeof x.price_usd !== 'number');
+  if (un) {
+    const row = await b.ev(`(()=>{const r=[...document.querySelectorAll('#out .sealed-row')].find(e=>e.querySelector('.sealed-n').textContent.trim()===${JSON.stringify(un.name)});
+      return r ? {unit:r.querySelector('.sealed-unit').textContent.trim(), line:r.querySelector('.sealed-line').textContent.trim()} : null})()`);
+    t('sealed: an unpriced product says so rather than showing $0',
+      row && /no price/i.test(row.unit) && row.line === '—', row && `${row.unit} / ${row.line}`);
+  }
+}
 
 // 8. transition still works from the wishlist
 await go('wishlist.html');
