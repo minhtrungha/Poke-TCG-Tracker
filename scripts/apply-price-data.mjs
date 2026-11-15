@@ -16,7 +16,9 @@
                      points and never gets them overwritten.
      sealed.json   - price fields only, by id, and only for items the sync
                      priced itself. A hand-entered ("manual") price on main is
-                     left alone, as fetch-prices does.
+                     left alone, as fetch-prices does. A price_note recording
+                     which product an entry is survives a price update; only a
+                     note attached to a replaced manual price is cleared.
      wishlist.json - price_usd / price_checked only, by set + number + name.
      cards.json    - fills in a missing set_key, by id.
 
@@ -79,8 +81,11 @@ if (sealed && bSealed) {
     if (s.price_usd === b.price_usd && s.price_checked === b.price_checked && !s.price_source) continue;
     s.price_usd = b.price_usd;
     s.price_checked = b.price_checked;
-    delete s.price_source;
-    delete s.price_note;
+    // A hand-entered price and the note explaining it are both superseded by a
+    // real synced price. A note that documents WHICH product an entry is ("the
+    // Player bundle, not the Signature edition") is not: it stays. Same rule as
+    // fetch-prices.mjs.
+    if (s.price_source === 'manual') { delete s.price_source; delete s.price_note; }
     n++;
   }
   if (n) await write(D('sealed.json'), sealed);
