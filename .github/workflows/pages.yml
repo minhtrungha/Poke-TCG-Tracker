@@ -109,6 +109,13 @@ jobs:
 
   deploy:
     needs: build
+    # Without this the job silently skips. `prices` only runs on a schedule or
+    # a manual dispatch, so on an ordinary push it is skipped; `build` survives
+    # that through its own `if`, but a skip propagates down the needs chain to
+    # any job that does not override it. Pushes to main were therefore building
+    # and uploading the artifact and then never publishing it, while the run
+    # still reported success, because a skipped job does not fail a run.
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages

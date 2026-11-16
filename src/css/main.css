@@ -537,6 +537,11 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
 }
 
 /* ---- credits ---- */
+/* Build stamp under the credits: quiet, but unambiguous about which deploy
+   you are looking at. */
+.build-stamp{margin:12px 0 0;padding-top:9px;border-top:1px solid var(--line-soft);
+  font-family:var(--mono);font-size:10.5px;color:var(--fg-faint);letter-spacing:.02em}
+.build-stamp:empty{display:none}
 .credits{max-width:1180px;margin:0 auto;padding:0 18px 34px;color:var(--fg-faint);
   font-size:11px;line-height:1.6}
 .credits p{margin:0;max-width:92ch}

@@ -258,6 +258,27 @@ export function initChrome(active) {
     not affiliated with or endorsed by any of them.</p>`;
   document.body.appendChild(cr);
 
+  /* Build stamp. The whole point is to tell at a glance whether the page in
+     front of you is the latest deploy, so it carries the build time and the
+     commit, not just a version that only moves when someone remembers to
+     move it. Written by scripts/build.mjs; absent in an unbuilt tree, in
+     which case nothing is shown. */
+  const stamp = document.createElement('p');
+  stamp.className = 'build-stamp';
+  cr.appendChild(stamp);
+  fetch('data/build.json', { cache: 'no-cache' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((b) => {
+      if (!b) return;
+      const d = new Date(b.built);
+      const when = isNaN(d) ? null : d.toLocaleString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC';
+      stamp.textContent = [`Version ${b.version}`, when && `built ${when}`, b.commit]
+        .filter(Boolean).join(' · ');
+    })
+    .catch(() => {});
+
   // Palette: purple (default) or green. Independent of light/dark.
   const PKEY = 'ptcg-palette';
   const palBtn = document.getElementById('palBtn');

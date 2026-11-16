@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* Copy src/, data/ and images/ into dist/. No framework, no deps. */
-import { cp, rm, mkdir, readdir, stat, readFile } from 'node:fs/promises';
+import { cp, rm, mkdir, readdir, stat, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -70,9 +71,23 @@ await cp(p('src'), dist, { recursive: true });
 await cp(p('data'), path.join(dist, 'data'), { recursive: true });
 if (existsSync(p('images'))) await cp(p('images'), path.join(dist, 'images'), { recursive: true });
 
+/* Build stamp, shown in the footer: the point is to be able to tell at a
+   glance whether the page in front of you is the newest deploy. The commit
+   comes from git when building locally and from GITHUB_SHA on a runner. */
+const pkg = JSON.parse(await readFile(p('package.json'), 'utf8'));
+const sha = (() => {
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'],
+      { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch { return (process.env.GITHUB_SHA || '').slice(0, 7) || null; }
+})();
+const stamp = { version: pkg.version, built: new Date().toISOString(), commit: sha };
+await writeFile(path.join(dist, 'data', 'build.json'), JSON.stringify(stamp, null, 1) + '\n');
+
 const { n, b } = await du(dist);
 console.log(`\x1b[32m✓ built dist/\x1b[0m — ${n} files, ${(b / 1e6).toFixed(1)} MB`);
 console.log(`  ${data.cards.length} cards · ${data.sets.length} sets · ${data.wishlist.length} wishlist entries`);
 console.log(`  ${data.sealed.length} sealed products · ${data.games.length} games: ${data.games.map((g) => g.name).join(', ')}`);
 console.log(`  prices last checked: ${data.prices.checked_date ?? 'never'}`);
+console.log(`  version ${stamp.version} · ${stamp.commit ?? 'no commit'} · built ${stamp.built}`);
 if (dangling || missingImg) console.log(`  ${dangling} dangling slot ref(s), ${missingImg} missing image(s)`);
