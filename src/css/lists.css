@@ -70,6 +70,28 @@
   .sealed-img{width:80px;height:80px;border-radius:12px}
   .sealed-row{padding:12px 16px;gap:16px}
 }
+
+/* Phones: the six-column flex row squeezed the name to ~40px, so a single
+   word like "Rocket's" could not fit and spilled out of the card. Below 620px
+   the row becomes a two-line grid — art, quantity and name on top, the prices
+   and the TCG link underneath — so the name always has the full width to wrap
+   into. */
+@media(max-width:620px){
+  .sealed-row{
+    display:grid;
+    grid-template-columns:auto auto minmax(0,1fr) auto;
+    grid-template-areas:
+      "img qty main main"
+      "unit unit line btn";
+    column-gap:10px;row-gap:7px;align-items:center;padding:10px 12px;
+  }
+  .sealed-img{grid-area:img;align-self:start}
+  .sealed-qty{grid-area:qty;align-self:start}
+  .sealed-main{grid-area:main;min-width:0}
+  .sealed-unit{grid-area:unit;justify-self:start;text-align:left}
+  .sealed-line{grid-area:line;justify-self:end;min-width:0;text-align:right}
+  .sealed-row>.btn{grid-area:btn;justify-self:end}
+}
 .sl-head{display:flex;align-items:center;gap:12px;padding:0 16px 6px;font-size:10.5px;font-weight:700;
   text-transform:uppercase;letter-spacing:.1em;color:var(--fg-faint)}
 .sl-head:empty{display:none}
