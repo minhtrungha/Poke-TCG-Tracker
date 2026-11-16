@@ -9,12 +9,15 @@ const base = process.argv[2];
 const pages = ['index.html', 'cards.html', 'sealed.html', 'sets.html', 'wishlist.html'];
 const chrome = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const prof = mkdtempSync(path.join(os.tmpdir(), 'cdp-'));
-const proc = spawn(chrome, ['--headless=new', '--remote-debugging-port=9333', `--user-data-dir=${prof}`, '--no-first-run', ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' });
+// a fresh port each run, as cdp.mjs does: a Chrome left over from an
+// interrupted run must never be the one this suite attaches to
+const port = 9400 + Math.floor(Math.random() * 500);
+const proc = spawn(chrome, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []), 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let wsUrl;
 for (let i = 0; i < 40 && !wsUrl; i++) {
-  try { const t = await (await fetch('http://127.0.0.1:9333/json')).json(); wsUrl = t.find((x) => x.type === 'page')?.webSocketDebuggerUrl; } catch {}
+  try { const t = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); wsUrl = t.find((x) => x.type === 'page')?.webSocketDebuggerUrl; } catch {}
   if (!wsUrl) await sleep(250);
 }
 if (!wsUrl) { console.error('no chrome'); proc.kill(); process.exit(2); }
@@ -29,7 +32,7 @@ ws.addEventListener('message', (m) => {
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 await send('Runtime.enable'); await send('Network.enable'); await send('Log.enable'); await send('Page.enable');
 
-let bad = 0;
+let bad = 0, pass = 0, fail = 0;
 for (const p of pages) {
   events.length = 0;
   await send('Page.navigate', { url: `${base}${p}` });
@@ -49,6 +52,9 @@ for (const p of pages) {
   console.log(`${probs.length ? '✗' : '✓'} ${p}  requests=${reqs}  ${r.result.result.value}`);
   for (const x of [...new Set(probs)]) console.log('   ' + x);
   bad += probs.length;
+  probs.length ? fail++ : pass++;
 }
+// run-all.sh reads this line; without it a clean run was reported as a crash
+console.log(`\n${pass} passed, ${fail} failed`);
 ws.close(); proc.kill();
 process.exit(bad ? 1 : 0);

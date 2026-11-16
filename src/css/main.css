@@ -540,12 +540,19 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
 /* Build stamp under the credits: quiet, but unambiguous about which deploy
    you are looking at. */
 .build-stamp{margin:12px 0 0;padding-top:9px;border-top:1px solid var(--line-soft);
-  font-family:var(--mono);font-size:10.5px;color:var(--fg-faint);letter-spacing:.02em}
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.02em}
 .build-stamp:empty{display:none}
 .credits{max-width:1180px;margin:0 auto;padding:0 18px 34px;color:var(--fg-faint);
   font-size:11px;line-height:1.6}
 .credits p{margin:0;max-width:92ch}
 .credits a{color:var(--fg-dim)}
+/* Dark theme: the faint footer text measured 4.17:1 against the pixels behind
+   its glyphs on the purple wallpaper (3.84 at the worst tenth), short of the
+   4.5 that small text needs even with the sky-coloured halo. One step brighter
+   clears it with room to spare: 6.1 on purple, 7.0 on green. Links go up a
+   step as well, so they still stand out from the sentence around them. */
+:root[data-theme="dark"] .credits{color:var(--fg-dim)}
+:root[data-theme="dark"] .credits a{color:var(--fg)}
 /* WCAG 2.5.5 exempts links inline in a sentence, but give them a comfortable
    touch height anyway rather than relying on the exemption. */
 @media(max-width:720px){
