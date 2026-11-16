@@ -2,7 +2,7 @@
    data and images. No dependencies; plain Service Worker API.
 
    Bump CACHE when the shell changes so old copies are evicted. */
-const CACHE = 'ptcg-v9';
+const CACHE = 'ptcg-v10';
 const SHELL = [
   'index.html', 'cards.html', 'sealed.html', 'sets.html', 'wishlist.html',
   'css/main.css', 'css/portfolio.css', 'css/browse.css', 'css/lists.css',
