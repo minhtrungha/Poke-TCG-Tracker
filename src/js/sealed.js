@@ -100,7 +100,7 @@ function renderGames(grandTotal) {
         <span class="gsplit-v">${usd0(val)}</span></div>
       <div class="gsplit-bar" role="img" aria-label="${esc(g.name)} is ${Math.round(pct)}% of sealed value">
         <i style="width:${pct.toFixed(1)}%"></i></div>
-      <div class="gsplit-s"><span class="gsplit-bit">${units} unit${units === 1 ? '' : 's'}</span> · <span class="gsplit-bit">${mine.length} product${mine.length === 1 ? '' : 's'}</span>${unpriced ? ` · <span class="gsplit-bit">${unpriced} unpriced</span>` : ''}</div>
+      <div class="gsplit-s"><span class="gsplit-bit">${units} unit${units === 1 ? '' : 's'}</span> <span class="gsplit-bit">· ${mine.length} product${mine.length === 1 ? '' : 's'}</span>${unpriced ? ` <span class="gsplit-bit">· ${unpriced} unpriced</span>` : ''}</div>
     </div>`;
   }).join('');
 }

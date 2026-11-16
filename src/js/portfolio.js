@@ -191,15 +191,16 @@ function renderGameSplit(grand) {
     const val = cv + sl.value;
     const pct = grand ? (val / grand) * 100 : 0;
     const bits = [];
-    const bit = (t) => `<span class="gsplit-bit">${t}</span>`;
-    if (cs.length) bits.push(bit(`${cs.length} card${cs.length === 1 ? '' : 's'} ${usd0(cv)}`));
-    if (sl.products) bits.push(bit(`${sl.units} sealed ${usd0(sl.value)}`));
+    if (cs.length) bits.push(`${cs.length} card${cs.length === 1 ? '' : 's'} ${usd0(cv)}`);
+    if (sl.products) bits.push(`${sl.units} sealed ${usd0(sl.value)}`);
     return `<div class="gsplit-i" data-game="${esc(g.key)}">
       <div class="gsplit-top">${gameBadge(gi, g.key, { full: true })}
         <span class="gsplit-v">${usd0(val)}</span></div>
       <div class="gsplit-bar" role="img" aria-label="${esc(g.name)} is ${Math.round(pct)}% of total holdings">
         <i style="width:${pct.toFixed(1)}%"></i></div>
-      <div class="gsplit-s">${bits.join(' · ') || 'nothing priced yet'}</div>
+      <div class="gsplit-s">${bits.length
+        ? bits.map((t, i) => `<span class="gsplit-bit">${i ? '· ' : ''}${t}</span>`).join(' ')
+        : 'nothing priced yet'}</div>
     </div>`;
   }).join('');
 }

@@ -469,7 +469,9 @@ td.thumb img{width:34px;height:47px;object-fit:cover;border-radius:4px;display:b
 .got-chip{background:var(--ok);color:#06281c}
 .wl-card .card-lnks button{flex:1;font-size:10.5px;padding:4px 0}
 @media(max-width:560px){
-  .sealed-unit{display:none}
+  /* The unit price used to be dropped here for want of room in the old
+     single-line row. The two-line grid gives it a slot of its own, so it
+     stays: "$51.79 ea" next to a x6 quantity is worth reading. */
   .sealed-line{min-width:72px;font-size:14px}
 }
 
