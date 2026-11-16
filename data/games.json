@@ -3,26 +3,48 @@
   "key": "pokemon",
   "name": "Pokémon",
   "short": "PKM",
-  "categories": { "EN": 3, "JP": 85 },
+  "categories": {
+   "EN": 3,
+   "JP": 85
+  },
   "tcg_search": "pokemon",
   "pc_type": "pokemon",
   "publisher": "Nintendo / Creatures Inc. / GAME FREAK Inc.",
-  "default": true
+  "default": true,
+  "logo": "pokemon.webp",
+  "logo_size": [
+   327,
+   120
+  ]
  },
  {
   "key": "onepiece",
   "name": "One Piece",
   "short": "OP",
-  "categories": { "EN": 68 },
+  "categories": {
+   "EN": 68
+  },
   "tcg_search": "all",
-  "publisher": "Bandai Namco / Eiichiro Oda / Shueisha / Toei Animation"
+  "publisher": "Bandai Namco / Eiichiro Oda / Shueisha / Toei Animation",
+  "logo": "onepiece.webp",
+  "logo_size": [
+   680,
+   120
+  ]
  },
  {
   "key": "riftbound",
   "name": "Riftbound",
   "short": "RB",
-  "categories": { "EN": 89 },
+  "categories": {
+   "EN": 89
+  },
   "tcg_search": "all",
-  "publisher": "Riot Games"
+  "publisher": "Riot Games",
+  "logo": "riftbound.webp",
+  "logo_size": [
+   488,
+   120
+  ]
  }
 ]

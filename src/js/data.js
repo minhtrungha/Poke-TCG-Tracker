@@ -110,6 +110,16 @@ export function gameBadge(gi, key, { full = false } = {}) {
   return `<span class="game-badge" data-game="${esc(g.key)}" title="${esc(g.name)}">${esc(full ? g.name : (g.short || g.name))}</span>`;
 }
 
+/* The game's own wordmark, used on the per-game tiles to label holdings.
+   Falls back to the text badge for a game with no logo on file. */
+export function gameLogo(gi, key) {
+  const g = gi.get(key);
+  if (!g || !g.logo) return gameBadge(gi, key, { full: true });
+  const [w, h] = g.logo_size || [0, 0];
+  return `<img class="game-logo" data-game="${esc(g.key)}" src="images/games/${esc(g.logo)}"
+    alt="${esc(g.name)}"${w && h ? ` width="${w}" height="${h}"` : ''} decoding="async">`;
+}
+
 /* --- formatting --- */
 export const usd = (n) => n == null ? '—'
   : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -240,7 +250,9 @@ export function initChrome(active) {
     prices are TCGplayer market estimates, not an appraisal. Species sprites from
     <a href="https://github.com/msikma/pokesprite" target="_blank" rel="noopener">PokéSprite</a>
     (code and data MIT; sprite images © Nintendo / Creatures Inc. / GAME FREAK Inc.).
-    Pokémon is a trademark of Nintendo, Creatures Inc. and GAME FREAK Inc.;
+    Game names and logos are the trademarks of their publishers, shown only to
+    label the games in a personal collection:
+    Pokémon of Nintendo, Creatures Inc. and GAME FREAK Inc.;
     One Piece Card Game of Bandai Namco, Eiichiro Oda, Shueisha and Toei Animation;
     Riftbound: League of Legends of Riot Games. Personal, non-commercial tracker,
     not affiliated with or endorsed by any of them.</p>`;

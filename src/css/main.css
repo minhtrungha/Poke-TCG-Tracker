@@ -220,6 +220,14 @@ label.fld{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--f
 .gsplit-top{display:flex;align-items:center;gap:6px;justify-content:space-between;
   flex-wrap:wrap;min-width:0}
 .gsplit-top .game-badge{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* The publishers' own wordmarks, labelling each game's holdings. Capped on
+   both axes so three very different aspect ratios (Pokemon 2.7:1, Riftbound
+   4.1:1, One Piece 5.7:1) sit on one visual footing. */
+.game-logo{height:24px;width:auto;max-width:112px;object-fit:contain;
+  object-position:left center;display:block;flex:0 1 auto;min-width:0}
+/* The One Piece wordmark is near-black and vanishes on the dark theme.
+   It is flat monochrome, so inverting it reads correctly there. */
+:root[data-theme="dark"] .game-logo[data-game="onepiece"]{filter:invert(1)}
 .gsplit-v{font-family:var(--mono);font-weight:700;font-size:16px;letter-spacing:-.02em;
   margin-left:auto;white-space:nowrap}
 .gsplit-s{font-size:11px;color:var(--fg-faint);overflow-wrap:anywhere}

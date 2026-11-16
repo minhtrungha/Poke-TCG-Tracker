@@ -1,5 +1,5 @@
 import { loadAll, priceIndex, usd, usd0, tcgUrl, esc, initChrome, initOffline, dataError, byText,
-         gameIndex, gameOf, gameBadge } from './data.js';
+         gameIndex, gameOf, gameBadge, gameLogo } from './data.js';
 import { bindDetails, sealedDetail } from './detail.js';
 
 initOffline();
@@ -96,7 +96,7 @@ function renderGames(grandTotal) {
     const unpriced = mine.filter((s) => s.line == null).length;
     const pct = grandTotal ? (val / grandTotal) * 100 : 0;
     return `<div class="gsplit-i" data-game="${esc(g.key)}">
-      <div class="gsplit-top">${gameBadge(gi, g.key, { full: true })}
+      <div class="gsplit-top">${gameLogo(gi, g.key)}
         <span class="gsplit-v">${usd0(val)}</span></div>
       <div class="gsplit-bar" role="img" aria-label="${esc(g.name)} is ${Math.round(pct)}% of sealed value">
         <i style="width:${pct.toFixed(1)}%"></i></div>

@@ -2,7 +2,7 @@
    data and images. No dependencies; plain Service Worker API.
 
    Bump CACHE when the shell changes so old copies are evicted. */
-const CACHE = 'ptcg-v10';
+const CACHE = 'ptcg-v11';
 const SHELL = [
   'index.html', 'cards.html', 'sealed.html', 'sets.html', 'wishlist.html',
   'css/main.css', 'css/portfolio.css', 'css/browse.css', 'css/lists.css',
@@ -14,6 +14,7 @@ const SHELL = [
   'data/cards.json', 'data/sets.json', 'data/prices.json',
   'data/wishlist.json', 'data/sealed.json', 'data/need-images.json', 'data/sprites.json',
   'data/games.json',
+  'images/games/pokemon.webp', 'images/games/onepiece.webp', 'images/games/riftbound.webp',
 ];
 
 self.addEventListener('install', (e) => {

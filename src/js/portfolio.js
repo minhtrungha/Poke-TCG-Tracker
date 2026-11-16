@@ -1,6 +1,6 @@
 import { loadAll, priceIndex, usd, usd0, daysSince, tcgUrl, pcUrl, imgTag, esc,
          langBadge, initChrome, initOffline, dataError, sprite, normNum,
-         gameIndex, gameOf, gameBadge } from './data.js';
+         gameIndex, gameOf, gameBadge, gameLogo } from './data.js';
 import { valueChart, bindChart } from './chart.js';
 import { bindDetails, ownedDetail } from './detail.js';
 
@@ -194,7 +194,7 @@ function renderGameSplit(grand) {
     if (cs.length) bits.push(`${cs.length} card${cs.length === 1 ? '' : 's'} ${usd0(cv)}`);
     if (sl.products) bits.push(`${sl.units} sealed ${usd0(sl.value)}`);
     return `<div class="gsplit-i" data-game="${esc(g.key)}">
-      <div class="gsplit-top">${gameBadge(gi, g.key, { full: true })}
+      <div class="gsplit-top">${gameLogo(gi, g.key)}
         <span class="gsplit-v">${usd0(val)}</span></div>
       <div class="gsplit-bar" role="img" aria-label="${esc(g.name)} is ${Math.round(pct)}% of total holdings">
         <i style="width:${pct.toFixed(1)}%"></i></div>
