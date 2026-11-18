@@ -5,10 +5,10 @@
   "set": "Mega Evolution",
   "game": "pokemon",
   "qty": 2,
-  "price_usd": 113.03,
+  "price_usd": 113.37,
   "image": "s001.jpg",
   "search_string": "Mega Evolution Elite Trainer Box Mega Lucario",
-  "price_checked": "Nov 16, 2026",
+  "price_checked": "Nov 18, 2026",
   "tcgplayer_id": 648394
  },
  {
@@ -31,10 +31,10 @@
   "set": "Mega Evolution",
   "game": "pokemon",
   "qty": 1,
-  "price_usd": 66.09,
+  "price_usd": 65.29,
   "image": "s003.jpg",
   "search_string": "Mega Evolution Booster Bundle",
-  "price_checked": "Nov 16, 2026",
+  "price_checked": "Nov 18, 2026",
   "tcgplayer_id": 644362
  },
  {
@@ -43,10 +43,10 @@
   "set": "Prismatic Evolutions",
   "game": "pokemon",
   "qty": 1,
-  "price_usd": 60.74,
+  "price_usd": 60.12,
   "image": "s004.jpg",
   "search_string": "Prismatic Evolutions Surprise Box",
-  "price_checked": "Nov 16, 2026",
+  "price_checked": "Nov 18, 2026",
   "tcgplayer_id": 593466
  },
  {
@@ -55,10 +55,10 @@
   "set": "Miscellaneous Cards & Products",
   "game": "pokemon",
   "qty": 6,
-  "price_usd": 51.79,
+  "price_usd": 51.77,
   "image": "s005.jpg",
   "search_string": "Team Rocket's Mewtwo ex Box",
-  "price_checked": "Nov 16, 2026",
+  "price_checked": "Nov 18, 2026",
   "tcgplayer_id": 625695
  },
  {
@@ -67,10 +67,10 @@
   "set": "Chaos Rising",
   "game": "pokemon",
   "qty": 2,
-  "price_usd": 37.06,
+  "price_usd": 37.63,
   "image": "s006.jpg",
   "search_string": "Chaos Rising Booster Bundle",
-  "price_checked": "Nov 16, 2026",
+  "price_checked": "Nov 18, 2026",
   "tcgplayer_id": 684456
  },
  {
@@ -91,12 +91,12 @@
   "set": "T1 2025 Worlds Champion Bundles",
   "game": "riftbound",
   "qty": 1,
-  "price_usd": 300,
+  "price_usd": 294.99,
   "search_string": "T1 Worlds Champion Player Bundle",
   "price_note": "The Player Bundle, not the Signature Edition Bundle - they are separate products at very different prices.",
   "image": "s008.jpg",
   "tcgplayer_id": 716007,
-  "price_checked": "Nov 16, 2026"
+  "price_checked": "Nov 18, 2026"
  },
  {
   "id": 9,
@@ -104,11 +104,11 @@
   "set": "The Time of Battle",
   "game": "onepiece",
   "qty": 8,
-  "price_usd": 7.08,
+  "price_usd": 6.99,
   "search_string": "The Time of Battle Booster Pack",
   "price_note": "OP-16 single booster packs, not sleeved packs - sleeved is a separate, pricier product.",
   "image": "s009.jpg",
   "tcgplayer_id": 689341,
-  "price_checked": "Nov 16, 2026"
+  "price_checked": "Nov 18, 2026"
  }
 ]
