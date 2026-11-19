@@ -1,6 +1,6 @@
 import { loadAll, priceIndex, usd, usd0, tcgUrl, pcUrl, esc, langBadge, initChrome, initOffline,
          dataError, getGot, setGot, wishKey, eeveeRank, byText, PLACEHOLDER,
-         needImg, normNum, sprite } from './data.js';
+         needImg, normNum, sprite, gameIndex, gameOf, gameBadge } from './data.js';
 import { bindDetails, needDetail } from './detail.js';
 
 initOffline();
@@ -54,6 +54,7 @@ const filtersActive = () => !!(state.q || state.src !== 'all' || state.max != nu
 
 let items = [], got = getGot(), needMap = {}, spriteMap = {};
 let shownRows = [], idx = new Map(), checked = null, plan = new Set();
+let gi = null, gamesPresent = [];
 
 (async function main() {
   loadState();
@@ -63,6 +64,7 @@ let shownRows = [], idx = new Map(), checked = null, plan = new Set();
   needMap = d['need-images'] || {};
   spriteMap = d.sprites || {};
   checked = d.prices && d.prices.checked_date;
+  gi = gameIndex(d.games);
   bindDetails(el('out'), () => shownRows.map((i) => needDetail(i, {
     img: needMap[i.imgKey] ? `images/need/${needMap[i.imgKey]}` : null,
     checked, sprites: spriteMap, got: got.has(i.key) })));
@@ -72,7 +74,7 @@ let shownRows = [], idx = new Map(), checked = null, plan = new Set();
     (s.slots || []).filter((x) => x.card_id == null).map((x) => ({
       name: x.name, number: x.number, set: s.name, setKey: s.key,
       imgKey: `${s.key}|${String(x.number).trim().toUpperCase()}`,
-      lang: s.lang || 'EN', rarity: '', src: 'set',
+      lang: s.lang || 'EN', rarity: '', src: 'set', game: gameOf(s),
       price: px.getSlot(s.key, x.number),
       search_string: `${x.name} ${x.number}`,
     })));
@@ -80,15 +82,18 @@ let shownRows = [], idx = new Map(), checked = null, plan = new Set();
   // Source 2: standalone wants. Entries already owned are excluded from display.
   const standalone = (d.wishlist || []).filter((w) => !w.owned).map((w) => ({
     name: w.name, number: w.number, set: w.set, lang: w.lang || 'EN',
-    rarity: w.rarity || '', illustrator: w.illustrator || '', src: 'want',
+    rarity: w.rarity || '', illustrator: w.illustrator || '', src: 'want', game: gameOf(w),
     imgKey: `want|${w.name}|${normNum(w.number)}`,
     price: typeof w.price_usd === 'number' ? w.price_usd : px.get(w),
     search_string: w.search_string || `${w.name} ${w.number}`,
   }));
 
   items = [...fromSets, ...standalone].map((i) => ({
-    ...i, key: wishKey(i), hay: `${i.name} ${i.number} ${i.set}`.toLowerCase(),
+    ...i, key: wishKey(i), hay: `${i.name} ${i.number} ${i.set} ${gi.name(i.game)}`.toLowerCase(),
   }));
+  // Name the game on each row only once the list actually spans more than one,
+  // the same rule the Cards and Sealed pages follow.
+  gamesPresent = gi.present(items);
 
   syncControls();
   el('q').addEventListener('input', (e) => { state.q = e.target.value.trim(); update(); });
@@ -184,12 +189,12 @@ function cardTile(i) {
     <div class="pocket">${needImg(needMap, i.imgKey, `${i.name} ${i.number}`)}
       ${isGot ? '<span class="need-chip got-chip">GOT</span>' : '<span class="need-chip">NEED</span>'}</div>
     <div class="card-b">
-      <div class="card-n">${esc(i.name)} ${langBadge(i.lang)}${sprite(spriteMap, i.name, 'name-sprite')}</div>
+      <div class="card-n">${esc(i.name)} ${langBadge(i.lang)}${gamesPresent.length > 1 ? ' ' + gameBadge(gi, i.game) : ''}${sprite(spriteMap, i.name, 'name-sprite')}</div>
       <div class="card-m">${esc(i.number)}</div>
       <div class="card-s">${esc(i.set)}</div>
       <div class="card-p${typeof i.price === 'number' ? '' : ' none'}">${typeof i.price === 'number' ? usd(i.price) : 'no price'}${planChip(i)}</div>
       <div class="card-lnks">
-        <a href="${tcgUrl(i.search_string)}" target="_blank" rel="noopener">TCG</a>
+        <a href="${tcgUrl(i.search_string, i.game)}" target="_blank" rel="noopener">TCG</a>
         <button class="btn${isGot ? ' on' : ''}" data-got="${esc(i.key)}">${isGot ? '✓' : 'Got it'}</button>
       </div>
     </div></article>`;
@@ -200,15 +205,15 @@ function row(i) {
   return `<div class="wl-row${isGot ? ' got' : ''}${plan.has(i) ? ' in-plan' : ''}" data-i="${idx.get(i)}"><button type="button" class="card-hit" data-open aria-label="Details for ${esc(i.name)} ${esc(i.number)}"></button>
     <div class="wl-img">${needImg(needMap, i.imgKey, `${i.name} ${i.number}`)}</div>
     <div class="wl-main">
-      <div class="wl-n">${esc(i.name)} ${langBadge(i.lang)}${sprite(spriteMap, i.name, 'name-sprite')}
+      <div class="wl-n">${esc(i.name)} ${langBadge(i.lang)}${gamesPresent.length > 1 ? ' ' + gameBadge(gi, i.game) : ''}${sprite(spriteMap, i.name, 'name-sprite')}
         ${i.src === 'set' ? '<span class="tag">set slot</span>' : ''}${planChip(i)}</div>
       <div class="wl-m">${esc(i.number)}${i.rarity ? ` · ${esc(i.rarity)}` : ''}</div>
       <div class="wl-s">${esc(i.set)}${i.illustrator ? ` · ${esc(i.illustrator)}` : ''}</div>
     </div>
     <div class="wl-pr${typeof i.price === 'number' ? '' : ' none'}">${typeof i.price === 'number' ? usd(i.price) : 'no price'}</div>
     <div class="wl-act">
-      <a class="btn lnk" href="${tcgUrl(i.search_string)}" target="_blank" rel="noopener">TCG</a>
-      <a class="btn lnk" href="${pcUrl(i.name, i.number)}" target="_blank" rel="noopener">PC</a>
+      <a class="btn lnk" href="${tcgUrl(i.search_string, i.game)}" target="_blank" rel="noopener">TCG</a>
+      <a class="btn lnk" href="${pcUrl(i.name, i.number, i.game)}" target="_blank" rel="noopener">PC</a>
       <button class="btn${isGot ? ' on' : ''}" data-got="${esc(i.key)}">${isGot ? '✓ Got it' : 'Got it'}</button>
     </div></div>`;
 }
