@@ -171,7 +171,7 @@
   "price_checked": null
  },
  {
-  "name": "Pyke - Bloodharbor Ripper (Overnumbered)",
+  "name": "Pyke, Bloodharbor Ripper (Overnumbered)",
   "number": "228/219",
   "set": "Unleashed",
   "game": "riftbound",
@@ -179,12 +179,12 @@
   "lang": "EN",
   "owned": false,
   "tags": [],
-  "search_string": "Pyke - Bloodharbor Ripper Overnumbered 228/219",
+  "search_string": "Pyke, Bloodharbor Ripper Overnumbered 228/219",
   "price_usd": null,
   "price_checked": null
  },
  {
-  "name": "Soraka - Wanderer (Overnumbered)",
+  "name": "Soraka, Wanderer (Overnumbered)",
   "number": "239/221",
   "set": "Spiritforged",
   "game": "riftbound",
@@ -192,12 +192,12 @@
   "lang": "EN",
   "owned": false,
   "tags": [],
-  "search_string": "Soraka - Wanderer Overnumbered 239/221",
+  "search_string": "Soraka, Wanderer Overnumbered 239/221",
   "price_usd": null,
   "price_checked": null
  },
  {
-  "name": "Bard - Mercurial (Overnumbered)",
+  "name": "Bard, Mercurial (Overnumbered)",
   "number": "228/221",
   "set": "Spiritforged",
   "game": "riftbound",
@@ -205,7 +205,7 @@
   "lang": "EN",
   "owned": false,
   "tags": [],
-  "search_string": "Bard - Mercurial Overnumbered 228/221",
+  "search_string": "Bard, Mercurial Overnumbered 228/221",
   "price_usd": null,
   "price_checked": null
  },
@@ -249,7 +249,7 @@
   "price_checked": null
  },
  {
-  "name": "Leona - Radiant Dawn (Overnumbered)",
+  "name": "Leona, Radiant Dawn (Overnumbered)",
   "number": "306/298",
   "set": "Origins",
   "game": "riftbound",
@@ -257,7 +257,7 @@
   "lang": "EN",
   "owned": false,
   "tags": [],
-  "search_string": "Leona - Radiant Dawn Overnumbered 306/298",
+  "search_string": "Leona, Radiant Dawn Overnumbered 306/298",
   "price_usd": null,
   "price_checked": null
  }
