@@ -26,8 +26,8 @@
    "eevee"
   ],
   "search_string": "Umbreon ex SVP 110",
-  "price_usd": 66.12,
-  "price_checked": "Nov 18, 2026"
+  "price_usd": 65.16,
+  "price_checked": "Nov 19, 2026"
  },
  {
   "name": "Espeon ex",
@@ -41,7 +41,224 @@
    "eevee"
   ],
   "search_string": "Espeon ex SVP 108",
-  "price_usd": 37.72,
-  "price_checked": "Nov 18, 2026"
+  "price_usd": 33.5,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Mega Rayquaza ex",
+  "number": "138/103",
+  "set": "Delta Reign",
+  "game": "pokemon",
+  "rarity": "Special Illustration Rare",
+  "lang": "EN",
+  "owned": false,
+  "tags": [
+   "mega",
+   "art"
+  ],
+  "search_string": "Mega Rayquaza ex 138/103",
+  "price_usd": 277.29,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "M Rayquaza EX",
+  "number": "61/108",
+  "set": "Roaring Skies",
+  "game": "pokemon",
+  "rarity": "Ultra Rare",
+  "lang": "EN",
+  "owned": false,
+  "tags": [
+   "mega"
+  ],
+  "search_string": "M Rayquaza EX 61/108",
+  "price_usd": 144.13,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "MGallade EX",
+  "number": "081/078",
+  "set": "Emerald Break",
+  "game": "pokemon",
+  "rarity": "Secret Rare",
+  "lang": "JP",
+  "owned": false,
+  "tags": [
+   "ralts",
+   "mega",
+   "jp"
+  ],
+  "search_string": "MGallade EX 081/078",
+  "price_usd": null,
+  "price_checked": null
+ },
+ {
+  "name": "Pouty Poro (Overnumbered)",
+  "number": "220/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Pouty Poro Overnumbered 220/219",
+  "price_usd": 143.34,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Lonely Poro (Overnumbered)",
+  "number": "221/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Lonely Poro Overnumbered 221/219",
+  "price_usd": 287.64,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Plundering Poro (Overnumbered)",
+  "number": "222/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Plundering Poro Overnumbered 222/219",
+  "price_usd": 165.81,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Veteran Poro (Overnumbered)",
+  "number": "223/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Veteran Poro Overnumbered 223/219",
+  "price_usd": 147.7,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Mystic Poro (Overnumbered)",
+  "number": "224/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Mystic Poro Overnumbered 224/219",
+  "price_usd": 154.3,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Daring Poro (Overnumbered)",
+  "number": "225/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Daring Poro Overnumbered 225/219",
+  "price_usd": 140.75,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Pyke - Bloodharbor Ripper (Overnumbered)",
+  "number": "228/219",
+  "set": "Unleashed",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Pyke - Bloodharbor Ripper Overnumbered 228/219",
+  "price_usd": null,
+  "price_checked": null
+ },
+ {
+  "name": "Soraka - Wanderer (Overnumbered)",
+  "number": "239/221",
+  "set": "Spiritforged",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Soraka - Wanderer Overnumbered 239/221",
+  "price_usd": null,
+  "price_checked": null
+ },
+ {
+  "name": "Bard - Mercurial (Overnumbered)",
+  "number": "228/221",
+  "set": "Spiritforged",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Bard - Mercurial Overnumbered 228/221",
+  "price_usd": null,
+  "price_checked": null
+ },
+ {
+  "name": "Seraphine, Starry-Eyed Songstress (Overnumbered)",
+  "number": "174/167",
+  "set": "Radiance",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Seraphine, Starry-Eyed Songstress Overnumbered 174/167",
+  "price_usd": 108.12,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Morgana, Vindictive (Overnumbered)",
+  "number": "186/166",
+  "set": "Vendetta",
+  "game": "riftbound",
+  "rarity": "Rare",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Morgana, Vindictive Overnumbered 186/166",
+  "price_usd": 96.76,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Leona, Determined",
+  "number": "184/166",
+  "set": "Vendetta",
+  "game": "riftbound",
+  "rarity": "Rare",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Leona, Determined 184/166",
+  "price_usd": 66.76,
+  "price_checked": "Nov 19, 2026"
+ },
+ {
+  "name": "Leona - Radiant Dawn (Overnumbered)",
+  "number": "306/298",
+  "set": "Origins",
+  "game": "riftbound",
+  "rarity": "Showcase",
+  "lang": "EN",
+  "owned": false,
+  "tags": [],
+  "search_string": "Leona - Radiant Dawn Overnumbered 306/298",
+  "price_usd": null,
+  "price_checked": null
  }
 ]
