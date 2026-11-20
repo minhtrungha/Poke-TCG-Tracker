@@ -21,12 +21,15 @@
                      note attached to a replaced manual price is cleared.
      wishlist.json - price_usd / price_checked only, by set + number + name.
      cards.json    - fills in a missing set_key, by id.
+     images/need/ + need-images.json
+                   - art for cards not owned yet: new files are copied in and
+                     the maps are merged, the branch's entry winning.
 
    Everything else in those three files - which cards you own, quantities,
    wishlist entries - always comes from main, so collection edits are never
    overwritten by older branch data.
 */
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, readdir, copyFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -45,6 +48,28 @@ const when = (p) => {
   const t = Date.parse(p?.checked_date ?? '');
   return Number.isNaN(t) ? -Infinity : t;
 };
+
+/* --- card art for cards not owned yet ---------------------------------
+   The sync also fetches product shots for empty set slots and wishlist wants
+   into images/need/ and saves them on the branch beside the prices. Lay them
+   in and merge the map first, before anything below can exit: art does not
+   depend on whose prices are newer. Files are named for the card, so one
+   already present is the same picture and is left alone. Main's own map
+   entries stay; the branch adds to them and wins where both name a card. */
+const bArt = path.join(dir, 'images', 'need');
+if (existsSync(bArt)) {
+  const art = path.join(ROOT, 'images', 'need');
+  await mkdir(art, { recursive: true });
+  let added = 0;
+  for (const f of await readdir(bArt)) {
+    if (existsSync(path.join(art, f))) continue;
+    await copyFile(path.join(bArt, f), path.join(art, f));
+    added++;
+  }
+  const merged = { ...((await read(D('need-images.json'))) || {}), ...((await read(B('need-images.json'))) || {}) };
+  await write(D('need-images.json'), merged);
+  console.log(`card art: ${added} new image(s) from the branch, ${Object.keys(merged).length} cards mapped`);
+}
 
 /* --- prices.json ------------------------------------------------------- */
 const local = await read(D('prices.json'));

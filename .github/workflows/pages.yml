@@ -53,6 +53,13 @@ jobs:
           fi
       - name: Fetch prices from TCGCSV
         run: npm run prices:write
+      - name: Fetch art for cards not owned yet
+        # Product shots for empty set slots and wishlist wants, from the same
+        # catalogue the prices come from. Images already saved are kept, so
+        # only new wants download anything. Art is a nicety: if this fails,
+        # the prices above are still saved and deployed.
+        continue-on-error: true
+        run: node scripts/fetch-missing-images.mjs --write
       - name: Save to the prices-data branch
         run: |
           git config user.name 'github-actions[bot]'
@@ -65,7 +72,11 @@ jobs:
             git -C "$pd" checkout --orphan prices-data
             git -C "$pd" rm -rfq .
           fi
-          cp data/prices.json data/sealed.json data/wishlist.json data/cards.json "$pd/"
+          cp data/prices.json data/sealed.json data/wishlist.json data/cards.json data/need-images.json "$pd/"
+          # Art travels with the prices. Pictures identical to main's are the
+          # same git objects, so carrying them all costs nothing in storage.
+          mkdir -p "$pd/images/need"
+          cp images/need/* "$pd/images/need/"
           cat > "$pd/README.md" <<'EOF'
           Written by the weekly price sync in .github/workflows/pages.yml on main.
           Do not edit by hand: each deploy merges these files into data/ with

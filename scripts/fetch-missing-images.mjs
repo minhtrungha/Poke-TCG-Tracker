@@ -19,7 +19,6 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const P = (...a) => path.join(ROOT, ...a);
 const BASE = 'https://tcgcsv.com/tcgplayer';
-const CAT = { EN: 3, JP: 85 };
 const WRITE = process.argv.includes('--write');
 const UA = 'poke-tcg-tracker/1.0 (personal collection image sync)';
 const OUT = P('images/need');
@@ -64,12 +63,27 @@ const wish = JSON.parse(await readFile(P('data/wishlist.json'), 'utf8'));
 let aliases = {};
 try { aliases = JSON.parse(await readFile(P('data/aliases.json'), 'utf8')); } catch {}
 
+/* Each game's catalogue comes from data/games.json, as in fetch-prices.mjs.
+   This used to be fixed at Pokemon's two categories, so a Riftbound or One
+   Piece want could never be matched however long it sat on the list. A
+   record with no `game` is Pokemon, the collection this began as. */
+const games = JSON.parse(await readFile(P('data/games.json'), 'utf8'));
+const gameBy = new Map(games.map((g) => [g.key, g]));
+const gameOf = (r) => (r && r.game) || 'pokemon';
+/* The catalogue a card is matched in: its own game, its own language, and a
+   game's English catalogue when it has no Japanese one. Never another game. */
+const catFor = (n) => {
+  const cats = (gameBy.get(n.game) || {}).categories || {};
+  const lang = n.lang === 'JP' && cats.JP != null ? 'JP' : 'EN';
+  return { key: `${n.game}|${lang}`, cat: cats[lang], label: `${(gameBy.get(n.game) || {}).name || n.game} ${lang}` };
+};
+
 const need = [];
 for (const s of sets) {
   for (const sl of s.slots) {
     if (sl.card_id != null) continue;
     need.push({
-      kind: 'slot', setKey: s.key, set: s.name, lang: s.lang || 'EN',
+      kind: 'slot', setKey: s.key, set: s.name, lang: s.lang || 'EN', game: gameOf(s),
       name: sl.name, number: sl.number,
       file: `${s.key}-${String(sl.number).replace(/[^A-Za-z0-9]/g, '_')}.jpg`,
     });
@@ -78,24 +92,30 @@ for (const s of sets) {
 for (const w of wish) {
   if (w.owned) continue;
   need.push({
-    kind: 'want', set: w.set, lang: w.lang || 'EN',
+    kind: 'want', set: w.set, lang: w.lang || 'EN', game: gameOf(w),
     name: w.name, number: w.number,
     file: `want-${String(w.name).replace(/[^A-Za-z0-9]/g, '_')}-${String(w.number).replace(/[^A-Za-z0-9]/g, '_')}.jpg`,
   });
 }
+const unknown = [...new Set(need.map((n) => n.game))].filter((k) => !gameBy.has(k));
+if (unknown.length) {
+  console.error(`✗ unknown game key(s): ${unknown.join(', ')} (add it to data/games.json)`);
+  process.exit(1);
+}
 console.log(`need images for ${need.length} cards (${need.filter((n) => n.kind === 'slot').length} set slots, ${need.filter((n) => n.kind === 'want').length} wants)`);
 
-/* --- build catalogue for the languages we actually need --------------- */
-const langs = [...new Set(need.map((n) => (n.lang === 'JP' ? 'JP' : 'EN')))];
+/* --- build a catalogue for each game and language actually needed ------ */
 const catalogue = {};
-for (const lang of langs) {
-  process.stderr.write(`loading ${lang} catalogue...\n`);
-  const groups = rows(await j(`${BASE}/${CAT[lang]}/groups`));
+const jobs = new Map(need.map((n) => { const c = catFor(n); return [c.key, c]; }));
+for (const { key, cat, label } of jobs.values()) {
+  if (cat == null) { catalogue[key] = new Map(); continue; }
+  process.stderr.write(`loading ${label} catalogue (category ${cat})...\n`);
+  const groups = rows(await j(`${BASE}/${cat}/groups`));
   const byNum = new Map();
   let done = 0;
   for (const g of groups) {
     let prods;
-    try { prods = await j(`${BASE}/${CAT[lang]}/${g.groupId}/products`); } catch { continue; }
+    try { prods = await j(`${BASE}/${cat}/${g.groupId}/products`); } catch { continue; }
     for (const p of rows(prods)) {
       if (!p.imageUrl) continue;
       const k = numKey(prodNum(p));
@@ -105,8 +125,8 @@ for (const lang of langs) {
     }
     if (++done % 60 === 0) process.stderr.write(`  ${done}/${groups.length}\n`);
   }
-  catalogue[lang] = byNum;
-  process.stderr.write(`  ${lang}: ${byNum.size} numbers\n`);
+  catalogue[key] = byNum;
+  process.stderr.write(`  ${label}: ${byNum.size} numbers\n`);
 }
 
 /* --- match --------------------------------------------------------- */
@@ -117,7 +137,7 @@ for (const n of need) {
   // A verified alias names the exact upstream product, so use it directly.
   const al = n.kind === 'slot' ? aliases[`${n.setKey}|${String(n.number).trim().toUpperCase()}`] : null;
   if (al) {
-    const idxA = catalogue[n.lang === 'JP' ? 'JP' : 'EN'];
+    const idxA = catalogue[catFor(n).key];
     let hit = null;
     for (const list of idxA.values()) {
       const m = list.find((x) => x.name === al.product);
@@ -125,7 +145,7 @@ for (const n of need) {
     }
     if (hit) { found.push({ ...n, img: hit.img.replace(/_\d+w\.jpg$/, '_400w.jpg'), prod: hit.name }); continue; }
   }
-  const idx = catalogue[n.lang === 'JP' ? 'JP' : 'EN'];
+  const idx = catalogue[catFor(n).key];
   const keys = [numKey(n.number)];
   const pfx = normNum(n.number).match(/^([A-Z]{2,4})\s*(\d+)$/);
   if (pfx) keys.push(String(+pfx[2]));
@@ -174,7 +194,7 @@ for (const n of need) {
 
 console.log(`matched ${found.length}/${need.length}; no product image for ${missing.length}`);
 if (missing.length) {
-  for (const m of missing.slice(0, 25)) console.log(`  - ${m.name} ${m.number} [${m.lang}] ${m.set}`);
+  for (const m of missing.slice(0, 25)) console.log(`  - ${m.name} ${m.number} [${m.game} ${m.lang}] ${m.set}`);
   if (missing.length > 25) console.log(`  ...and ${missing.length - 25} more`);
 }
 

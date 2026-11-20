@@ -291,6 +291,14 @@ the empty set slots and the wishlist — into `images/need/`, and writes
 `data/need-images.json` mapping each slot to its file. Owned cards always keep
 your own photos; this never touches `images/cards/`.
 
+It covers every game in `data/games.json`, matching each card only inside its
+own game's catalogue. You rarely need to run it yourself: the price sync runs it
+straight after the prices and saves the art on the `prices-data` branch beside
+them, and every deploy lays that art over `images/need/`. A card added to the
+wishlist gets its picture on the next sync — the Sunday one, or **Run workflow**
+now. Pictures already saved are kept, so only new wants download anything, and
+a failed art step never stops the prices.
+
 Not every card is found: McDonald's 2021 and Delta Species δ cards are named
 differently on TCGplayer, so they keep the Pokéball placeholder.
 
